@@ -98,7 +98,7 @@ export default function Page() {
                         Our first project offers daily snapshots of OpenStreetMap in{" "}
                         <strong>PBF</strong> and <strong>GOL</strong> formats.
                     </p>
-                    <p className="mb-8 text-gray-700">
+                    <p className="mb-4 text-gray-700">
                         Snapshots are proudly hosted on{" "}
                         <a
                             href="https://developers.cloudflare.com/r2/"
@@ -121,7 +121,9 @@ export default function Page() {
                         </a>{" "}
                         to enable lightning-fast spatial queries.
                     </p>
-
+                    <p className="mb-8">
+                        Questions or feedback? <a href="mailto:hello@openplanetdata.com" className="underline hover:text-neutral-800">hello@openplanetdata.com</a>
+                    </p>
                     <h2 className="text-2xl font-bold mb-6">OpenStreetMap Snapshots</h2>
 
                     <Card>
