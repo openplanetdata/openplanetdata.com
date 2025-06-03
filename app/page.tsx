@@ -112,7 +112,7 @@ export default function Page() {
                         large datasets. Files in GOL format are indexed variants of PBF
                         versions using{" "}
                         <a
-                            href="https://github.com/geodesk/geodesk"
+                            href="https://geodesk.com"
                             target="_blank"
                             rel="noopener"
                             className="underline hover:text-neutral-800"
