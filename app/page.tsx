@@ -122,7 +122,7 @@ export default function Page() {
                         to enable lightning-fast spatial queries.
                     </p>
                     <p className="mb-8">
-                        Questions or feedback? <a href="mailto:hello@openplanetdata.com" className="underline hover:text-neutral-800">hello@openplanetdata.com</a>
+                        Questions or feedback? <a href="mailto:hello@openplanetdata.com" className="underline hover:text-neutral-800">Contact us</a>.
                     </p>
                     <h2 className="text-2xl font-bold mb-6">OpenStreetMap Snapshots</h2>
 
