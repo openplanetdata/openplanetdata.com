@@ -4,15 +4,15 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import {
     Table,
-    TableHeader,
-    TableRow,
-    TableHead,
     TableBody,
     TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Copy as CopyIcon, Check } from "lucide-react";
+import { Check, Copy as CopyIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface FileItem {
@@ -26,14 +26,14 @@ interface FileItem {
 
 const humanFileSize = (bytes: number) => {
     const thresh = 1024;
-    if (Math.abs(bytes) < thresh) return bytes + " B";
+    if (Math.abs(bytes) < thresh) return `${bytes} B`;
     const units = ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB"];
     let u = -1;
     do {
         bytes /= thresh;
         ++u;
     } while (Math.abs(bytes) >= thresh && u < units.length - 1);
-    return bytes.toFixed(1) + " " + units[u];
+    return `${bytes.toFixed(1)} ${units[u]}`;
 };
 
 const truncateHash = (hash?: string) =>
@@ -41,10 +41,11 @@ const truncateHash = (hash?: string) =>
 
 export default function Page() {
     const [files, setFiles] = useState<FileItem[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [osmLoading, setOsmLoading] = useState(true);
     const [tzFile, setTzFile] = useState<FileItem | null>(null);
     const [tzLoading, setTzLoading] = useState(true);
 
+    /* ---------- OpenStreetMap snapshots ---------- */
     useEffect(() => {
         (async () => {
             try {
@@ -52,44 +53,52 @@ export default function Page() {
                     "https://download.openplanetdata.com/osm/metadata.json"
                 );
                 const data = await res.json();
+
                 const items: FileItem[] = [];
                 Object.entries(data).forEach(([kind, arr]) => {
-                    (arr as any[]).forEach((item) => {
+                    (arr as any[]).forEach(item => {
                         const filename = (item.url as string).split("/").pop() || "";
                         items.push({ ...(item as any), kind, filename });
                     });
                 });
+
                 const withHash = await Promise.all(
-                    items.map(async (item) => {
+                    items.map(async item => {
                         try {
-                            const text = await fetch(item.url + ".sha256").then((r) =>
-                                r.text()
-                            );
+                            const text = await fetch(`${item.url}.sha256`).then(r => r.text());
                             return { ...item, sha256: text.split(" ")[0].trim() };
                         } catch {
                             return { ...item, sha256: "N/A" };
                         }
                     })
                 );
+
                 setFiles(withHash);
             } finally {
-                setLoading(false);
+                setOsmLoading(false);
             }
         })();
     }, []);
 
+    /* ---------- Time-zone snapshots ---------- */
     useEffect(() => {
         (async () => {
             try {
                 const baseUrl =
                     "https://download.openplanetdata.com/tz/planet/geoparquet/planet-latest.tz.geoparquet";
-                const meta = await fetch(baseUrl + ".metadata").then((r) => r.json());
+                const meta = await fetch(`${baseUrl}.metadata`).then(r => r.json());
+
                 let sha = "N/A";
                 try {
-                    sha = (await fetch(baseUrl + ".sha256").then((r) => r.text())).split(" ")[0].trim();
+                    sha = (
+                        await fetch(`${baseUrl}.sha256`).then(r => r.text())
+                    )
+                        .split(" ")[0]
+                        .trim();
                 } catch {
                     sha = "N/A";
                 }
+
                 setTzFile({
                     url: baseUrl,
                     size: meta.size,
@@ -106,8 +115,8 @@ export default function Page() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <main className="flex-grow w-full">
-                <div className="max-w-7xl mx-auto px-8 md:px-8 pt-12">
+            <main className="flex-grow max-w-10/12 mx-auto">
+                <div className="max-w-7xl mx-auto px-8 pt-12">
                     <Image
                         src="/logo+mark.png"
                         alt="Open Planet Data logo"
@@ -117,12 +126,13 @@ export default function Page() {
                         priority
                     />
 
-                    <p className="mb-4 text-gray-700 mt-10">
-                        Open Planet Data is an open and free initiative dedicated to making open data
-                        related to our beautiful planet <em>Earth</em> more accessible and efficient
-                        to use.
+                    <p className="mb-3 text-gray-700 mt-10">
+                        Open Planet Data is an open and free initiative dedicated to making open
+                        data related to our beautiful planet <em>Earth</em> more accessible and
+                        efficient to use.
                     </p>
-                    <p className="mb-4 text-gray-700">
+
+                    <p className="mb-3 text-gray-700">
                         Snapshots are proudly hosted on{" "}
                         <a
                             href="https://developers.cloudflare.com/r2/"
@@ -132,21 +142,26 @@ export default function Page() {
                         >
                             Cloudflare R2
                         </a>
-                        , a storage service optimized for fast ⚡, global scalable access to
-                        large datasets.
+                        , a storage service optimized for fast ⚡ global access to large datasets.
                     </p>
-                    <p className="mb-8 text-gray-700">
-                        Questions or feedback? <a href="mailto:hello@openplanetdata.com" className="underline hover:text-neutral-800">Contact us</a>.
-                    </p>
-                    <h2 className="text-2xl font-bold mb-6">OpenStreetMap Snapshots</h2>
 
-                    <p className="mb-4 text-gray-700">
-                        Here are daily snapshots of OpenStreetMap in{" "}
-                        <strong>PBF</strong> and <strong>GOL</strong> formats.
+                    <p className="mb-10 text-gray-700">
+                        Questions or feedback?{" "}
+                        <a
+                            href="mailto:hello@openplanetdata.com"
+                            className="underline hover:text-neutral-800"
+                        >
+                            Contact us
+                        </a>
+                        .
                     </p>
+
+                    {/* ---------- OSM section ---------- */}
+                    <h2 className="text-2xl font-bold mb-6">📍 OpenStreetMap Snapshots</h2>
+
                     <p className="mb-8 text-gray-700">
-                        Files in GOL format are indexed variants of PBF
-                        versions using{" "}
+                        Daily snapshots in <strong>PBF</strong> and <strong>GOL</strong>. GOL files
+                        are PBF variants indexed with{" "}
                         <a
                             href="https://geodesk.com"
                             target="_blank"
@@ -155,7 +170,8 @@ export default function Page() {
                         >
                             Geodesk
                         </a>{" "}
-                        to enable lightning-fast spatial queries.</p>
+                        for lightning-fast spatial queries.
+                    </p>
 
                     <Card>
                         <CardContent className="p-4 overflow-x-auto">
@@ -163,57 +179,66 @@ export default function Page() {
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead className="uppercase font-bold">Filename</TableHead>
-                                        <TableHead className="uppercase font-bold">Format</TableHead>
                                         <TableHead className="uppercase font-bold">Created</TableHead>
                                         <TableHead className="uppercase font-bold">Size</TableHead>
                                         <TableHead className="uppercase hidden sm:table-cell font-bold">
                                             Sha256
                                         </TableHead>
-                                        <TableHead className="text-right uppercase font-bold"></TableHead>
+                                        <TableHead className="text-right uppercase font-bold" />
                                     </TableRow>
                                 </TableHeader>
-
                                 <TableBody>
-                                    {loading ? (
+                                    {osmLoading ? (
                                         <TableRow>
-                                            <TableCell colSpan={6}>
+                                            <TableCell colSpan={5}>
                                                 <div className="flex items-center justify-center py-8">
                                                     <Loader2 className="animate-spin mr-2" /> Loading…
                                                 </div>
                                             </TableCell>
                                         </TableRow>
                                     ) : (
-                                        files.map((f) => <HashRow key={f.url} file={f} />)
+                                        files.map(f => <HashRow key={f.url} file={f} />)
                                     )}
                                 </TableBody>
                             </Table>
                         </CardContent>
                     </Card>
 
-                    <h2 className="text-2xl font-bold my-6">TimeZone Dataset</h2>
-                    <p className="mb-4 text-gray-700">
-                        Global timezone polygons in <strong>GeoParquet</strong> format.
+                    {/* ---------- Time-zone section ---------- */}
+                    <h2 className="text-2xl font-bold my-6 mt-8">🕑 Time Zone Snapshots</h2>
+
+                    <p className="mb-8 text-gray-700">
+                        Global time-zone polygons extracted daily from the latest{" "}
+                        <a
+                            href="https://github.com/evansiroky/timezone-boundary-builder/releases/"
+                            target="_blank"
+                            rel="noopener"
+                            className="underline hover:text-neutral-800"
+                        >
+                            timezone-boundary-builder
+                        </a>{" "}
+                        release (<em>timezones-with-oceans.geojson.zip</em>) and converted from
+                        GeoJSON to GeoParquet, a compact columnar format that speeds spatial queries.
                     </p>
+
                     <Card>
                         <CardContent className="p-4 overflow-x-auto">
                             <Table className="w-full text-sm">
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead className="uppercase font-bold">Filename</TableHead>
-                                        <TableHead className="uppercase font-bold">Format</TableHead>
                                         <TableHead className="uppercase font-bold">Created</TableHead>
                                         <TableHead className="uppercase font-bold">Size</TableHead>
                                         <TableHead className="uppercase hidden sm:table-cell font-bold">
                                             Sha256
                                         </TableHead>
-                                        <TableHead className="text-right uppercase font-bold"></TableHead>
+                                        <TableHead className="text-right uppercase font-bold" />
                                     </TableRow>
                                 </TableHeader>
-
                                 <TableBody>
                                     {tzLoading ? (
                                         <TableRow>
-                                            <TableCell colSpan={6}>
+                                            <TableCell colSpan={5}>
                                                 <div className="flex items-center justify-center py-8">
                                                     <Loader2 className="animate-spin mr-2" /> Loading…
                                                 </div>
@@ -229,8 +254,8 @@ export default function Page() {
                 </div>
             </main>
 
-            <footer className="w-full bg-neutral-50 text-sm text-gray-500">
-                <div className="max-w-7xl mx-auto px-8 md:px-8 py-12 space-y-2">
+            <footer className="w-full max-w-10/12 mx-auto bg-neutral-50 text-sm text-gray-500 text-center">
+                <div className="max-w-7xl mx-auto px-8 py-12 space-y-2">
                     <p>
                         OpenStreetMap data © OpenStreetMap contributors, licensed under the{" "}
                         <a
@@ -251,13 +276,13 @@ export default function Page() {
                             rel="noopener"
                             className="underline hover:text-neutral-800"
                         >
-                            Code for snapshots generation
+                            Code for snapshot generation
                         </a>{" "}
                         released under the MIT License.
                     </p>
                     <p>
-                        We are not affiliated with OpenStreetMap, Geodesk, or Cloudflare.
-                        All trademarks are the property of their respective owners.
+                        We are not affiliated with OpenStreetMap, Geodesk or Cloudflare. All
+                        trademarks are the property of their respective owners.
                     </p>
                 </div>
             </footer>
@@ -265,6 +290,7 @@ export default function Page() {
     );
 }
 
+/* ---------- Table row ---------- */
 function HashRow({ file }: { file: FileItem }) {
     const [copied, setCopied] = useState(false);
 
@@ -280,7 +306,6 @@ function HashRow({ file }: { file: FileItem }) {
             <TableCell className="font-mono break-all whitespace-pre-wrap">
                 {file.filename}
             </TableCell>
-            <TableCell>{file.kind.toUpperCase()}</TableCell>
             <TableCell>
                 {format(new Date(file.created * 1000), "yyyy-MM-dd HH:mm")}
             </TableCell>
