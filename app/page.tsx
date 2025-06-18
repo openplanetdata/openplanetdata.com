@@ -42,6 +42,8 @@ const truncateHash = (hash?: string) =>
 export default function Page() {
     const [files, setFiles] = useState<FileItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [tzFile, setTzFile] = useState<FileItem | null>(null);
+    const [tzLoading, setTzLoading] = useState(true);
 
     useEffect(() => {
         (async () => {
@@ -72,6 +74,32 @@ export default function Page() {
                 setFiles(withHash);
             } finally {
                 setLoading(false);
+            }
+        })();
+    }, []);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const baseUrl =
+                    "https://download.openplanetdata.com/tz/planet/geoparquet/planet-latest.tz.geoparquet";
+                const meta = await fetch(baseUrl + ".metadata").then((r) => r.json());
+                let sha = "N/A";
+                try {
+                    sha = (await fetch(baseUrl + ".sha256").then((r) => r.text())).split(" ")[0].trim();
+                } catch {
+                    sha = "N/A";
+                }
+                setTzFile({
+                    url: baseUrl,
+                    size: meta.size,
+                    created: meta.created,
+                    sha256: sha,
+                    kind: "geoparquet",
+                    filename: baseUrl.split("/").pop() || "",
+                });
+            } finally {
+                setTzLoading(false);
             }
         })();
     }, []);
@@ -157,6 +185,43 @@ export default function Page() {
                                     ) : (
                                         files.map((f) => <HashRow key={f.url} file={f} />)
                                     )}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+
+                    <h2 className="text-2xl font-bold my-6">TimeZone Dataset</h2>
+                    <p className="mb-4 text-gray-700">
+                        Global timezone polygons in <strong>GeoParquet</strong> format.
+                    </p>
+                    <Card>
+                        <CardContent className="p-4 overflow-x-auto">
+                            <Table className="w-full text-sm">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="uppercase font-bold">Filename</TableHead>
+                                        <TableHead className="uppercase font-bold">Format</TableHead>
+                                        <TableHead className="uppercase font-bold">Created</TableHead>
+                                        <TableHead className="uppercase font-bold">Size</TableHead>
+                                        <TableHead className="uppercase hidden sm:table-cell font-bold">
+                                            Sha256
+                                        </TableHead>
+                                        <TableHead className="text-right uppercase font-bold"></TableHead>
+                                    </TableRow>
+                                </TableHeader>
+
+                                <TableBody>
+                                    {tzLoading ? (
+                                        <TableRow>
+                                            <TableCell colSpan={6}>
+                                                <div className="flex items-center justify-center py-8">
+                                                    <Loader2 className="animate-spin mr-2" /> Loading…
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : tzFile ? (
+                                        <HashRow file={tzFile} />
+                                    ) : null}
                                 </TableBody>
                             </Table>
                         </CardContent>
