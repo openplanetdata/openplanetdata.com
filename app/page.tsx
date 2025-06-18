@@ -89,14 +89,10 @@ export default function Page() {
                         priority
                     />
 
-                    <p className="mb-4 text-gray-700">
-                        Open Planet Data is an open initiative dedicated to making open data
-                        related to our beautiful planet Earth more accessible and efficient
+                    <p className="mb-4 text-gray-700 mt-10">
+                        Open Planet Data is an open and free initiative dedicated to making open data
+                        related to our beautiful planet <em>Earth</em> more accessible and efficient
                         to use.
-                    </p>
-                    <p className="mb-4 text-gray-700">
-                        Our first project offers daily snapshots of OpenStreetMap in{" "}
-                        <strong>PBF</strong> and <strong>GOL</strong> formats.
                     </p>
                     <p className="mb-4 text-gray-700">
                         Snapshots are proudly hosted on{" "}
@@ -108,8 +104,20 @@ export default function Page() {
                         >
                             Cloudflare R2
                         </a>
-                        , a storage service optimized for fast, global scalable access to
-                        large datasets. Files in GOL format are indexed variants of PBF
+                        , a storage service optimized for fast ⚡, global scalable access to
+                        large datasets.
+                    </p>
+                    <p className="mb-8 text-gray-700">
+                        Questions or feedback? <a href="mailto:hello@openplanetdata.com" className="underline hover:text-neutral-800">Contact us</a>.
+                    </p>
+                    <h2 className="text-2xl font-bold mb-6">OpenStreetMap Snapshots</h2>
+
+                    <p className="mb-4 text-gray-700">
+                        Here are daily snapshots of OpenStreetMap in{" "}
+                        <strong>PBF</strong> and <strong>GOL</strong> formats.
+                    </p>
+                    <p className="mb-8 text-gray-700">
+                        Files in GOL format are indexed variants of PBF
                         versions using{" "}
                         <a
                             href="https://geodesk.com"
@@ -119,12 +127,7 @@ export default function Page() {
                         >
                             Geodesk
                         </a>{" "}
-                        to enable lightning-fast spatial queries.
-                    </p>
-                    <p className="mb-8">
-                        Questions or feedback? <a href="mailto:hello@openplanetdata.com" className="underline hover:text-neutral-800">Contact us</a>.
-                    </p>
-                    <h2 className="text-2xl font-bold mb-6">OpenStreetMap Snapshots</h2>
+                        to enable lightning-fast spatial queries.</p>
 
                     <Card>
                         <CardContent className="p-4 overflow-x-auto">
