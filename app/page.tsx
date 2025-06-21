@@ -293,6 +293,18 @@ export default function Page() {
 /* ---------- Table row ---------- */
 function HashRow({ file }: { file: FileItem }) {
     const [copied, setCopied] = useState(false);
+    const [rcloneOpen, setRcloneOpen] = useState(false);
+    const [rcloneCopied, setRcloneCopied] = useState(false);
+
+    const path = file.url.replace("https://download.openplanetdata.com/", "");
+    const rcloneCmd = [
+        "rclone copy \\",
+        "    --http-url https://download.openplanetdata.com :http:" + path + " . \\",
+        "    --multi-thread-cutoff 0 \\",
+        "    --multi-thread-streams 128 \\",
+        "    --multi-thread-chunk-size 512M \\",
+        "    --transfers 1 --progress",
+    ].join("\n");
 
     const copyHash = async () => {
         if (!file.sha256 || file.sha256 === "N/A") return;
@@ -301,7 +313,14 @@ function HashRow({ file }: { file: FileItem }) {
         setTimeout(() => setCopied(false), 1500);
     };
 
+    const copyRclone = async () => {
+        await navigator.clipboard.writeText(rcloneCmd);
+        setRcloneCopied(true);
+        setTimeout(() => setRcloneCopied(false), 1500);
+    };
+
     return (
+        <>
         <TableRow>
             <TableCell className="font-mono break-all whitespace-pre-wrap">
                 {file.filename}
@@ -325,12 +344,34 @@ function HashRow({ file }: { file: FileItem }) {
                 </div>
             </TableCell>
             <TableCell className="text-right">
-                <Button asChild>
-                    <a href={file.url} target="_blank" rel="noopener">
-                        Download
-                    </a>
-                </Button>
+                <div className="flex gap-2 justify-end">
+                    <Button asChild>
+                        <a href={file.url} target="_blank" rel="noopener">
+                            Download
+                        </a>
+                    </Button>
+                    <Button onClick={() => setRcloneOpen(true)} title="Show rclone command">
+                        Rclone
+                    </Button>
+                </div>
             </TableCell>
         </TableRow>
+        {rcloneOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                <div className="bg-white rounded-lg shadow-lg w-full max-w-xl">
+                    <div className="p-6 space-y-4">
+                        <p>Use the following rclone command to download the file quickly using parallel chunks:</p>
+                        <pre className="bg-neutral-100 rounded p-2 text-xs overflow-x-auto whitespace-pre-wrap">
+{rcloneCmd}
+                        </pre>
+                    </div>
+                    <div className="flex justify-end gap-2 border-t p-4">
+                        <Button onClick={copyRclone}>{rcloneCopied ? "Copied!" : "Copy"}</Button>
+                        <Button variant="outline" onClick={() => setRcloneOpen(false)}>Close</Button>
+                    </div>
+                </div>
+            </div>
+        )}
+        </>
     );
 }
