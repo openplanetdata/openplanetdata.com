@@ -73,7 +73,14 @@ export default function Page() {
                     })
                 );
 
-                setFiles(withHash);
+                // Sort by file extension
+                const sorted = withHash.sort((a, b) => {
+                    const extA = a.filename.split('.').pop() || '';
+                    const extB = b.filename.split('.').pop() || '';
+                    return extA.localeCompare(extB);
+                });
+
+                setFiles(sorted);
             } finally {
                 setOsmLoading(false);
             }
@@ -85,7 +92,7 @@ export default function Page() {
         (async () => {
             try {
                 const baseUrl =
-                    "https://download.openplanetdata.com/tz/planet/geoparquet/planet-latest.tz.geoparquet";
+                    "https://download.openplanetdata.com/tz/planet/geoparquet/planet-latest.tz.parquet";
                 const meta = await fetch(`${baseUrl}.metadata`).then(r => r.json());
 
                 let sha = "N/A";
@@ -160,8 +167,7 @@ export default function Page() {
                     <h2 className="text-2xl font-bold mb-6">📍 OpenStreetMap Snapshots</h2>
 
                     <p className="mb-8 text-gray-700">
-                        Daily snapshots in <strong>PBF</strong> and <strong>GOL</strong>. GOL files
-                        are PBF variants indexed with{" "}
+                        Daily snapshots in <strong>GEOPARQUET</strong>, <strong>GOL</strong> and <strong>PBF</strong> format. GOL files are PBF variants indexed with{" "}
                         <a
                             href="https://geodesk.com"
                             target="_blank"
@@ -322,57 +328,61 @@ function HashRow({ file }: { file: FileItem }) {
 
     return (
         <>
-        <TableRow>
-            <TableCell className="font-mono break-all whitespace-pre-wrap">
-                {file.filename}
-            </TableCell>
-            <TableCell>
-                {format(new Date(file.created * 1000), "yyyy-MM-dd HH:mm")}
-            </TableCell>
-            <TableCell>{humanFileSize(file.size)}</TableCell>
-            <TableCell className="font-mono break-all hidden sm:table-cell">
-                <div className="flex items-center gap-2">
-                    <span title={file.sha256}>{truncateHash(file.sha256)}</span>
-                    {file.sha256 && file.sha256 !== "N/A" && (
-                        <button
-                            onClick={copyHash}
-                            className="p-1 hover:bg-neutral-200 rounded"
-                            title={copied ? "Copied!" : "Copy"}
-                        >
-                            {copied ? <Check size={14} /> : <CopyIcon size={14} />}
-                        </button>
-                    )}
-                </div>
-            </TableCell>
-            <TableCell className="text-right">
-                <div className="flex gap-2 justify-end">
-                    <Button onClick={() => setRcloneOpen(true)} variant="outline" title="Show rclone command">
-                        Rclone
-                    </Button>
-                    <Button asChild>
-                        <a href={file.url} target="_blank" rel="noopener">
-                            Download
-                        </a>
-                    </Button>
-                </div>
-            </TableCell>
-        </TableRow>
-        {rcloneOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                <div className="bg-white rounded-lg shadow-lg w-full max-w-xl">
-                    <div className="p-6 space-y-4">
-                        <p>Use this rclone command to download multiple chunks in parallel. Tweak the option <code>--multi-thread-streams</code> to suit your bandwidth (128 maxes out an 8 Gbit/s link):</p>
-                        <pre className="bg-neutral-100 rounded p-2 text-xs overflow-x-auto whitespace-pre-wrap">
+            <TableRow>
+                <TableCell className="font-mono break-all whitespace-pre-wrap">
+                    {file.filename}
+                </TableCell>
+                <TableCell>
+                    {format(new Date(file.created * 1000), "yyyy-MM-dd HH:mm")}
+                </TableCell>
+                <TableCell>{humanFileSize(file.size)}</TableCell>
+                <TableCell className="font-mono break-all hidden sm:table-cell">
+                    <div className="flex items-center gap-2">
+                        <span title={file.sha256}>{truncateHash(file.sha256)}</span>
+                        {file.sha256 && file.sha256 !== "N/A" && (
+                            <button
+                                onClick={copyHash}
+                                className="p-1 hover:bg-neutral-200 rounded"
+                                title={copied ? "Copied!" : "Copy"}
+                            >
+                                {copied ? <Check size={14} /> : <CopyIcon size={14} />}
+                            </button>
+                        )}
+                    </div>
+                </TableCell>
+                <TableCell className="text-right">
+                    <div className="flex gap-2 justify-end">
+                        <Button onClick={() => setRcloneOpen(true)} variant="outline" title="Show rclone command">
+                            Rclone
+                        </Button>
+                        <Button asChild>
+                            <a href={file.url} target="_blank" rel="noopener">
+                                Download
+                            </a>
+                        </Button>
+                    </div>
+                </TableCell>
+            </TableRow>
+            {rcloneOpen && (
+                <tr>
+                    <td colSpan={5} style={{ padding: 0, border: 0 }}>
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                            <div className="bg-white rounded-lg shadow-lg w-full max-w-xl">
+                                <div className="p-6 space-y-4">
+                                    <p>Use this rclone command to download multiple chunks in parallel. Tweak the option <code>--multi-thread-streams</code> to suit your bandwidth (128 maxes out an 8 Gbit/s link):</p>
+                                    <pre className="bg-neutral-100 rounded p-2 text-xs overflow-x-auto whitespace-pre-wrap">
 {rcloneCmd}
-                        </pre>
-                    </div>
-                    <div className="flex justify-end gap-2 border-t p-4">
-                        <Button onClick={copyRclone}>{rcloneCopied ? "Copied!" : "Copy"}</Button>
-                        <Button variant="outline" onClick={() => setRcloneOpen(false)}>Close</Button>
-                    </div>
-                </div>
-            </div>
-        )}
+                                    </pre>
+                                </div>
+                                <div className="flex justify-end gap-2 border-t p-4">
+                                    <Button onClick={copyRclone}>{rcloneCopied ? "Copied!" : "Copy"}</Button>
+                                    <Button variant="outline" onClick={() => setRcloneOpen(false)}>Close</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            )}
         </>
     );
 }
