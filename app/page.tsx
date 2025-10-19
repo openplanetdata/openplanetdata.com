@@ -200,7 +200,7 @@ export default function Page() {
                             OpenStreetMap Snapshots
                         </h2>
                         <p className="text-gray-600 leading-relaxed">
-                            Daily OpenStreetMap snapshots in different formats. GOL files are PBF variants indexed with{" "}
+                            Daily OpenStreetMap snapshots in different formats. GOB and GOL files are PBF variants indexed with{" "}
                             <a
                                 href="https://geodesk.com"
                                 target="_blank"
@@ -367,6 +367,7 @@ function HashRow({ file }: { file: FileItem }) {
 
     const formatBadgeColor = (kind: string) => {
         switch (kind) {
+            case "GOB":
             case "GOL":
                 return "bg-blue-100 text-blue-700 border-blue-200";
             case "PARQUET":
@@ -391,7 +392,7 @@ function HashRow({ file }: { file: FileItem }) {
                             <span className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold border ${formatBadgeColor(file.kind)}`}>
                                 {file.kind}
                             </span>
-                            {file.kind === "GOL" && file.version && (
+                            {(file.kind === "GOB" || file.kind === "GOL") && file.version && (
                                 <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200">
                                     v{file.version}
                                 </span>
@@ -400,7 +401,7 @@ function HashRow({ file }: { file: FileItem }) {
                         <div className="font-mono text-sm text-gray-900 break-all">
                             {file.filename}
                         </div>
-                        {file.kind === "GOL" && file.version && (
+                        {(file.kind === "GOB" || file.kind === "GOL") && file.version && (
                             <div className="text-sm text-gray-500">
                                 for use with GeoDesk v{file.version}
                             </div>
