@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, Copy as CopyIcon, Loader2, AlertTriangle, Download as DownloadIcon } from "lucide-react";
 import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 
 interface FileItem {
     created: number;
@@ -407,8 +408,8 @@ function HashRow({ file }: { file: FileItem }) {
                     </div>
                 </TableCell>
                 <TableCell className={`py-5 px-4 text-sm text-gray-700 whitespace-nowrap ${file.deprecated && file.deprecation_reason ? "border-b-0" : ""}`}>
-                    <div className="font-medium">{format(new Date(file.created * 1000), "MMM d, yyyy")}</div>
-                    <div className="font-medium text-gray-500 mt-0.5">{format(new Date(file.created * 1000), "HH:mm")} UTC</div>
+                    <div className="font-medium">{formatInTimeZone(new Date(file.created * 1000), "UTC", "MMM d, yyyy")}</div>
+                    <div className="font-medium text-gray-500 mt-0.5">{formatInTimeZone(new Date(file.created * 1000), "UTC", "HH:mm")} UTC</div>
                 </TableCell>
                 <TableCell className={`py-5 px-4 text-sm font-semibold text-gray-900 whitespace-nowrap ${file.deprecated && file.deprecation_reason ? "border-b-0" : ""}`}>
                     {humanFileSize(file.size)}
