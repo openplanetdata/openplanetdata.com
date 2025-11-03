@@ -344,11 +344,13 @@ function HashRow({ file }: { file: FileItem }) {
     const path = file.url.replace("https://download.openplanetdata.com/", "");
     const rcloneCmd = [
         "rclone copy \\",
+        "    --buffer-size 0 \\",
+        "    --disable-http2 \\",
         "    --http-url https://download.openplanetdata.com \\",
         "    :http:" + path + " . \\",
         "    --multi-thread-cutoff 0 \\",
-        "    --multi-thread-streams 768 \\",
-        "    --multi-thread-chunk-size 120M \\",
+        "    --multi-thread-streams 64 \\",
+        "    --multi-thread-chunk-size 32M \\",
         "    --transfers 1 --progress",
     ].join("\n");
 
@@ -468,7 +470,7 @@ function HashRow({ file }: { file: FileItem }) {
                                     <h3 className="text-lg font-semibold text-gray-900">Download with Rclone</h3>
                                     <p className="text-sm text-gray-600">
                                         Use this Rclone command to download multiple chunks in parallel.
-                                        Adjust <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">--multi-thread-streams</code> to match your bandwidth (128 maxes out an 8 Gbit/s link).
+                                        Adjust <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs">--multi-thread-streams</code> to match your bandwidth (the settings below maxes out an 8 Gbit/s link).
                                     </p>
                                     <pre className="bg-gray-900 text-gray-100 rounded-lg p-4 text-xs overflow-x-auto border border-gray-700">
 {rcloneCmd}
