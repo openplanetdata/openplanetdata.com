@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 360">
+  <!-- Row 1 -->
+  <ellipse cx="176" cy="35" rx="28" ry="28" fill="#00d1ff"/>
+
+  <!-- Row 2 -->
+  <ellipse cx="95" cy="70" rx="20" ry="32" fill="#66e5ff" transform="rotate(-25 95 70)"/>
+  <ellipse cx="160" cy="75" rx="35" ry="35" fill="#0a8fb3"/>
+  <ellipse cx="240" cy="75" rx="35" ry="35" fill="#00d1ff"/>
+  <ellipse cx="290" cy="70" rx="20" ry="32" fill="#0a8fb3" transform="rotate(25 290 70)"/>
+
+  <!-- Row 3 -->
+  <ellipse cx="55" cy="135" rx="18" ry="35" fill="#00d1ff" transform="rotate(-40 55 135)"/>
+  <ellipse cx="120" cy="140" rx="40" ry="40" fill="#066a85"/>
+  <ellipse cx="210" cy="140" rx="40" ry="40" fill="#0a8fb3"/>
+  <ellipse cx="295" cy="135" rx="18" ry="35" fill="#066a85" transform="rotate(40 295 135)"/>
+
+  <!-- Row 4 (middle) -->
+  <ellipse cx="45" cy="200" rx="15" ry="32" fill="#0a8fb3" transform="rotate(-50 45 200)"/>
+  <ellipse cx="110" cy="205" rx="45" ry="45" fill="#00d1ff"/>
+  <ellipse cx="200" cy="205" rx="45" ry="45" fill="#066a85"/>
+  <ellipse cx="305" cy="200" rx="15" ry="32" fill="#00d1ff" transform="rotate(50 305 200)"/>
+
+  <!-- Row 5 -->
+  <ellipse cx="55" cy="265" rx="18" ry="35" fill="#066a85" transform="rotate(-40 55 265)"/>
+  <ellipse cx="130" cy="270" rx="40" ry="40" fill="#0a8fb3"/>
+  <ellipse cx="220" cy="270" rx="40" ry="40" fill="#00d1ff"/>
+  <ellipse cx="295" cy="265" rx="18" ry="35" fill="#0a8fb3" transform="rotate(40 295 265)"/>
+
+  <!-- Row 6 -->
+  <ellipse cx="95" cy="320" rx="20" ry="32" fill="#00d1ff" transform="rotate(-25 95 320)"/>
+  <ellipse cx="176" cy="325" rx="35" ry="35" fill="#066a85"/>
+  <ellipse cx="257" cy="320" rx="20" ry="32" fill="#66e5ff" transform="rotate(25 257 320)"/>
+</svg>

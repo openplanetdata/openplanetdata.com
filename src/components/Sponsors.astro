@@ -1,0 +1,68 @@
+---
+// Sponsors component displaying our main sponsors
+import cloudfareLogo from '../assets/cloudflare-logo.svg';
+import ipregistryLogo from '../assets/ipregistry-logo.svg';
+---
+
+<div class="sponsors-section">
+  <p class="sponsors-title">Supported by</p>
+  <div class="sponsors-grid">
+    <a href="https://www.cloudflare.com" target="_blank" rel="noopener noreferrer" class="sponsor-link">
+      <img src={cloudfareLogo.src} alt="Cloudflare" class="sponsor-logo cloudflare-logo" />
+    </a>
+    <a href="https://ipregistry.co" target="_blank" rel="noopener noreferrer" class="sponsor-link">
+      <img src={ipregistryLogo.src} alt="Ipregistry" class="sponsor-logo ipregistry-logo" />
+    </a>
+  </div>
+</div>
+
+<style>
+  .sponsors-section {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: var(--sl-color-gray-6);
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .sponsors-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--sl-color-gray-3);
+    margin: 0 0 1.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .sponsors-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4rem;
+    flex-wrap: wrap;
+  }
+
+  .sponsor-link {
+    display: flex;
+    align-items: center;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+
+  .sponsor-link:hover {
+    opacity: 0.8;
+    transform: translateY(-2px);
+  }
+
+  .sponsor-logo {
+    height: auto;
+    width: auto;
+  }
+
+  .cloudflare-logo {
+    height: 120px;
+  }
+
+  .ipregistry-logo {
+    height: 100px;
+  }
+</style>

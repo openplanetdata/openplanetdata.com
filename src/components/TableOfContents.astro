@@ -1,0 +1,199 @@
+---
+interface TocItem {
+	depth: number;
+	slug: string;
+	text: string;
+	children: TocItem[];
+}
+
+const { toc } = Astro.locals.starlightRoute;
+---
+
+{
+	toc && (
+		<starlight-toc data-min-h={toc.minHeadingLevel} data-max-h={toc.maxHeadingLevel}>
+			<nav aria-labelledby="starlight__on-this-page">
+				<h2 id="starlight__on-this-page">
+					<svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+						<path d="M2.44434 12.6665H13.5554" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M2.44434 3.3335H13.5554" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M2.44434 8H7.33323" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+					{Astro.locals.t('tableOfContents.onThisPage')}
+				</h2>
+				<ul class="toc-list" data-depth="0">
+					{toc.items.map((heading: TocItem) => (
+						<li>
+							<a href={'#' + heading.slug}>
+								<span>{heading.text}</span>
+							</a>
+							{heading.children.length > 0 && (
+								<ul class="toc-list" data-depth="1">
+									{heading.children.map((child: TocItem) => (
+										<li>
+											<a href={'#' + child.slug}>
+												<span>{child.text}</span>
+											</a>
+											{child.children.length > 0 && (
+												<ul class="toc-list" data-depth="2">
+													{child.children.map((grandchild: TocItem) => (
+														<li>
+															<a href={'#' + grandchild.slug}>
+																<span>{grandchild.text}</span>
+															</a>
+														</li>
+													))}
+												</ul>
+											)}
+										</li>
+									))}
+								</ul>
+							)}
+						</li>
+					))}
+				</ul>
+			</nav>
+		</starlight-toc>
+	)
+}
+
+<script>
+const PAGE_TITLE_ID = '_top';
+
+class StarlightTOC extends HTMLElement {
+	private _current = this.querySelector<HTMLAnchorElement>('a[aria-current="true"]');
+	private minH = parseInt(this.dataset.minH || '2', 10);
+	private maxH = parseInt(this.dataset.maxH || '3', 10);
+
+	protected set current(link: HTMLAnchorElement) {
+		if (link === this._current) return;
+		if (this._current) this._current.removeAttribute('aria-current');
+		link.setAttribute('aria-current', 'true');
+		this._current = link;
+	}
+
+	private onIdle = (cb: IdleRequestCallback) =>
+		(window.requestIdleCallback || ((cb) => setTimeout(cb, 1)))(cb);
+
+	constructor() {
+		super();
+		this.onIdle(() => this.init());
+	}
+
+	private init = (): void => {
+		const links = [...this.querySelectorAll('a')];
+
+		const isHeading = (el: Element): el is HTMLHeadingElement => {
+			if (el instanceof HTMLHeadingElement) {
+				if (el.id === PAGE_TITLE_ID) return true;
+				const level = el.tagName[1];
+				if (level) {
+					const int = parseInt(level, 10);
+					if (int >= this.minH && int <= this.maxH) return true;
+				}
+			}
+			return false;
+		};
+
+		const getElementHeading = (el: Element | null): HTMLHeadingElement | null => {
+			if (!el) return null;
+			const origin = el;
+			while (el) {
+				if (isHeading(el)) return el;
+				el = el.previousElementSibling;
+				while (el?.lastElementChild) {
+					el = el.lastElementChild;
+				}
+				const h = getElementHeading(el);
+				if (h) return h;
+			}
+			return getElementHeading(origin.parentElement);
+		};
+
+		const setCurrent: IntersectionObserverCallback = (entries) => {
+			for (const { isIntersecting, target } of entries) {
+				if (!isIntersecting) continue;
+				const heading = getElementHeading(target);
+				if (!heading) continue;
+				const link = links.find((link) => link.hash === '#' + encodeURIComponent(heading.id));
+				if (link) {
+					this.current = link;
+					break;
+				}
+			}
+		};
+
+		const toObserve = document.querySelectorAll('main [id], main [id] ~ *, main .content > *');
+
+		let observer: IntersectionObserver | undefined;
+		const observe = () => {
+			if (observer) return;
+			observer = new IntersectionObserver(setCurrent, { rootMargin: this.getRootMargin() });
+			toObserve.forEach((h) => observer!.observe(h));
+		};
+		observe();
+
+		let timeout: ReturnType<typeof setTimeout>;
+		window.addEventListener('resize', () => {
+			if (observer) {
+				observer.disconnect();
+				observer = undefined;
+			}
+			clearTimeout(timeout);
+			timeout = setTimeout(() => this.onIdle(observe), 200);
+		});
+	};
+
+	private getRootMargin(): `-${number}px 0% ${number}px` {
+		const navBarHeight = document.querySelector('header')?.getBoundingClientRect().height || 0;
+		const mobileTocHeight = this.querySelector('summary')?.getBoundingClientRect().height || 0;
+		const top = navBarHeight + mobileTocHeight + 32;
+		const bottom = top + 53;
+		const height = document.documentElement.clientHeight;
+		return `-${top}px 0% ${bottom - height}px`;
+	}
+}
+
+customElements.define('starlight-toc', StarlightTOC);
+</script>
+
+<style>
+	h2 {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	h2 svg {
+		flex-shrink: 0;
+	}
+
+	.toc-list {
+		padding: 0;
+		list-style: none;
+	}
+
+	.toc-list a {
+		--pad-inline: 0.5rem;
+		display: block;
+		border-radius: 0.25rem;
+		padding-block: 0.25rem;
+		line-height: 1.25;
+	}
+
+	.toc-list[data-depth="0"] > li > a {
+		padding-inline: var(--pad-inline);
+	}
+
+	.toc-list[data-depth="1"] > li > a {
+		padding-inline: calc(1rem + var(--pad-inline)) var(--pad-inline);
+	}
+
+	.toc-list[data-depth="2"] > li > a {
+		padding-inline: calc(2rem + var(--pad-inline)) var(--pad-inline);
+	}
+
+	.toc-list a[aria-current='true'] {
+		color: var(--sl-color-text-accent);
+	}
+</style>

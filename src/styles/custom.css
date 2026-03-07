@@ -1,0 +1,178 @@
+/* Cloudflare-inspired theme for Open Planet Data */
+
+/* Light mode */
+:root {
+  --sl-color-accent-low: #e0f7ff;
+  --sl-color-accent: #00b8e6;
+  --sl-color-accent-high: #0088aa;
+}
+
+/* Dark mode - Synthetix-inspired deep navy/dark theme */
+:root[data-theme='dark'] {
+  --sl-color-accent-low: #0a2a33;
+  --sl-color-accent: #00d1ff;
+  --sl-color-accent-high: #66e5ff;
+
+  /* Deep navy/dark backgrounds like Synthetix */
+  --sl-color-bg: #0d0d14;
+  --sl-color-bg-nav: #12121a;
+  --sl-color-bg-sidebar: #12121a;
+  --sl-color-bg-inline-code: #1a1a24;
+
+  /* Darker grays with navy tint */
+  --sl-color-gray-1: #e8e8ec;
+  --sl-color-gray-2: #c4c4cc;
+  --sl-color-gray-3: #8f8fa0;
+  --sl-color-gray-4: #5c5c6e;
+  --sl-color-gray-5: #3a3a48;
+  --sl-color-gray-6: #1e1e28;
+  --sl-color-gray-7: #141420;
+
+  /* Borders and hairlines */
+  --sl-color-hairline: #2a2a38;
+  --sl-color-hairline-light: #1e1e28;
+
+  /* Black and white */
+  --sl-color-black: #0a0a10;
+  --sl-color-white: #f0f0f4;
+}
+
+/* Header styling */
+header.header {
+  border-bottom: 1px solid var(--sl-color-hairline-light);
+}
+
+/* Logo glow effect for dark theme */
+:root[data-theme='dark'] .site-title img {
+  filter: drop-shadow(0 0 8px rgba(0, 209, 255, 0.4));
+  transition: filter 0.3s ease;
+}
+
+:root[data-theme='dark'] .site-title:hover img {
+  filter: drop-shadow(0 0 12px rgba(0, 209, 255, 0.6));
+}
+
+/* Header title text color */
+:root[data-theme='dark'] .site-title span {
+  color: var(--sl-color-white);
+}
+
+.site-title span {
+  font-weight: 600;
+}
+
+/* Sidebar styling */
+.sidebar-content {
+  font-size: 0.9rem;
+}
+
+/* Card styling improvements */
+.card {
+  border-radius: 8px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Link styling */
+a {
+  transition: color 0.15s ease;
+}
+
+/* Hero section improvements */
+.hero {
+  padding: 4rem 0;
+}
+
+/* Sponsors section */
+.sponsors-section {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: var(--sl-color-gray-6);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.sponsors-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--sl-color-gray-3);
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sponsors-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+
+.sponsor-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--sl-color-white);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.1rem;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.sponsor-link:hover {
+  color: var(--sl-color-accent);
+  transform: translateY(-2px);
+}
+
+.sponsor-logo {
+  height: 32px;
+  width: auto;
+}
+
+/* Feature cards */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.feature-card {
+  padding: 1.5rem;
+  background: var(--sl-color-bg);
+  border: 1px solid var(--sl-color-hairline-light);
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature-card:hover {
+  border-color: var(--sl-color-accent);
+  box-shadow: 0 4px 12px rgba(0, 209, 255, 0.1);
+}
+
+.feature-card h3 {
+  margin-top: 0;
+  color: var(--sl-color-text);
+}
+
+/* Code blocks */
+.expressive-code {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Tables */
+table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Buttons */
+.action {
+  border-radius: 6px;
+  font-weight: 500;
+}
