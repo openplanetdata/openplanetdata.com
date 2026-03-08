@@ -1,28 +1,44 @@
 ---
 // Sponsors component displaying our main sponsors
 import cloudfareLogo from '../assets/cloudflare-logo.svg';
-import ipregistryLogo from '../assets/ipregistry-logo.svg';
+import cloudfareLogoDark from '../assets/cloudflare-logo-dark.svg';
 ---
 
 <div class="sponsors-section">
-  <p class="sponsors-title">Supported by</p>
+  <p class="sponsors-title">Sponsored by</p>
   <div class="sponsors-grid">
-    <a href="https://www.cloudflare.com" target="_blank" rel="noopener noreferrer" class="sponsor-link">
-      <img src={cloudfareLogo.src} alt="Cloudflare" class="sponsor-logo cloudflare-logo" />
+    <a href="https://www.cloudflare.com" target="_blank" rel="noopener" class="sponsor-link">
+      <img src={cloudfareLogo.src} alt="Cloudflare" class="sponsor-logo cloudflare-logo cloudflare-light" />
+      <img src={cloudfareLogoDark.src} alt="Cloudflare" class="sponsor-logo cloudflare-logo cloudflare-dark" />
     </a>
-    <a href="https://ipregistry.co" target="_blank" rel="noopener noreferrer" class="sponsor-link">
-      <img src={ipregistryLogo.src} alt="Ipregistry" class="sponsor-logo ipregistry-logo" />
+    <a href="https://ipregistry.co" target="_blank" rel="noopener" class="sponsor-link ipregistry-link">
+      <img src="https://cdn.ipregistry.co/logo/symbol/ipregistry-symbol.svg" alt="Ipregistry" class="ipregistry-icon" />
+      <span class="ipregistry-text">ipregistry</span>
     </a>
   </div>
 </div>
 
 <style>
+  @font-face {
+    font-display: swap;
+    font-family: "Ipregistry Realtime";
+    src: url("https://ipregistry-cdn.web.app/fonts/realtime/realtime-bold.woff2") format("woff2");
+    font-weight: 600;
+    font-style: normal;
+  }
+
   .sponsors-section {
     margin-top: 3rem;
-    padding: 2rem;
-    background: var(--sl-color-gray-6);
-    border-radius: 12px;
+    padding: 2.5rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur, 16px)) saturate(1.3);
+    -webkit-backdrop-filter: blur(var(--glass-blur, 16px)) saturate(1.3);
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.5));
+    border-radius: 20px;
     text-align: center;
+    box-shadow: var(--glass-shadow, 0 8px 32px rgba(45,74,62,0.08));
+    position: relative;
+    overflow: hidden;
   }
 
   .sponsors-title {
@@ -45,12 +61,12 @@ import ipregistryLogo from '../assets/ipregistry-logo.svg';
   .sponsor-link {
     display: flex;
     align-items: center;
-    transition: opacity 0.15s ease, transform 0.15s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .sponsor-link:hover {
-    opacity: 0.8;
-    transform: translateY(-2px);
+    opacity: 0.85;
+    transform: translateY(-3px);
   }
 
   .sponsor-logo {
@@ -62,7 +78,41 @@ import ipregistryLogo from '../assets/ipregistry-logo.svg';
     height: 120px;
   }
 
-  .ipregistry-logo {
-    height: 100px;
+  .cloudflare-dark {
+    display: none;
+  }
+
+  :root[data-theme='dark'] .cloudflare-light {
+    display: none;
+  }
+
+  :root[data-theme='dark'] .cloudflare-dark {
+    display: block;
+  }
+
+  .ipregistry-link {
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .ipregistry-icon {
+    height: 60px;
+    width: 60px;
+    display: block;
+  }
+
+  .ipregistry-text {
+    font-family: "Ipregistry Realtime", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    font-size: 2.4rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #56575B !important;
+    text-decoration: none !important;
+    line-height: 1;
+    padding-bottom: 0.35em;
+  }
+
+  :root[data-theme='dark'] .ipregistry-text {
+    color: #fff !important;
   }
 </style>

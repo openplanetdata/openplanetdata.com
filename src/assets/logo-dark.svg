@@ -1,6 +1,30 @@
-<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="16" cy="16" r="14" stroke="#ffffff" stroke-width="2" fill="none"/>
-  <ellipse cx="16" cy="16" rx="14" ry="6" stroke="#ffffff" stroke-width="1.5" fill="none"/>
-  <ellipse cx="16" cy="16" rx="6" ry="14" stroke="#ffffff" stroke-width="1.5" fill="none"/>
-  <circle cx="16" cy="16" r="3" fill="#f6821f"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2.5 0 358 358" fill="none">
+  <defs>
+    <radialGradient id="mint" cx="35%" cy="30%" r="85%">
+      <stop offset="0%" stop-color="#97D7AF"/>
+      <stop offset="100%" stop-color="#79BF9E"/>
+    </radialGradient>
+    <radialGradient id="teal" cx="35%" cy="30%" r="85%">
+      <stop offset="0%" stop-color="#2F7186"/>
+      <stop offset="100%" stop-color="#295F73"/>
+    </radialGradient>
+    <radialGradient id="cyan" cx="35%" cy="30%" r="85%">
+      <stop offset="0%" stop-color="#8ADAE8"/>
+      <stop offset="100%" stop-color="#6FC3D7"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="77.380" cy="49.609" rx="46.576" ry="14.848" transform="rotate(137.019 77.380 49.609)" fill="url(#cyan)"/>
+  <ellipse cx="171.340" cy="38.614" rx="47.134" ry="38.637" transform="rotate(-173.872 171.340 38.614)" fill="url(#mint)"/>
+  <ellipse cx="264.035" cy="42.746" rx="50.834" ry="17.015" transform="rotate(-145.580 264.035 42.746)" fill="url(#teal)"/>
+  <ellipse cx="23.216" cy="131.868" rx="46.967" ry="19.182" transform="rotate(104.586 23.216 131.868)" fill="url(#mint)"/>
+  <ellipse cx="107.983" cy="127.815" rx="55.179" ry="53.529" transform="rotate(152.119 107.983 127.815)" fill="url(#mint)"/>
+  <ellipse cx="229.772" cy="128.583" rx="57.471" ry="54.661" transform="rotate(-172.936 229.772 128.583)" fill="url(#teal)"/>
+  <ellipse cx="321.362" cy="131.533" rx="53.416" ry="26.132" transform="rotate(74.074 321.362 131.533)" fill="url(#teal)"/>
+  <ellipse cx="27.744" cy="229.896" rx="51.709" ry="23.708" transform="rotate(71.369 27.744 229.896)" fill="url(#teal)"/>
+  <ellipse cx="113.703" cy="237.304" rx="53.437" ry="50.094" transform="rotate(-143.945 113.703 237.304)" fill="url(#teal)"/>
+  <ellipse cx="228.225" cy="240.313" rx="55.190" ry="52.544" transform="rotate(163.268 228.225 240.313)" fill="url(#mint)"/>
+  <ellipse cx="321.019" cy="235.146" rx="50.906" ry="25.301" transform="rotate(112.371 321.019 235.146)" fill="url(#cyan)"/>
+  <ellipse cx="80.142" cy="313.257" rx="46.359" ry="16.438" transform="rotate(-143.701 80.142 313.257)" fill="url(#teal)"/>
+  <ellipse cx="172.528" cy="325.639" rx="48.575" ry="31.642" transform="rotate(-178.250 172.528 325.639)" fill="url(#teal)"/>
+  <ellipse cx="263.577" cy="317.840" rx="47.520" ry="15.219" transform="rotate(144.179 263.577 317.840)" fill="url(#cyan)"/>
 </svg>

@@ -29,18 +29,22 @@ const links = config.social || [];
     width: 40px;
     height: 40px;
     padding: 0;
-    background: transparent;
-    border: 1px solid var(--sl-color-hairline);
+    background: var(--glass-bg, rgba(255,255,255,0.45));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.5));
     border-radius: 50%;
     color: var(--sl-color-text);
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
 
   .social-icon:hover {
-    background: var(--sl-color-gray-6);
+    background: var(--glass-bg-hover, rgba(255,255,255,0.6));
     color: var(--sl-color-accent);
     border-color: var(--sl-color-accent);
+    box-shadow: 0 4px 16px rgba(45,106,79,0.15);
   }
 
   .social-icon svg {

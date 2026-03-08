@@ -29,6 +29,10 @@ import Pagination from '@astrojs/starlight/components/Pagination.astro';
 	</div>
 
 	<Pagination />
+
+	<div class="copyright">
+		&copy; {new Date().getFullYear()} OpenPlanetData &mdash; Made with &#10084; by <a href="https://github.com/laurentpellegrino" target="_blank" rel="noopener">Laurent Pellegrino</a> and <a href="https://github.com/openplanetdata" target="_blank" rel="noopener">contributors</a>.
+	</div>
 </footer>
 
 <script>
@@ -40,6 +44,26 @@ import Pagination from '@astrojs/starlight/components/Pagination.astro';
 				b.classList.remove('active');
 			});
 			button.classList.add('active');
+		});
+	});
+
+	// Make sidebar group labels clickable to their overview pages
+	const groupLinks: Record<string, string> = {
+		'Datasets': '/datasets/overview/',
+	};
+
+	document.querySelectorAll('.sidebar-content summary .group-label .large').forEach(label => {
+		const text = label.textContent?.trim() || '';
+		const href = groupLinks[text];
+		if (!href) return;
+		const groupLabel = label.closest('.group-label');
+		if (!groupLabel || groupLabel.hasAttribute('data-linked')) return;
+		groupLabel.setAttribute('data-linked', 'true');
+		(groupLabel as HTMLElement).style.cursor = 'pointer';
+		groupLabel.addEventListener('click', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			window.location.href = href;
 		});
 	});
 </script>
@@ -85,23 +109,44 @@ import Pagination from '@astrojs/starlight/components/Pagination.astro';
 		align-items: center;
 		gap: 0.375rem;
 		padding: 0.375rem 0.75rem;
-		background: transparent;
-		border: 1px solid var(--sl-color-gray-5);
-		border-radius: 6px;
+		background: var(--glass-bg, rgba(255,255,255,0.45));
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
+		border: 1px solid var(--glass-border, rgba(255,255,255,0.5));
+		border-radius: 50px;
 		color: var(--sl-color-gray-3);
 		font-size: var(--sl-text-sm);
 		cursor: pointer;
-		transition: all 0.15s ease;
+		transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+		box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 	}
 
 	.thumb-btn:hover {
 		color: var(--sl-color-accent);
 		border-color: var(--sl-color-accent);
+		box-shadow: 0 4px 12px rgba(45,106,79,0.1);
 	}
 
 	.thumb-btn.active {
 		color: var(--sl-color-accent);
 		border-color: var(--sl-color-accent);
 		background: var(--sl-color-accent-low);
+		box-shadow: 0 4px 12px rgba(45,106,79,0.15);
+	}
+
+	.copyright {
+		text-align: center;
+		font-size: var(--sl-text-sm);
+		color: var(--sl-color-gray-3);
+		padding-top: 1rem;
+	}
+
+	.copyright a {
+		color: var(--sl-color-gray-2);
+		text-decoration: none;
+	}
+
+	.copyright a:hover {
+		color: var(--sl-color-accent);
 	}
 </style>
