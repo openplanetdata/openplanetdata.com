@@ -17,40 +17,6 @@ We evaluate potential data sources based on:
 | **Accessibility** | Is the data freely accessible and machine-readable? |
 | **Licensing** | Does the license allow redistribution? |
 
-## IP Geolocation Sources
-
-### Regional Internet Registries (RIRs)
-
-The five RIRs are the authoritative source for IP address allocation:
-
-| RIR | Region | Data Provided |
-|-----|--------|---------------|
-| [ARIN](https://www.arin.net) | North America | IP allocations, ASN data |
-| [RIPE NCC](https://www.ripe.net) | Europe, Middle East, Central Asia | IP allocations, ASN data |
-| [APNIC](https://www.apnic.net) | Asia Pacific | IP allocations, ASN data |
-| [LACNIC](https://www.lacnic.net) | Latin America, Caribbean | IP allocations, ASN data |
-| [AFRINIC](https://www.afrinic.net) | Africa | IP allocations, ASN data |
-
-**What we use:** IP range allocations, country assignments, ASN information
-
-### BGP Routing Data
-
-Routing data helps us understand the actual geographic distribution of IP addresses:
-
-- **RouteViews** - University of Oregon project collecting BGP data
-- **RIPE RIS** - RIPE Routing Information Service
-
-**What we use:** Active route announcements, origin ASN data
-
-### Geolocation Databases
-
-We cross-reference with multiple geolocation databases:
-
-- **MaxMind GeoLite2** - Free geolocation database (CC BY-SA 4.0)
-- **DB-IP Lite** - Free IP geolocation database
-
-**What we use:** City-level geolocation, timezone data
-
 ## Country Data Sources
 
 ### ISO 3166 Maintenance Agency
@@ -94,8 +60,6 @@ We monitor source updates and refresh our data accordingly:
 
 | Source Type | Check Frequency | Update Trigger |
 |-------------|-----------------|----------------|
-| RIR Databases | Daily | Immediate |
-| Geolocation DBs | Weekly | Weekly pipeline run |
 | Country Data | Monthly | Monthly pipeline run |
 | Static References | Quarterly | Manual review |
 
@@ -103,7 +67,7 @@ We monitor source updates and refresh our data accordingly:
 
 When sources disagree, we apply these rules:
 
-1. **Official sources first** - RIRs for IP data, ISO for country codes
+1. **Official sources first** - ISO for country codes, UN for designations
 2. **Consensus wins** - If 3+ sources agree, use that value
 3. **Document ambiguity** - Flag uncertain data in metadata
 4. **Manual review** - Critical conflicts are reviewed by maintainers
@@ -114,8 +78,6 @@ All sources we use have licenses compatible with our CC BY 4.0 distribution:
 
 | Source | License |
 |--------|---------|
-| RIR Data | Open/Public Domain |
-| MaxMind GeoLite2 | CC BY-SA 4.0 |
 | GeoNames | CC BY 4.0 |
 | ISO Codes | Freely usable |
 | UN Data | Open |

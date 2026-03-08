@@ -3,7 +3,7 @@ title: Datasets Overview
 description: Explore all available OpenPlanetData datasets.
 ---
 
-OpenPlanetData provides daily snapshots of geographic datasets in optimized formats. All data is hosted on Cloudflare R2 for fast global access.
+OpenPlanetData provides regular snapshots of geographic datasets in optimized formats, most updated daily. All data is hosted on Cloudflare R2 for fast global access.
 
 ## Available Datasets
 

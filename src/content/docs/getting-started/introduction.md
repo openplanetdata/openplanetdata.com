@@ -3,7 +3,7 @@ title: Introduction
 description: Learn about OpenPlanetData and what we offer.
 ---
 
-OpenPlanetData is an initiative to provide free, high-quality, and transparent datasets about our planet. Our mission is to make geographic and IP-based data accessible to everyone while maintaining the highest standards of accuracy and transparency.
+OpenPlanetData is an initiative to provide free, high-quality, and transparent datasets about our planet. Our mission is to make geographic data accessible to everyone while maintaining the highest standards of accuracy and transparency.
 
 ## Why OpenPlanetData?
 
@@ -31,8 +31,8 @@ OpenPlanetData is built for the community, by the community. We welcome contribu
 
 ### Datasets
 
-- **IP Geolocation** - Map IP addresses to geographic locations with high accuracy
 - **Country Data** - Comprehensive information about countries and territories
+- **Boundaries** - Administrative boundaries and geographic regions
 - **More coming soon** - We're continuously expanding our dataset offerings
 
 ### Multiple Formats
@@ -47,6 +47,3 @@ All datasets are available in multiple formats optimized for different use cases
 
 Our automated pipelines ensure datasets are kept up-to-date with the latest information from authoritative sources.
 
-## Getting Started
-
-Ready to start using OpenPlanetData? Check out our [Quick Start](/getting-started/quick-start/) guide to get up and running in minutes.

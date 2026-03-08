@@ -1,18 +1,15 @@
 ---
 title: OpenPlanetData
 description: Open datasets about our planet, built with transparency and precision.
+template: splash
 hero:
-  tagline: High-quality, open datasets about our planet. Built with transparency, precision, and community in mind.
+  tagline: Datasets about our beautiful planet Earth. Built with transparency, precision, and community in mind.
   image:
     file: ../../assets/hero-globe.svg
   actions:
-    - text: Get Started
-      link: /getting-started/introduction/
-      icon: right-arrow
     - text: Browse Datasets
       link: /datasets/overview/
-      icon: document
-      variant: minimal
+      icon: right-arrow
 ---
 
 import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
@@ -20,46 +17,52 @@ import Sponsors from '../../components/Sponsors.astro';
 
 ## What is OpenPlanetData?
 
-OpenPlanetData is an open and free initiative dedicated to making open data related to our planet Earth more accessible and efficient to use. We provide daily snapshots of geographic datasets in optimized formats, hosted on Cloudflare R2 for fast global access.
+OpenPlanetData is an open and free initiative dedicated to making open data related to our planet Earth more accessible and efficient to use. We provide regular snapshots of geographic datasets in optimized formats, most updated daily, hosted on Cloudflare R2 for fast global access.
 
 <CardGrid>
-	<Card title="OpenStreetMap Snapshots" icon="globe">
-		Daily snapshots of OpenStreetMap data in multiple formats including GOB and GOL files indexed with GeoDesk for rapid spatial queries.
+	<Card title="Global Coverage" icon="star">
+		Worldwide geographic datasets covering every country and territory on Earth. Updated frequently.
 	</Card>
-	<Card title="Time Zone Data" icon="document">
-		Global time zone boundary data updated daily, converted to GeoParquet format for efficient storage and fast spatial queries.
+	<Card title="Free for All" icon="heart">
+		No API keys, no rate limits, no strings attached. Just download and start building.
 	</Card>
 	<Card title="Open & Transparent" icon="open-book">
-		All our data pipelines are open source. Know exactly how every dataset is built, validated, and maintained.
+		All our data pipelines are open source. Know exactly how every dataset is built and maintained.
 	</Card>
 	<Card title="Production Ready" icon="rocket">
-		Datasets are optimized for performance with formats like GeoParquet and GeoDesk-indexed files for rapid queries.
+		Download in GeoParquet, GeoPackage, or GeoJSON. Fast global delivery powered by Cloudflare R2.
 	</Card>
 </CardGrid>
 
 ## Quick Links
 
 <CardGrid>
-	<LinkCard
-		title="Introduction"
-		description="Learn about OpenPlanetData and how to get started."
-		href="/getting-started/introduction/"
-	/>
+	<div class="link-card-disabled">
+		<LinkCard
+			title="Introduction"
+			description="Learn about OpenPlanetData and how to get started."
+			href="#"
+		/>
+	</div>
 	<LinkCard
 		title="Datasets Overview"
 		description="Explore all available datasets and their specifications."
 		href="/datasets/overview/"
 	/>
-	<LinkCard
-		title="Data Pipeline"
-		description="Understand how we build, validate, and maintain our datasets."
-		href="/pipeline/how-we-build/"
-	/>
-	<LinkCard
-		title="Data Sources"
-		description="See the authoritative sources we use and how we aggregate them."
-		href="/pipeline/data-sources/"
-	/>
+	<div class="link-card-disabled">
+		<LinkCard
+			title="Data Pipeline"
+			description="Understand how we build, validate, and maintain our datasets."
+			href="#"
+		/>
+	</div>
+	<div class="link-card-disabled">
+		<LinkCard
+			title="Data Sources"
+			description="See the authoritative sources we use and how we aggregate them."
+			href="#"
+		/>
+	</div>
 </CardGrid>
 
 <Sponsors />
