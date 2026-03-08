@@ -7,10 +7,17 @@ export default defineConfig({
 	site: 'https://docs.openplanetdata.com',
 	integrations: [
 		starlight({
+			expressiveCode: {
+				themes: ['github-dark'],
+				styleOverrides: {
+					borderRadius: '12px',
+				},
+			},
 			title: 'OpenPlanetData',
 			description: 'Open datasets about our planet, built with transparency and precision.',
 			logo: {
-				src: './src/assets/logo.svg',
+				light: './src/assets/logo-light.svg',
+				dark: './src/assets/logo-dark.svg',
 				replacesTitle: false,
 			},
 			social: [
@@ -35,14 +42,21 @@ export default defineConfig({
 					label: 'Getting Started',
 					items: [
 						{ label: 'Introduction', slug: 'getting-started/introduction' },
-						{ label: 'Quick Start', slug: 'getting-started/quick-start' },
+						{ label: 'Data Formats', slug: 'getting-started/data-formats' },
 					],
 				},
 				{
 					label: 'Datasets',
 					items: [
-						{ label: 'Overview', slug: 'datasets/overview' },
-						{ label: 'Boundaries', slug: 'datasets/boundaries' },
+						{
+							label: 'Boundaries',
+							items: [
+								{ label: 'Countries', slug: 'datasets/boundaries/countries' },
+								{ label: 'Regions', slug: 'datasets/boundaries/regions' },
+								{ label: 'Cities', slug: 'datasets/boundaries/cities' },
+								{ label: 'Postals', slug: 'datasets/boundaries/postals' },
+							],
+						},
 						{ label: 'OpenStreetMap', slug: 'datasets/openstreetmap-snapshots' },
 						{ label: 'Time Zone', slug: 'datasets/timezone-snapshots' },
 					],
