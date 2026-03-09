@@ -7,43 +7,23 @@ OpenPlanetData is an initiative to provide free, high-quality, and transparent d
 
 ## Why OpenPlanetData?
 
-Traditional data providers often operate as black boxes. You get data, but you don't know how it was collected, processed, or validated. This lack of transparency can lead to:
+Geographic data should be accessible to everyone, yet some providers make it unnecessarily difficult:
 
-- **Uncertainty about data quality** - How accurate is the data really?
+- **Crazily priced datasets** - Thousands of dollars for data derived from open sources
 - **Difficulty debugging issues** - When something goes wrong, it's hard to trace the source
+- **Download throttling or rate limits** - Wait in line or pay for "premium" access
+- **Outdated information** - Datasets updated infrequently, leaving you with stale data
+- **Uncertainty about data quality** - How accurate is the data really? Black-box pipelines make it impossible to know
 - **Vendor lock-in** - Proprietary formats and unclear methodologies make switching costly
 
-OpenPlanetData takes a different approach. We believe in:
+OpenPlanetData takes a different approach:
 
-### Full Transparency
+- **Free and open** - No API keys, no rate limits, no strings attached. Just download and use.
+- **Transparent pipelines** - All data pipelines are open source. See exactly how every dataset is built.
+- **Daily updates** - Automated pipelines keep datasets fresh with the latest data from authoritative sources, thanks to computing power provided by [Ipregistry](https://ipregistry.co).
+- **Multiple formats** - Every dataset is available in GeoJSON, GeoPackage, and GeoParquet.
+- **Fast global delivery** - All files hosted on [Cloudflare R2](https://www.cloudflare.com/developer-platform/products/r2/) for low-latency downloads worldwide. Thanks to [Cloudflare](https://www.cloudflare.com) for sponsoring R2 storage and bandwidth. Got an 8 Gbit/s link? You can saturate it — downloading our largest datasets takes less time than verifying their checksum locally.
+- **Community driven** - Contributions, feedback, and collaboration are welcome from everyone.
 
-Every dataset we provide comes with complete documentation of its sources, processing pipeline, and validation methodology. Our data pipelines are open source, so you can see exactly how every piece of data is generated.
-
-### Quality First
-
-We aggregate data from multiple authoritative sources and apply rigorous validation processes. When sources conflict, we document our resolution methodology so you understand exactly what data you're getting.
-
-### Community Driven
-
-OpenPlanetData is built for the community, by the community. We welcome contributions, feedback, and collaboration from developers, researchers, and organizations worldwide.
-
-## What We Offer
-
-### Datasets
-
-- **Country Data** - Comprehensive information about countries and territories
-- **Boundaries** - Administrative boundaries and geographic regions
-- **More coming soon** - We're continuously expanding our dataset offerings
-
-### Multiple Formats
-
-All datasets are available in multiple formats optimized for different use cases:
-
-- **JSON** - Easy to parse and integrate with web applications
-- **CSV** - Perfect for data analysis and spreadsheet tools
-- **Parquet** - Optimized for big data processing and analytics
-
-### Regular Updates
-
-Our automated pipelines ensure datasets are kept up-to-date with the latest information from authoritative sources.
+We are always looking for more nodes to build faster and produce more datasets. [Contact us](mailto:hello@openplanetdata.com) if you are interested in sponsoring us.
 
