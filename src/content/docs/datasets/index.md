@@ -19,7 +19,7 @@ OpenPlanetData provides regular snapshots of geographic datasets in optimized fo
     <h3>Boundaries</h3>
     <p>Continents, countries, and regions boundaries in GeoJSON, GeoPackage, and GeoParquet formats.</p>
   </a>
-  <a href="/datasets/openstreetmap-snapshots/" class="dataset-card">
+  <a href="/datasets/openstreetmap/" class="dataset-card">
     <div class="dataset-icon">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"/>
@@ -30,7 +30,7 @@ OpenPlanetData provides regular snapshots of geographic datasets in optimized fo
     <h3>OpenStreetMap</h3>
     <p>Daily snapshots of OpenStreetMap data in PBF, GOB, and GOL formats with global coverage.</p>
   </a>
-  <a href="/datasets/timezone-snapshots/" class="dataset-card">
+  <a href="/datasets/time-zones/" class="dataset-card">
     <div class="dataset-icon">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"/>
