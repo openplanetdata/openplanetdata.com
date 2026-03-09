@@ -77,19 +77,19 @@ OpenPlanetData provides regular snapshots of geographic datasets in optimized fo
     justify-content: center;
     width: 2.5rem;
     height: 2.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     color: var(--sl-color-accent);
   }
 
   .dataset-icon svg {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 2rem;
+    height: 2rem;
   }
 
   .dataset-card h3 {
     margin: 0 0 0.5rem 0 !important;
     padding: 0 !important;
-    font-size: 1rem !important;
+    font-size: 1.5rem !important;
     font-weight: 600;
     color: var(--sl-color-white);
     border: none !important;

@@ -4,7 +4,7 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://docs.openplanetdata.com',
+	site: 'https://openplanetdata.com',
 	integrations: [
 		starlight({
 			expressiveCode: {
@@ -50,28 +50,18 @@ export default defineConfig({
 					items: [
 						{
 							label: 'Boundaries',
+							collapsed: false,
 							items: [
+								{ label: 'Continents', slug: 'datasets/boundaries/continents' },
 								{ label: 'Countries', slug: 'datasets/boundaries/countries' },
 								{ label: 'Regions', slug: 'datasets/boundaries/regions' },
 								{ label: 'Cities', slug: 'datasets/boundaries/cities' },
 								{ label: 'Postals', slug: 'datasets/boundaries/postals' },
 							],
 						},
-						{ label: 'OpenStreetMap', slug: 'datasets/openstreetmap-snapshots' },
-						{ label: 'Time Zone', slug: 'datasets/timezone-snapshots' },
+						{ label: 'OpenStreetMap', slug: 'datasets/openstreetmap' },
+						{ label: 'Time Zone', slug: 'datasets/time-zones' },
 					],
-				},
-				{
-					label: 'Data Pipeline',
-					items: [
-						{ label: 'How We Build Datasets', slug: 'pipeline/how-we-build' },
-						{ label: 'Data Sources', slug: 'pipeline/data-sources' },
-						{ label: 'Quality Assurance', slug: 'pipeline/quality-assurance' },
-					],
-				},
-				{
-					label: 'Reference',
-					autogenerate: { directory: 'reference' },
 				},
 			],
 			head: [
@@ -79,7 +69,7 @@ export default defineConfig({
 					tag: 'meta',
 					attrs: {
 						property: 'og:image',
-						content: 'https://docs.openplanetdata.com/og-image.png',
+						content: 'https://openplanetdata.com/og-image.png',
 					},
 				},
 			],

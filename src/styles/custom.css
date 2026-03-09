@@ -76,9 +76,9 @@
   --sl-color-text: #d4e5dc;
   --sl-color-text-accent: #52b788;
 
-  --glass-bg: rgba(22, 42, 32, 0.55);
-  --glass-bg-hover: rgba(30, 56, 42, 0.65);
-  --glass-border: rgba(82, 183, 136, 0.18);
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-bg-hover: rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.1);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   --glass-blur: 20px;
   --terracotta: #e07a4a;
@@ -175,6 +175,27 @@ ul.top-level ul details > summary .large {
 
 /* Light mode: warm active sidebar item */
 :root:not([data-theme='dark']) [aria-current="page"]:not(.breadcrumbs [aria-current="page"]) {
+  background-color: var(--terracotta-soft) !important;
+  color: var(--terracotta) !important;
+}
+
+/* Active state for clickable group labels */
+.sidebar-content summary[aria-current="page"] {
+  font-weight: 600;
+  color: var(--sl-color-text-invert);
+  background-color: var(--sl-color-text-accent);
+  border-radius: 0.25rem;
+  padding: 0.3em var(--sl-sidebar-item-padding-inline);
+  line-height: 1.4;
+}
+
+.sidebar-content summary[aria-current="page"] .group-label,
+.sidebar-content summary[aria-current="page"] .group-label .large {
+  color: inherit !important;
+  font-weight: 600 !important;
+}
+
+:root:not([data-theme='dark']) .sidebar-content summary[aria-current="page"] {
   background-color: var(--terracotta-soft) !important;
   color: var(--terracotta) !important;
 }

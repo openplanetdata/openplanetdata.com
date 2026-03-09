@@ -49,7 +49,7 @@ import Pagination from '@astrojs/starlight/components/Pagination.astro';
 
 	// Make sidebar group labels clickable to their overview pages
 	const groupLinks: Record<string, string> = {
-		'Datasets': '/datasets/overview/',
+		'Boundaries': '/datasets/boundaries/',
 	};
 
 	document.querySelectorAll('.sidebar-content summary .group-label .large').forEach(label => {
@@ -65,6 +65,13 @@ import Pagination from '@astrojs/starlight/components/Pagination.astro';
 			e.stopPropagation();
 			window.location.href = href;
 		});
+		// Apply active state when on the linked page
+		if (window.location.pathname === href) {
+			const summary = groupLabel.closest('summary');
+			if (summary) {
+				summary.setAttribute('aria-current', 'page');
+			}
+		}
 	});
 </script>
 
