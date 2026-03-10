@@ -1,0 +1,15 @@
+---
+title: OpenStreetMap
+description: Daily snapshots of OpenStreetMap data in multiple formats including GOB and GOL files.
+---
+
+import DatasetFiles from '../../../components/DatasetFiles.astro';
+
+OpenPlanetData provides daily snapshots of OpenStreetMap data in multiple formats, optimized for different use cases:
+
+- **PBF** - Standard OpenStreetMap binary format.
+- **GOL** - PBF variant indexed with [GeoDesk](https://www.geodesk.com/) for rapid spatial queries.
+- **GOB** - Compressed variant of GeoDesk GOL file.
+- **GeoParquet** - Column-oriented format optimized for spatial analytics.
+
+<DatasetFiles category="openstreetmap" showAllFormats showVersion />
