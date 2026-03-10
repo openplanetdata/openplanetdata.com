@@ -1,11 +1,13 @@
 ---
 interface Props {
   category: string;
-  subcategory: string;
+  subcategory?: string;
+  showAllFormats?: boolean;
+  showVersion?: boolean;
 }
 
-const { category, subcategory } = Astro.props;
-const apiUrl = `https://r2index.openplanetdata.com/files/index?category=${category}&subcategory=${subcategory}&limit=-1`;
+const { category, subcategory, showAllFormats = false, showVersion = false } = Astro.props;
+const apiUrl = `https://r2index.openplanetdata.com/files?category=${category}${subcategory ? `&subcategory=${subcategory}` : ''}&limit=-1`;
 const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
 ---
 
@@ -17,6 +19,8 @@ const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
   class="not-content"
   api-url={apiUrl}
   base-download-url={baseDownloadUrl}
+  {...(showAllFormats ? { 'show-all-formats': true } : {})}
+  {...(showVersion ? { 'show-version': true } : {})}
 ></dataset-files>
 
 <style is:global>
@@ -82,8 +86,8 @@ const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
 
   dataset-files .dataset-summary {
     margin-top: 1.25rem;
-    text-align: right;
-    padding-right: 1.25rem;
+    text-align: left;
+    padding-left: 1.25rem;
   }
 
   /* Format Picker */
@@ -182,12 +186,38 @@ const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
   }
 
+  dataset-files .entity-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  dataset-files .entity-header .entity-name {
+    margin: 0;
+  }
+
   dataset-files .entity-name {
     margin: 0 0 0.75rem;
     font-family: 'Inter', sans-serif;
     font-weight: 600;
     font-size: 0.95rem;
     color: var(--sl-color-text);
+  }
+
+  dataset-files .entity-format-badge {
+    display: inline-block;
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.55rem;
+    border-radius: 50px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--sl-color-gray-3);
+    flex-shrink: 0;
   }
 
   /* Entity detail (per-format info block) */
@@ -493,7 +523,7 @@ const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.65rem 1rem;
+    padding: 0.85rem 1rem;
     border-bottom: 1px solid var(--sl-color-hairline-light);
     transition: background 0.15s ease;
     gap: 1rem;
@@ -547,6 +577,65 @@ const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
     text-align: center;
     color: var(--sl-color-gray-3);
     font-size: 0.9rem;
+  }
+
+  /* ===== Deprecated ===== */
+  dataset-files .entity-card.deprecated {
+    opacity: 0.6;
+    border-color: var(--sl-color-orange);
+  }
+
+  dataset-files .entity-card.deprecated:hover {
+    opacity: 0.8;
+  }
+
+  dataset-files .table-row.deprecated {
+    opacity: 0.6;
+  }
+
+  dataset-files .deprecation-notice {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    background: rgba(234, 179, 8, 0.08);
+    border: 1px solid rgba(234, 179, 8, 0.25);
+    border-radius: 8px;
+  }
+
+  :root[data-theme='dark'] dataset-files .deprecation-notice {
+    background: rgba(234, 179, 8, 0.06);
+    border-color: rgba(234, 179, 8, 0.2);
+  }
+
+  dataset-files .deprecation-badge,
+  dataset-files .deprecation-badge-inline {
+    font-size: var(--sl-text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgb(180, 130, 0);
+  }
+
+  :root[data-theme='dark'] dataset-files .deprecation-badge,
+  :root[data-theme='dark'] dataset-files .deprecation-badge-inline {
+    color: rgb(234, 179, 8);
+  }
+
+  dataset-files .deprecation-badge-inline {
+    margin-left: 0.5rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+    background: rgba(234, 179, 8, 0.1);
+    border: 1px solid rgba(234, 179, 8, 0.25);
+    vertical-align: middle;
+  }
+
+  dataset-files .deprecation-reason {
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-2);
+    line-height: 1.5;
   }
 
   /* ===== Responsive ===== */

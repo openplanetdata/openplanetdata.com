@@ -4,12 +4,16 @@ import { customElement, property, state } from 'lit/decorators.js';
 interface FileEntry {
   id: string;
   name: string | null;
+  entity: string;
   extension: string;
-  file_size: string;
+  size: number;
   remote_path: string;
   remote_filename: string;
-  checksums: Record<string, string>;
-  last_updated: string;
+  remote_version: string;
+  checksum_sha256: string;
+  updated: number;
+  deprecated: boolean;
+  deprecation_reason: string | null;
 }
 
 type EntityFormats = Record<string, FileEntry>;
@@ -18,6 +22,7 @@ interface ResolvedEntity {
   slug: string;
   name: string;
   nameLower: string;
+  allDeprecated: boolean;
   formats: EntityFormats;
 }
 
@@ -27,7 +32,7 @@ const FORMAT_LABELS: Record<string, string> = {
   parquet: 'GeoParquet',
 };
 
-const ROW_HEIGHT = 52;
+const ROW_HEIGHT = 64;
 const VISIBLE_ROWS = 12;
 const BUFFER_ROWS = 5;
 const CONTAINER_HEIGHT = ROW_HEIGHT * VISIBLE_ROWS;
@@ -36,6 +41,8 @@ const CONTAINER_HEIGHT = ROW_HEIGHT * VISIBLE_ROWS;
 export class DatasetFilesElement extends LitElement {
   @property({ attribute: 'api-url' }) accessor apiUrl = '';
   @property({ attribute: 'base-download-url' }) accessor baseDownloadUrl = '';
+  @property({ type: Boolean, attribute: 'show-all-formats' }) accessor showAllFormats = false;
+  @property({ type: Boolean, attribute: 'show-version' }) accessor showVersion = false;
 
   @state() accessor _loading = true;
   @state() accessor _error = false;
@@ -68,28 +75,40 @@ export class DatasetFilesElement extends LitElement {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
-      const entries: [string, EntityFormats][] = Object.entries(data.index);
+      const files: FileEntry[] = data.files;
 
-      if (entries.length === 0) {
+      if (!files || files.length === 0) {
         this._errorMessage = 'No files available yet.';
         this._error = true;
         this._loading = false;
         return;
       }
 
+      // Group files by entity, keyed by extension
+      const entityMap = new Map<string, EntityFormats>();
       const formatSet = new Set<string>();
-      for (const [, formats] of entries) {
-        for (const ext of Object.keys(formats)) formatSet.add(ext);
+      for (const file of files) {
+        const slug = file.entity;
+        if (!entityMap.has(slug)) entityMap.set(slug, {});
+        entityMap.get(slug)![file.extension] = file;
+        formatSet.add(file.extension);
       }
-      this._availableFormats = Array.from(formatSet);
+
+      this._availableFormats = Array.from(formatSet).sort((a, b) =>
+        this.formatLabel(a).localeCompare(this.formatLabel(b))
+      );
       this._selectedFormat = this._availableFormats[0] || 'geojson';
 
-      this._sortedEntities = entries
+      this._sortedEntities = Array.from(entityMap.entries())
         .map(([slug, formats]) => {
           const name = this.resolveEntityName(formats, slug);
-          return { slug, name, nameLower: name.toLowerCase(), formats };
+          const allDeprecated = Object.values(formats).every(f => f.deprecated);
+          return { slug, name, nameLower: name.toLowerCase(), formats, allDeprecated };
         })
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .sort((a, b) => {
+          if (a.allDeprecated !== b.allDeprecated) return a.allDeprecated ? 1 : -1;
+          return a.name.localeCompare(b.name);
+        });
 
       this._loading = false;
     } catch {
@@ -100,20 +119,19 @@ export class DatasetFilesElement extends LitElement {
 
   // --- Helpers ---
 
-  private formatSize(bytes: string): string {
-    const b = parseInt(bytes, 10);
-    if (b < 1024) return `${b} B`;
-    if (b < 1024 * 1024) return `${(b / 1024).toFixed(1)} KB`;
-    if (b < 1024 * 1024 * 1024) return `${(b / (1024 * 1024)).toFixed(1)} MB`;
-    return `${(b / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+  private formatSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
   }
 
   private formatLabel(ext: string): string {
     return FORMAT_LABELS[ext] || ext.toUpperCase();
   }
 
-  private formatDate(iso: string): string {
-    const d = new Date(iso);
+  private formatDate(timestamp: number): string {
+    const d = new Date(timestamp);
     return d.toLocaleDateString('en-US', {
       year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC',
     }) + ' ' + d.toLocaleTimeString('en-US', {
@@ -264,16 +282,29 @@ export class DatasetFilesElement extends LitElement {
     `;
   }
 
+  private renderDeprecationNotice(file: FileEntry) {
+    if (!file.deprecated) return nothing;
+    return html`
+      <div class="deprecation-notice">
+        <span class="deprecation-badge">Deprecated</span>
+        ${file.deprecation_reason
+          ? html`<span class="deprecation-reason">${file.deprecation_reason}</span>`
+          : nothing}
+      </div>
+    `;
+  }
+
   private renderFormatDetail(file: FileEntry) {
-    const sha256 = file.checksums.sha256 || Object.values(file.checksums)[0] || '';
+    const sha256 = file.checksum_sha256;
     const isCopied = this._copiedHash === sha256;
 
     return html`
       <div class="entity-detail">
+        ${this.renderDeprecationNotice(file)}
         <div class="entity-info">
           <div class="info-row">
             <span class="info-label">Size</span>
-            <span class="info-value">${this.formatSize(file.file_size)}</span>
+            <span class="info-value">${this.formatSize(file.size)}</span>
           </div>
           <div class="info-row">
             <span class="info-label">SHA-256</span>
@@ -283,8 +314,14 @@ export class DatasetFilesElement extends LitElement {
           </div>
           <div class="info-row">
             <span class="info-label">Updated</span>
-            <span class="info-value">${this.formatDate(file.last_updated)}</span>
+            <span class="info-value">${this.formatDate(file.updated)}</span>
           </div>
+          ${this.showVersion ? html`
+            <div class="info-row">
+              <span class="info-label">Version</span>
+              <span class="info-value">${file.remote_version}</span>
+            </div>
+          ` : nothing}
         </div>
         <div class="entity-actions">
           <button class="action-btn action-rclone" title="Download with Rclone"
@@ -299,21 +336,51 @@ export class DatasetFilesElement extends LitElement {
 
   private renderCards() {
     const fmt = this._selectedFormat;
+    const entries = this._sortedEntities
+      .filter(e => e.formats[fmt])
+      .sort((a, b) => {
+        const da = a.formats[fmt].deprecated ? 1 : 0;
+        const db = b.formats[fmt].deprecated ? 1 : 0;
+        return da - db || a.name.localeCompare(b.name);
+      });
     return html`
       ${this.renderToolbar()}
       <div class="entity-grid">
-        ${this._sortedEntities.map(e => {
-          const file = e.formats[fmt];
-          if (!file) return nothing;
+        ${entries.map(e => {
+          const file = e.formats[fmt]!;
           return html`
-            <div class="entity-card">
+            <div class="entity-card ${file.deprecated ? 'deprecated' : ''}">
               <div class="entity-name">${e.name}</div>
               ${this.renderFormatDetail(file)}
             </div>
           `;
         })}
       </div>
-      ${this.renderSummary(this._sortedEntities.length)}
+      ${this.renderSummary(entries.length)}
+    `;
+  }
+
+  private renderAllFormatsCards() {
+    const items = this._sortedEntities.flatMap(e =>
+      Object.entries(e.formats).map(([ext, file]) => ({ entity: e, ext, file }))
+    );
+    items.sort((a, b) => {
+      if (a.file.deprecated !== b.file.deprecated) return a.file.deprecated ? 1 : -1;
+      return a.entity.name.localeCompare(b.entity.name);
+    });
+    return html`
+      <div class="entity-grid">
+        ${items.map(({ entity, ext, file }) => html`
+          <div class="entity-card ${file.deprecated ? 'deprecated' : ''}">
+            <div class="entity-header">
+              <div class="entity-name">${entity.name}</div>
+              <div class="entity-format-badge">${this.formatLabel(ext)}</div>
+            </div>
+            ${this.renderFormatDetail(file)}
+          </div>
+        `)}
+      </div>
+      <div class="dataset-summary">${items.length} file${items.length !== 1 ? 's' : ''} available</div>
     `;
   }
 
@@ -321,16 +388,19 @@ export class DatasetFilesElement extends LitElement {
     const file = entity.formats[this._selectedFormat];
     if (!file) return nothing;
     return html`
-      <div class="table-row" style="height:${ROW_HEIGHT}px;box-sizing:border-box">
+      <div class="table-row ${file.deprecated ? 'deprecated' : ''}" style="height:${ROW_HEIGHT}px;box-sizing:border-box">
         <div class="table-row-left">
-          <div class="table-cell table-cell-name">${entity.name}</div>
+          <div class="table-cell table-cell-name">
+            ${entity.name}
+            ${file.deprecated ? html`<span class="deprecation-badge-inline">Deprecated</span>` : nothing}
+          </div>
           <div class="table-cell table-cell-updated">
-            ${this.formatDate(file.last_updated)}
+            ${this.formatDate(file.updated)}
           </div>
         </div>
         <div class="table-row-right">
           <div class="table-detail">
-            <div class="table-cell table-cell-size">${this.formatSize(file.file_size)}</div>
+            <div class="table-cell table-cell-size">${this.formatSize(file.size)}</div>
             <button class="action-btn action-rclone compact" title="Download with Rclone"
               @click=${() => this.onOpenRclone(file)}>Rclone</button>
             <a href=${this.downloadUrl(file)} class="action-btn action-download compact">
@@ -410,7 +480,9 @@ export class DatasetFilesElement extends LitElement {
     }
 
     return html`
-      ${this.isLarge ? this.renderTable() : this.renderCards()}
+      ${this.showAllFormats
+        ? this.renderAllFormatsCards()
+        : this.isLarge ? this.renderTable() : this.renderCards()}
       ${this.renderRcloneDialog()}
     `;
   }
