@@ -4,9 +4,10 @@ interface Props {
   subcategory?: string;
   showAllFormats?: boolean;
   showVersion?: boolean;
+  debugLoading?: boolean;
 }
 
-const { category, subcategory, showAllFormats = false, showVersion = false } = Astro.props;
+const { category, subcategory, showAllFormats = false, showVersion = false, debugLoading = false } = Astro.props;
 const apiUrl = `https://r2index.openplanetdata.com/files?category=${category}${subcategory ? `&subcategory=${subcategory}` : ''}&limit=-1`;
 const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
 ---
@@ -21,36 +22,164 @@ const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
   base-download-url={baseDownloadUrl}
   {...(showAllFormats ? { 'show-all-formats': true } : {})}
   {...(showVersion ? { 'show-version': true } : {})}
+  {...(debugLoading ? { 'debug-loading': true } : {})}
 ></dataset-files>
 
 <style is:global>
   /* All styles scoped under dataset-files to avoid leaking */
 
-  /* Loading */
-  dataset-files .dataset-loading {
+  /* Skeleton Loading */
+  @keyframes skeleton-pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  dataset-files .skeleton-card {
+    pointer-events: none;
+  }
+
+  dataset-files .skeleton-line {
+    height: 0.75rem;
+    border-radius: 6px;
+    background: var(--sl-color-gray-5);
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+  }
+
+  dataset-files .skeleton-title {
+    width: 50%;
+    height: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  dataset-files .skeleton-header {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 2rem;
-    color: var(--sl-color-gray-3);
-    font-size: 0.9rem;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
   }
 
-  dataset-files .dataset-loading p {
-    margin: 0;
+  dataset-files .skeleton-header .skeleton-title {
+    margin-bottom: 0;
   }
 
-  dataset-files .spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--sl-color-gray-5);
-    border-top-color: var(--forest);
-    border-radius: 50%;
-    animation: dataset-spin 0.7s linear infinite;
+  dataset-files .skeleton-badge {
+    width: 4.5rem;
+    height: 1.25rem;
+    border-radius: 50px;
+    background: var(--sl-color-gray-5);
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+    flex-shrink: 0;
   }
 
-  @keyframes dataset-spin {
-    to { transform: rotate(360deg); }
+  dataset-files .skeleton-short {
+    width: 80%;
+    margin-bottom: 0.6rem;
+  }
+
+  dataset-files .skeleton-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  dataset-files .skeleton-btn {
+    flex: 1;
+    height: 2rem;
+    border-radius: 8px;
+    background: var(--sl-color-gray-5);
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+  }
+
+  /* Skeleton Table */
+  dataset-files .skeleton-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  dataset-files .skeleton-picker {
+    display: flex;
+    gap: 4px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    padding: 3px;
+    height: 2.25rem;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+
+  dataset-files .skeleton-picker-btn {
+    width: 5.5rem;
+    height: 100%;
+    border-radius: 50px;
+    background: var(--sl-color-gray-6);
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+  }
+
+  dataset-files .skeleton-search {
+    flex: 1;
+    height: 2.25rem;
+    border-radius: 50px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+  }
+
+  dataset-files .skeleton-table {
+    display: flex;
+    flex-direction: column;
+  }
+
+  dataset-files .skeleton-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1rem;
+    border-bottom: 1px solid var(--sl-color-hairline-light);
+    gap: 1.5rem;
+    height: 64px;
+    box-sizing: border-box;
+  }
+
+  dataset-files .skeleton-row-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  dataset-files .skeleton-row-name {
+    width: 35%;
+    height: 0.8rem;
+  }
+
+  dataset-files .skeleton-row-date {
+    width: 20%;
+    height: 0.6rem;
+    opacity: 0.6;
+  }
+
+  dataset-files .skeleton-row-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  dataset-files .skeleton-row-size {
+    width: 3.5rem;
+    opacity: 0.6;
+  }
+
+  dataset-files .skeleton-btn-sm {
+    flex: none;
+    width: 5rem;
+    height: 1.75rem;
+    opacity: 0.5;
   }
 
   /* Error */

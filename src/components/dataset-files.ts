@@ -43,6 +43,7 @@ export class DatasetFilesElement extends LitElement {
   @property({ attribute: 'base-download-url' }) accessor baseDownloadUrl = '';
   @property({ type: Boolean, attribute: 'show-all-formats' }) accessor showAllFormats = false;
   @property({ type: Boolean, attribute: 'show-version' }) accessor showVersion = false;
+  @property({ type: Boolean, attribute: 'debug-loading' }) accessor debugLoading = false;
 
   @state() accessor _loading = true;
   @state() accessor _error = false;
@@ -461,14 +462,69 @@ export class DatasetFilesElement extends LitElement {
     `;
   }
 
-  render() {
-    if (this._loading) {
-      return html`
-        <div class="dataset-loading">
-          <div class="spinner"></div>
-          <p>Loading files...</p>
+  private renderSkeletonCards() {
+    const count = this.showAllFormats ? 4 : 3;
+    return html`
+      <div class="entity-grid">
+        ${Array.from({ length: count }, () => html`
+          <div class="entity-card skeleton-card">
+            ${this.showAllFormats ? html`
+              <div class="skeleton-header">
+                <div class="skeleton-line skeleton-title"></div>
+                <div class="skeleton-badge"></div>
+              </div>
+            ` : html`
+              <div class="skeleton-line skeleton-title"></div>
+            `}
+            <div class="skeleton-line skeleton-short" style="width:85%"></div>
+            <div class="skeleton-line skeleton-short" style="width:60%"></div>
+            <div class="skeleton-line skeleton-short" style="width:75%"></div>
+            <div class="skeleton-actions">
+              <div class="skeleton-btn"></div>
+              <div class="skeleton-btn"></div>
+            </div>
+          </div>
+        `)}
+      </div>
+    `;
+  }
+
+  private renderSkeletonTable() {
+    const nameWidths = [30, 45, 25, 38, 50, 28, 42, 35];
+    return html`
+      <div class="skeleton-toolbar">
+        <div class="skeleton-picker">
+          ${Array.from({ length: 3 }, () => html`
+            <div class="skeleton-picker-btn"></div>
+          `)}
         </div>
-      `;
+        <div class="skeleton-search"></div>
+      </div>
+      <div class="skeleton-table">
+        ${nameWidths.map(w => html`
+          <div class="skeleton-row">
+            <div class="skeleton-row-left">
+              <div class="skeleton-line skeleton-row-name" style="width:${w}%"></div>
+              <div class="skeleton-line skeleton-row-date"></div>
+            </div>
+            <div class="skeleton-row-right">
+              <div class="skeleton-line skeleton-row-size"></div>
+              <div class="skeleton-btn skeleton-btn-sm"></div>
+              <div class="skeleton-btn skeleton-btn-sm"></div>
+            </div>
+          </div>
+        `)}
+      </div>
+    `;
+  }
+
+  private renderSkeleton() {
+    return this.showAllFormats ? this.renderSkeletonCards() : this.renderSkeletonTable();
+  }
+
+  render() {
+    if (this._loading || this.debugLoading) {
+      return this.renderSkeleton();
     }
 
     if (this._error) {
