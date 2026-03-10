@@ -20,9 +20,9 @@ Our data pipeline follows a consistent process across all datasets:
 
 We aggregate data from multiple authoritative sources. Each source is:
 
-- **Documented** - We record what source provides what data
-- **Versioned** - We track which version of source data we're using
-- **Validated** - We verify the source is still authoritative and up-to-date
+- **Documented** - We record what source provides what data.
+- **Versioned** - We track which version of source data we're using.
+- **Validated** - We verify the source is still authoritative and up-to-date.
 
 ### 2. Processing & Cleaning
 
@@ -46,10 +46,10 @@ Every dataset update is validated before release:
 
 Validated datasets are published as releases:
 
-- **Multiple Formats** - JSON, CSV, Parquet as appropriate
-- **Versioned Releases** - Semantic versioning for tracking changes
-- **Checksums** - SHA256 hashes for integrity verification
-- **Changelogs** - Document what changed in each release
+- **Multiple Formats** - JSON, CSV, Parquet as appropriate.
+- **Versioned Releases** - Semantic versioning for tracking changes.
+- **Checksums** - SHA256 hashes for integrity verification.
+- **Changelogs** - Document what changed in each release.
 
 ## Conflict Resolution
 
@@ -66,18 +66,18 @@ All conflict resolutions are logged and can be reviewed in our source repositori
 
 Our pipelines are fully automated using GitHub Actions:
 
-- **Scheduled Runs** - Pipelines run on fixed schedules (weekly/monthly)
-- **Source Monitoring** - We detect when sources update
-- **Automatic PRs** - Updates create pull requests for review
-- **CI/CD** - All validation tests run automatically
+- **Scheduled Runs** - Pipelines run on fixed schedules (weekly/monthly).
+- **Source Monitoring** - We detect when sources update.
+- **Automatic PRs** - Updates create pull requests for review.
+- **CI/CD** - All validation tests run automatically.
 
 ## Open Source
 
 All our pipeline code is open source:
 
-- **Pipeline Code** - See exactly how data is processed
-- **Validation Tests** - Review our testing methodology
-- **Source Configurations** - Know which sources we use
+- **Pipeline Code** - See exactly how data is processed.
+- **Validation Tests** - Review our testing methodology.
+- **Source Configurations** - Know which sources we use.
 
 Visit our [GitHub organization](https://github.com/openplanetdata) to explore the code.
 
@@ -95,9 +95,9 @@ This ensures our data can be independently verified and audited.
 
 We welcome contributions to improve our pipelines:
 
-- **Bug Reports** - Found an issue? Open a GitHub issue
-- **Data Corrections** - Know of an error? Submit a PR with evidence
-- **Source Suggestions** - Know of a better source? Let us know
-- **Code Improvements** - Help us improve our processing logic
+- **Bug Reports** - Found an issue? Open a GitHub issue.
+- **Data Corrections** - Know of an error? Submit a PR with evidence.
+- **Source Suggestions** - Know of a better source? Let us know.
+- **Code Improvements** - Help us improve our processing logic.
 
 See our contribution guidelines in each repository for details.

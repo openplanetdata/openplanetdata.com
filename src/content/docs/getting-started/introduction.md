@@ -9,12 +9,12 @@ OpenPlanetData is an initiative to provide free, high-quality, and transparent d
 
 Geographic data should be accessible to everyone, yet some providers make it unnecessarily difficult:
 
-- **Crazily priced datasets** - Thousands of dollars for data derived from open sources
-- **Difficulty debugging issues** - When something goes wrong, it's hard to trace the source
-- **Download throttling or rate limits** - Wait in line or pay for "premium" access
-- **Outdated information** - Datasets updated infrequently, leaving you with stale data
-- **Uncertainty about data quality** - How accurate is the data really? Black-box pipelines make it impossible to know
-- **Vendor lock-in** - Proprietary formats and unclear methodologies make switching costly
+- **Crazily priced datasets** - Thousands of dollars for data derived from open sources.
+- **Difficulty debugging issues** - When something goes wrong, it's hard to trace the source.
+- **Download throttling or rate limits** - Wait in line or pay for "premium" access.
+- **Outdated information** - Datasets updated infrequently, leaving you with stale data.
+- **Uncertainty about data quality** - How accurate is the data really? Black-box pipelines make it impossible to know.
+- **Vendor lock-in** - Proprietary formats and unclear methodologies make switching costly.
 
 OpenPlanetData takes a different approach:
 
