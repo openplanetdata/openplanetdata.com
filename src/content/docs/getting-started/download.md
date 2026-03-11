@@ -18,7 +18,7 @@ Here is a real-world example downloading the 175 GB OpenStreetMap GeoParquet dat
 $ rclone copy \
     --buffer-size 0 \
     --disable-http2 \
-    --http-url https://download2.openplanetdata.com \
+    --http-url https://download.openplanetdata.com \
     :http:osm/planet/geoparquet/v1/planet-latest.osm.parquet . \
     --multi-thread-cutoff 0 \
     --multi-thread-streams 64 \
@@ -69,7 +69,7 @@ The general pattern is:
 rclone copy \
     --buffer-size 0 \
     --disable-http2 \
-    --http-url https://download2.openplanetdata.com \
+    --http-url https://download.openplanetdata.com \
     :http:<remote_path>/<version>/<filename> . \
     --multi-thread-cutoff 0 \
     --multi-thread-streams 64 \

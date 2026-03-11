@@ -8,8 +8,8 @@ interface Props {
 }
 
 const { category, subcategory, showAllFormats = false, showVersion = false, debugLoading = false } = Astro.props;
-const apiUrl = `https://download2.openplanetdata.com/files?category=${category}${subcategory ? `&subcategory=${subcategory}` : ''}&limit=-1`;
-const baseDownloadUrl = 'https://download2.openplanetdata.com';
+const apiUrl = `https://download.openplanetdata.com/files?category=${category}${subcategory ? `&subcategory=${subcategory}` : ''}&limit=-1`;
+const baseDownloadUrl = 'https://download.openplanetdata.com';
 ---
 
 <script>
