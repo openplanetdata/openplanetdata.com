@@ -43,6 +43,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Introduction', slug: 'getting-started/introduction' },
 						{ label: 'Data Formats', slug: 'getting-started/data-formats' },
+						{ label: 'Download', slug: 'getting-started/download' },
 					],
 				},
 				{
