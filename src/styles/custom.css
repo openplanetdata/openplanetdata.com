@@ -722,6 +722,108 @@ mobile-starlight-toc summary {
   border-color: rgba(140, 100, 60, 0.18) !important;
 }
 
+/* ===== Asides / Admonitions - Liquid Glass ===== */
+.starlight-aside {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  border-left: 1px solid var(--sl-color-asides-border);
+  box-shadow: var(--glass-shadow);
+  margin-top: 2rem;
+  padding: 1.25rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.starlight-aside::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  pointer-events: none;
+}
+
+:root[data-theme='dark'] .starlight-aside::before {
+  background: linear-gradient(90deg, transparent, rgba(82, 183, 136, 0.2), transparent);
+}
+
+.starlight-aside--caution {
+  background: rgba(234, 179, 8, 0.12);
+  border-color: rgba(200, 150, 0, 0.35);
+}
+
+:root[data-theme='dark'] .starlight-aside--caution {
+  background: rgba(234, 179, 8, 0.05);
+  border-color: rgba(234, 179, 8, 0.15);
+}
+
+.starlight-aside--caution::before {
+  background: linear-gradient(90deg, transparent, rgba(234, 179, 8, 0.3), transparent);
+}
+
+:root[data-theme='dark'] .starlight-aside--caution::before {
+  background: linear-gradient(90deg, transparent, rgba(234, 179, 8, 0.15), transparent);
+}
+
+.starlight-aside--note {
+  background: rgba(59, 130, 214, 0.06);
+  border-color: rgba(59, 130, 214, 0.2);
+}
+
+:root[data-theme='dark'] .starlight-aside--note {
+  background: rgba(59, 130, 214, 0.05);
+  border-color: rgba(59, 130, 214, 0.15);
+}
+
+.starlight-aside--note::before {
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 214, 0.3), transparent);
+}
+
+:root[data-theme='dark'] .starlight-aside--note::before {
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 214, 0.15), transparent);
+}
+
+.starlight-aside--tip {
+  background: rgba(45, 106, 79, 0.06);
+  border-color: rgba(45, 106, 79, 0.2);
+}
+
+:root[data-theme='dark'] .starlight-aside--tip {
+  background: rgba(82, 183, 136, 0.05);
+  border-color: rgba(82, 183, 136, 0.15);
+}
+
+.starlight-aside--tip::before {
+  background: linear-gradient(90deg, transparent, rgba(45, 106, 79, 0.3), transparent);
+}
+
+:root[data-theme='dark'] .starlight-aside--tip::before {
+  background: linear-gradient(90deg, transparent, rgba(82, 183, 136, 0.15), transparent);
+}
+
+.starlight-aside--danger {
+  background: rgba(220, 38, 38, 0.06);
+  border-color: rgba(220, 38, 38, 0.2);
+}
+
+:root[data-theme='dark'] .starlight-aside--danger {
+  background: rgba(220, 38, 38, 0.05);
+  border-color: rgba(220, 38, 38, 0.15);
+}
+
+.starlight-aside--danger::before {
+  background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.3), transparent);
+}
+
+:root[data-theme='dark'] .starlight-aside--danger::before {
+  background: linear-gradient(90deg, transparent, rgba(220, 38, 38, 0.15), transparent);
+}
+
 /* ===== Disabled Link Cards ===== */
 .link-card-disabled {
   opacity: 0.45;
