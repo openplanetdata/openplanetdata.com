@@ -1,5 +1,9 @@
 ---
+import { getCollection } from 'astro:content';
+
 const PAGE_TITLE_ID = '_top';
+const allDocs = await getCollection('docs');
+const allDocSlugs = new Set(allDocs.map(doc => `/${doc.id}/`));
 
 const { starlightRoute } = Astro.locals;
 const repoBase = 'https://github.com/openplanetdata/openplanetdata-website';
@@ -23,13 +27,14 @@ if (starlightRoute.sidebar) {
           return [...trail, { label: item.label, href: item.href }];
         }
       } else if (item.type === 'group') {
-        // Try to derive a group index page from children's common path prefix
+        // Only link to group parent path if a real page exists for it
         const firstLink = (item.entries || []).find((e: any) => e.type === 'link');
         let groupHref = '';
         if (firstLink?.href) {
-          // e.g. /datasets/boundaries/countries/ -> /datasets/boundaries/
           const parentPath = firstLink.href.replace(/[^/]+\/$/, '');
-          if (parentPath && parentPath !== '/') groupHref = parentPath;
+          if (parentPath && parentPath !== '/' && allDocSlugs.has(parentPath)) {
+            groupHref = parentPath;
+          }
         }
         const newTrail = [...trail, { label: item.label, href: groupHref }];
         const found = findBreadcrumbs(item.entries || [], newTrail);
