@@ -1,5 +1,11 @@
-import { LitElement, html, svg, nothing } from 'lit';
+import { LitElement, html, svg, nothing, render, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
+
+interface DialogConfig {
+  title: string;
+  content: TemplateResult;
+  copyText?: string;
+}
 
 interface FileEntry {
   id: string;
@@ -51,15 +57,16 @@ export class DatasetFilesElement extends LitElement {
   @state() accessor _selectedFormat = '';
   @state() accessor _availableFormats: string[] = [];
   @state() accessor _searchQuery = '';
-  @state() accessor _rcloneDialogFile: FileEntry | null = null;
+  @state() accessor _dialog: DialogConfig | null = null;
   @state() accessor _copiedHash: string | null = null;
-  @state() accessor _copiedCommand = false;
+  @state() accessor _copiedDialog = false;
   private _sortedEntities: ResolvedEntity[] = [];
   private _cachedFilterQuery: string | null = null;
   private _cachedFiltered: ResolvedEntity[] = [];
   private _debounceTimer = 0;
   private _scrollRaf = 0;
   private _scrollTop = 0;
+  private _dialogPortal: HTMLDivElement | null = null;
 
   createRenderRoot() { return this; }
 
@@ -141,7 +148,7 @@ export class DatasetFilesElement extends LitElement {
   }
 
   private downloadUrl(file: FileEntry): string {
-    return `${this.baseDownloadUrl}/${file.id}`;
+    return `${this.baseDownloadUrl}/${file.remote_path}/${file.remote_version}/${file.remote_filename}`;
   }
 
   private resolveEntityName(formats: EntityFormats, slug: string): string {
@@ -152,8 +159,8 @@ export class DatasetFilesElement extends LitElement {
   }
 
   private rcloneCommand(file: FileEntry): string {
-    const url = this.downloadUrl(file);
-    return `rclone copy \\\n    --buffer-size 0 \\\n    --disable-http2 \\\n    --http-url ${url} \\\n    :http: . \\\n    --multi-thread-cutoff 0 \\\n    --multi-thread-streams 64 \\\n    --multi-thread-chunk-size 32M \\\n    --transfers 1 --progress`;
+    const remotePath = `${file.remote_path}/${file.remote_version}/${file.remote_filename}`;
+    return `rclone copy \\\n    --buffer-size 0 \\\n    --disable-http2 \\\n    --http-url ${this.baseDownloadUrl} \\\n    :http:${remotePath} . \\\n    --multi-thread-cutoff 0 \\\n    --multi-thread-streams 64 \\\n    --multi-thread-chunk-size 32M \\\n    --transfers 1 --progress`;
   }
 
   private get fileCount(): number {
@@ -210,25 +217,43 @@ export class DatasetFilesElement extends LitElement {
     });
   }
 
-  private onOpenRclone(file: FileEntry) {
-    this._rcloneDialogFile = file;
-    this._copiedCommand = false;
+  private openDialog(dialog: DialogConfig) {
+    this._dialog = dialog;
+    this._copiedDialog = false;
+    this.renderDialogPortal();
   }
 
-  private onCloseRclone() {
-    this._rcloneDialogFile = null;
+  private onOpenRclone(file: FileEntry) {
+    const cmd = this.rcloneCommand(file);
+    this.openDialog({
+      title: 'Download with Rclone',
+      content: html`
+        <p class="code-dialog-desc">
+          Use this Rclone command to download multiple chunks in parallel. Adjust
+          <code>--multi-thread-streams</code>
+          to match your bandwidth (the settings below maxes out an 8 Gbit/s link).
+        </p>
+        <pre class="code-dialog-pre"><code>${cmd}</code></pre>
+      `,
+      copyText: cmd.replace(/\\\n\s*/g, ' '),
+    });
+  }
+
+  private onCloseDialog() {
+    this._dialog = null;
+    this.renderDialogPortal();
   }
 
   private onBackdropClick(e: Event) {
-    if (e.target === e.currentTarget) this.onCloseRclone();
+    if (e.target === e.currentTarget) this.onCloseDialog();
   }
 
-  private async onCopyCommand() {
-    if (!this._rcloneDialogFile) return;
-    const cmd = this.rcloneCommand(this._rcloneDialogFile).replace(/\\\n\s*/g, ' ');
-    await navigator.clipboard.writeText(cmd);
-    this._copiedCommand = true;
-    setTimeout(() => { this._copiedCommand = false; }, 1500);
+  private async onCopyDialog() {
+    if (!this._dialog?.copyText) return;
+    await navigator.clipboard.writeText(this._dialog.copyText);
+    this._copiedDialog = true;
+    this.renderDialogPortal();
+    setTimeout(() => { this._copiedDialog = false; this.renderDialogPortal(); }, 1500);
   }
 
   private async onCopyHash(sha256: string) {
@@ -437,29 +462,43 @@ export class DatasetFilesElement extends LitElement {
     `;
   }
 
-  private renderRcloneDialog() {
-    if (!this._rcloneDialogFile) return nothing;
-    const cmd = this.rcloneCommand(this._rcloneDialogFile);
+  private renderDialogPortal() {
+    if (!this._dialogPortal) {
+      this._dialogPortal = document.createElement('div');
+      document.body.appendChild(this._dialogPortal);
+    }
 
-    return html`
-      <div class="rclone-backdrop" @click=${this.onBackdropClick}>
-        <div class="rclone-dialog">
-          <h3 class="rclone-title">Download with Rclone</h3>
-          <p class="rclone-desc">
-            Use this Rclone command to download multiple chunks in parallel. Adjust
-            <code>--multi-thread-streams</code>
-            to match your bandwidth (the settings below maxes out an 8 Gbit/s link).
-          </p>
-          <pre class="rclone-code"><code>${cmd}</code></pre>
-          <div class="rclone-footer">
-            <button class="rclone-btn rclone-btn-close" @click=${this.onCloseRclone}>Close</button>
-            <button class="rclone-btn rclone-btn-copy" @click=${this.onCopyCommand}>
-              ${this._copiedCommand ? 'Copied!' : 'Copy Command'}
-            </button>
+    if (!this._dialog) {
+      render(nothing, this._dialogPortal);
+      return;
+    }
+
+    const { title, content, copyText } = this._dialog;
+
+    render(html`
+      <div class="code-dialog-backdrop" @click=${(e: Event) => { if (e.target === e.currentTarget) this.onCloseDialog(); }}>
+        <div class="code-dialog">
+          <h3 class="code-dialog-title">${title}</h3>
+          ${content}
+          <div class="code-dialog-footer">
+            <button class="code-dialog-btn code-dialog-btn-close" @click=${() => this.onCloseDialog()}>Close</button>
+            ${copyText ? html`
+              <button class="code-dialog-btn code-dialog-btn-copy" @click=${() => this.onCopyDialog()}>
+                ${this._copiedDialog ? 'Copied!' : 'Copy'}
+              </button>
+            ` : nothing}
           </div>
         </div>
       </div>
-    `;
+    `, this._dialogPortal);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this._dialogPortal) {
+      this._dialogPortal.remove();
+      this._dialogPortal = null;
+    }
   }
 
   private renderSkeletonCards() {
@@ -539,7 +578,6 @@ export class DatasetFilesElement extends LitElement {
       ${this.showAllFormats
         ? this.renderAllFormatsCards()
         : this.isLarge ? this.renderTable() : this.renderCards()}
-      ${this.renderRcloneDialog()}
     `;
   }
 }

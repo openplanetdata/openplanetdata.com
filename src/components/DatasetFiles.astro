@@ -8,8 +8,8 @@ interface Props {
 }
 
 const { category, subcategory, showAllFormats = false, showVersion = false, debugLoading = false } = Astro.props;
-const apiUrl = `https://r2index.openplanetdata.com/files?category=${category}${subcategory ? `&subcategory=${subcategory}` : ''}&limit=-1`;
-const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
+const apiUrl = `https://download2.openplanetdata.com/files?category=${category}${subcategory ? `&subcategory=${subcategory}` : ''}&limit=-1`;
+const baseDownloadUrl = 'https://download2.openplanetdata.com';
 ---
 
 <script>
@@ -488,8 +488,8 @@ const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
     justify-content: center;
   }
 
-  /* ===== Rclone Dialog ===== */
-  .rclone-backdrop {
+  /* ===== Code Dialog ===== */
+  .code-dialog-backdrop {
     position: fixed;
     inset: 0;
     z-index: 9999;
@@ -501,7 +501,7 @@ const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
     padding: 1rem;
   }
 
-  .rclone-dialog {
+  .code-dialog {
     background: var(--sl-color-bg);
     border: 1px solid var(--glass-border);
     border-radius: 16px;
@@ -513,7 +513,12 @@ const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
     overflow-y: auto;
   }
 
-  .rclone-title {
+  :root[data-theme='dark'] .code-dialog {
+    background: #1a2620;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .code-dialog-title {
     margin: 0 0 0.75rem;
     font-family: 'Inter', sans-serif;
     font-weight: 600;
@@ -521,14 +526,14 @@ const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
     color: var(--sl-color-text);
   }
 
-  .rclone-desc {
+  .code-dialog-desc {
     font-size: 0.85rem;
     color: var(--sl-color-gray-2);
     line-height: 1.6;
     margin: 0 0 1rem;
   }
 
-  .rclone-desc code {
+  .code-dialog-desc code {
     font-size: 0.8rem;
     background: var(--sl-color-bg-inline-code);
     padding: 0.15em 0.4em;
@@ -536,7 +541,7 @@ const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
     border: 1px solid var(--glass-border);
   }
 
-  .rclone-code {
+  .code-dialog-pre {
     background: #1a1410;
     border-radius: 10px;
     padding: 1.25rem;
@@ -544,12 +549,12 @@ const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
     margin: 0 0 1.25rem;
   }
 
-  :root[data-theme='dark'] .rclone-code {
+  :root[data-theme='dark'] .code-dialog-pre {
     background: #0a120e;
     border: 1px solid var(--glass-border);
   }
 
-  .rclone-code code {
+  .code-dialog-pre code {
     font-size: 0.8rem;
     font-family: var(--sl-font-system-mono);
     color: #e8ddd0;
@@ -560,17 +565,22 @@ const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
     background: none;
   }
 
-  :root[data-theme='dark'] .rclone-code code {
+  .code-dialog-pre ::selection {
+    background: rgba(232, 221, 208, 0.3);
+    color: #fff;
+  }
+
+  :root[data-theme='dark'] .code-dialog-pre code {
     color: var(--sl-color-gray-2);
   }
 
-  .rclone-footer {
+  .code-dialog-footer {
     display: flex;
     justify-content: flex-end;
     gap: 0.75rem;
   }
 
-  .rclone-btn {
+  .code-dialog-btn {
     padding: 0.55rem 1.25rem;
     border-radius: 8px;
     font-size: 0.85rem;
@@ -582,35 +592,35 @@ const baseDownloadUrl = 'https://r2index.openplanetdata.com/download';
     line-height: 1;
   }
 
-  .rclone-btn-close {
+  .code-dialog-btn-close {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     color: var(--sl-color-text);
   }
 
-  .rclone-btn-close:hover {
+  .code-dialog-btn-close:hover {
     background: var(--glass-bg-hover);
   }
 
-  .rclone-btn-copy {
+  .code-dialog-btn-copy {
     background: var(--forest);
     color: white;
     box-shadow: 0 2px 8px rgba(45, 106, 79, 0.2);
   }
 
-  .rclone-btn-copy:hover {
+  .code-dialog-btn-copy:hover {
     background: var(--forest-deep);
     box-shadow: 0 4px 14px rgba(45, 106, 79, 0.3);
   }
 
-  :root[data-theme='dark'] .rclone-btn-copy {
+  :root[data-theme='dark'] .code-dialog-btn-copy {
     background: rgba(82, 183, 136, 0.2);
     color: var(--forest);
     border: 1px solid rgba(82, 183, 136, 0.25);
     box-shadow: none;
   }
 
-  :root[data-theme='dark'] .rclone-btn-copy:hover {
+  :root[data-theme='dark'] .code-dialog-btn-copy:hover {
     background: rgba(82, 183, 136, 0.3);
     color: var(--forest-deep);
   }
