@@ -24,7 +24,7 @@ export default defineConfig({
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/openplanetdata' },
 			],
 			editLink: {
-				baseUrl: 'https://github.com/openplanetdata/openplanetdata-website/edit/main/',
+				baseUrl: 'https://github.com/openplanetdata/openplanetdata.com/edit/main/',
 			},
 			customCss: [
 				'./src/styles/custom.css',
