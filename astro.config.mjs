@@ -56,8 +56,6 @@ export default defineConfig({
 								{ label: 'Continents', slug: 'datasets/boundaries/continents' },
 								{ label: 'Countries', slug: 'datasets/boundaries/countries' },
 								{ label: 'Regions', slug: 'datasets/boundaries/regions' },
-								{ label: 'Cities', slug: 'datasets/boundaries/cities' },
-								{ label: 'Postals', slug: 'datasets/boundaries/postals' },
 							],
 						},
 						{ label: 'OpenStreetMap', slug: 'datasets/openstreetmap' },
