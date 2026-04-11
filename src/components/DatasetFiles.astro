@@ -725,12 +725,12 @@ const baseDownloadUrl = 'https://download.openplanetdata.com';
     position: relative;
     overflow: hidden;
     margin-bottom: 1.5rem;
-    padding: 1.5rem 1.5rem 0.6rem;
+    padding: 1.35rem 1.35rem 0.6rem;
     background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.4);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
+    border-radius: 14px;
     box-shadow: var(--glass-shadow);
   }
 
@@ -743,36 +743,16 @@ const baseDownloadUrl = 'https://download.openplanetdata.com';
     height: 1px;
     background: linear-gradient(90deg,
       transparent,
-      rgba(255, 255, 255, 0.6),
+      rgba(255, 255, 255, 0.5),
       transparent);
     pointer-events: none;
-  }
-
-  dataset-files .planet-featured::after {
-    content: '';
-    position: absolute;
-    top: -60%;
-    right: -20%;
-    width: 60%;
-    height: 220%;
-    background: radial-gradient(ellipse at center,
-      rgba(251, 146, 60, 0.14) 0%,
-      rgba(251, 146, 60, 0) 65%);
-    pointer-events: none;
-    transform: rotate(-18deg);
   }
 
   :root[data-theme='dark'] dataset-files .planet-featured::before {
     background: linear-gradient(90deg,
       transparent,
-      rgba(82, 183, 136, 0.25),
+      rgba(82, 183, 136, 0.2),
       transparent);
-  }
-
-  :root[data-theme='dark'] dataset-files .planet-featured::after {
-    background: radial-gradient(ellipse at center,
-      rgba(82, 183, 136, 0.12) 0%,
-      rgba(82, 183, 136, 0) 65%);
   }
 
   dataset-files .planet-featured > * {
@@ -791,22 +771,21 @@ const baseDownloadUrl = 'https://download.openplanetdata.com';
   dataset-files .planet-featured-badge {
     display: inline-flex;
     align-items: center;
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.07em;
-    padding: 0.2rem 0.6rem;
+    letter-spacing: 0.08em;
+    padding: 0.18rem 0.55rem;
     border-radius: 50px;
-    background: #f97316;
-    color: #fff;
-    border: 1px solid rgba(234, 88, 12, 0.4);
-    box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
+    background: var(--terracotta-soft);
+    color: var(--terracotta);
+    border: 1px solid rgba(199, 92, 42, 0.25);
   }
 
   :root[data-theme='dark'] dataset-files .planet-featured-badge {
-    background: rgba(82, 183, 136, 0.18);
+    background: rgba(82, 183, 136, 0.12);
     color: var(--forest-deep);
-    border-color: rgba(82, 183, 136, 0.35);
+    border-color: rgba(82, 183, 136, 0.25);
   }
 
   dataset-files .planet-featured-text {
