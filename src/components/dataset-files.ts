@@ -514,21 +514,37 @@ export class DatasetFilesElement extends LitElement {
               ` : nothing}
             </div>
             <div class="planet-featured-list">
-              ${formatEntries.map(([ext, file]) => html`
-                <div class="planet-featured-row">
-                  <div class="planet-featured-row-left">
-                    <span class="planet-featured-row-name">${this.formatLabel(ext)}</span>
-                    <span class="planet-featured-row-size">${this.formatSize(file.size)}</span>
+              ${formatEntries.map(([ext, file]) => {
+                const sha256 = file.checksum_sha256;
+                const isCopied = this._copiedHash === sha256;
+                return html`
+                  <div class="planet-featured-row">
+                    <div class="planet-featured-row-left">
+                      <div class="planet-featured-row-header">
+                        <span class="planet-featured-row-name">${this.formatLabel(ext)}</span>
+                        <span class="planet-featured-row-size">${this.formatSize(file.size)}</span>
+                      </div>
+                      <div class="planet-featured-row-meta">
+                        <span class="info-label">SHA-256</span>
+                        <code class="info-hash" title="Click to copy full hash"
+                          @click=${() => this.onCopyHash(sha256)}
+                        >${isCopied ? 'Copied!' : sha256.slice(0, 8) + '...' + sha256.slice(-8)}</code>
+                      </div>
+                      <div class="planet-featured-row-meta">
+                        <span class="info-label">Updated</span>
+                        <span class="info-value">${this.formatDate(file.updated)}</span>
+                      </div>
+                    </div>
+                    <div class="planet-featured-row-right">
+                      <button class="action-btn action-rclone compact" title="Download with Rclone"
+                        @click=${() => this.onOpenRclone(file)}>Rclone</button>
+                      <a href=${this.downloadUrl(file)} class="action-btn action-download compact">
+                        ${this.downloadIcon()}<span>Download</span>
+                      </a>
+                    </div>
                   </div>
-                  <div class="planet-featured-row-right">
-                    <button class="action-btn action-rclone compact" title="Download with Rclone"
-                      @click=${() => this.onOpenRclone(file)}>Rclone</button>
-                    <a href=${this.downloadUrl(file)} class="action-btn action-download compact">
-                      ${this.downloadIcon()}<span>Download</span>
-                    </a>
-                  </div>
-                </div>
-              `)}
+                `;
+              })}
             </div>
           </div>
         `;

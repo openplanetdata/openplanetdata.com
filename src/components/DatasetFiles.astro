@@ -826,19 +826,27 @@ const baseDownloadUrl = 'https://download.openplanetdata.com';
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0.65rem 0;
+    padding: 0.85rem 0;
     border-top: 1px solid var(--sl-color-hairline);
   }
 
   dataset-files .planet-featured-row-left {
     display: flex;
-    align-items: baseline;
-    gap: 0.7rem;
+    flex-direction: column;
+    gap: 0.3rem;
     min-width: 0;
+    flex: 1;
+  }
+
+  dataset-files .planet-featured-row-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    margin-bottom: 0.1rem;
   }
 
   dataset-files .planet-featured-row-name {
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--sl-color-text);
   }
@@ -848,21 +856,33 @@ const baseDownloadUrl = 'https://download.openplanetdata.com';
     color: var(--sl-color-gray-3);
   }
 
+  dataset-files .planet-featured-row-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--sl-text-sm);
+  }
+
+  dataset-files .planet-featured-row-meta .info-label {
+    min-width: 4.5rem;
+  }
+
   dataset-files .planet-featured-row-right {
     display: flex;
     gap: 0.4rem;
     flex-shrink: 0;
+    align-self: center;
   }
 
   @media (max-width: 640px) {
     dataset-files .planet-featured {
-      padding: 0.85rem 1rem 0.3rem;
+      padding: 1rem 1rem 0.4rem;
     }
     dataset-files .planet-featured-row {
       flex-direction: column;
       align-items: stretch;
-      gap: 0.55rem;
-      padding: 0.7rem 0;
+      gap: 0.6rem;
+      padding: 0.85rem 0;
     }
     dataset-files .planet-featured-row-right .action-btn {
       flex: 1;
