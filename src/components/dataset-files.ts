@@ -520,9 +520,10 @@ export class DatasetFilesElement extends LitElement {
                 return html`
                   <div class="planet-featured-row">
                     <div class="planet-featured-row-left">
-                      <div class="planet-featured-row-header">
-                        <span class="planet-featured-row-name">${this.formatLabel(ext)}</span>
-                        <span class="planet-featured-row-size">${this.formatSize(file.size)}</span>
+                      <div class="planet-featured-row-name">${this.formatLabel(ext)}</div>
+                      <div class="planet-featured-row-meta">
+                        <span class="info-label">Size</span>
+                        <span class="info-value">${this.formatSize(file.size)}</span>
                       </div>
                       <div class="planet-featured-row-meta">
                         <span class="info-label">SHA-256</span>
