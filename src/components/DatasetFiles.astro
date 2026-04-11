@@ -720,6 +720,133 @@ const baseDownloadUrl = 'https://download.openplanetdata.com';
     font-size: 0.9rem;
   }
 
+  /* ===== Planet Featured ===== */
+  dataset-files .planet-featured {
+    margin-bottom: 1.5rem;
+    padding: 0.9rem 1.15rem 0.4rem;
+    background: rgba(82, 183, 136, 0.05);
+    border: 1px solid rgba(82, 183, 136, 0.22);
+    border-radius: 12px;
+  }
+
+  :root[data-theme='dark'] dataset-files .planet-featured {
+    background: rgba(82, 183, 136, 0.05);
+    border-color: rgba(82, 183, 136, 0.2);
+  }
+
+  dataset-files .planet-featured-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    padding-bottom: 0.7rem;
+  }
+
+  dataset-files .planet-featured-badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 50px;
+    background: rgba(82, 183, 136, 0.15);
+    color: var(--forest);
+    border: 1px solid rgba(82, 183, 136, 0.3);
+  }
+
+  :root[data-theme='dark'] dataset-files .planet-featured-badge {
+    background: rgba(82, 183, 136, 0.18);
+    color: var(--forest-deep);
+    border-color: rgba(82, 183, 136, 0.35);
+  }
+
+  dataset-files .planet-featured-text {
+    font-size: 0.85rem;
+    color: var(--sl-color-gray-2);
+    line-height: 1.4;
+  }
+
+  dataset-files .planet-featured-text strong {
+    color: var(--sl-color-text);
+    font-weight: 600;
+  }
+
+  dataset-files .planet-featured-sep {
+    margin: 0 0.2rem;
+    color: var(--sl-color-gray-4);
+  }
+
+  dataset-files .planet-featured-version {
+    margin-left: auto;
+    font-size: 0.7rem;
+    font-weight: 600;
+    font-family: var(--sl-font-system-mono);
+    padding: 0.15rem 0.5rem;
+    border-radius: 50px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--sl-color-gray-3);
+  }
+
+  dataset-files .planet-featured-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  dataset-files .planet-featured-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-top: 1px solid rgba(82, 183, 136, 0.15);
+  }
+
+  :root[data-theme='dark'] dataset-files .planet-featured-row {
+    border-top-color: rgba(82, 183, 136, 0.12);
+  }
+
+  dataset-files .planet-featured-row-left {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    min-width: 0;
+  }
+
+  dataset-files .planet-featured-row-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--sl-color-text);
+  }
+
+  dataset-files .planet-featured-row-size {
+    font-size: 0.78rem;
+    color: var(--sl-color-gray-3);
+  }
+
+  dataset-files .planet-featured-row-right {
+    display: flex;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 640px) {
+    dataset-files .planet-featured {
+      padding: 0.85rem 1rem 0.3rem;
+    }
+    dataset-files .planet-featured-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.55rem;
+      padding: 0.7rem 0;
+    }
+    dataset-files .planet-featured-row-right .action-btn {
+      flex: 1;
+    }
+  }
+
   /* ===== Deprecated ===== */
   dataset-files .entity-card.deprecated {
     opacity: 0.6;

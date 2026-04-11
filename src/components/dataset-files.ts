@@ -175,10 +175,24 @@ export class DatasetFilesElement extends LitElement {
     return `rclone copy \\\n    --buffer-size 0 \\\n    --disable-http2 \\\n    --http-url ${this.baseDownloadUrl} \\\n    :http:${remotePath} . \\\n    --multi-thread-cutoff 0 \\\n    --multi-thread-streams 64 \\\n    --multi-thread-chunk-size 32M \\\n    --transfers 1 --progress`;
   }
 
+  private get planetEntities(): ResolvedEntity[] {
+    // Only treat the "planet" entity as a featured aggregate when it sits
+    // alongside other entities — otherwise (e.g. timezone) it's the dataset itself.
+    if (this._sortedEntities.length <= 1) return [];
+    return this._sortedEntities.filter(e => e.slug === 'planet');
+  }
+
+  private get regularEntities(): ResolvedEntity[] {
+    const featured = this.planetEntities;
+    if (featured.length === 0) return this._sortedEntities;
+    const featuredSet = new Set(featured);
+    return this._sortedEntities.filter(e => !featuredSet.has(e));
+  }
+
   private get fileCount(): number {
     const fmt = this._selectedFormat;
     let count = 0;
-    for (const e of this._sortedEntities) {
+    for (const e of this.regularEntities) {
       if (e.formats[fmt]) count++;
     }
     return count;
@@ -186,13 +200,14 @@ export class DatasetFilesElement extends LitElement {
 
   private get filteredEntries(): ResolvedEntity[] {
     const q = this._searchQuery;
+    const source = this.regularEntities;
     if (q === this._cachedFilterQuery) return this._cachedFiltered;
     this._cachedFilterQuery = q;
     if (!q) {
-      this._cachedFiltered = this._sortedEntities;
+      this._cachedFiltered = source;
     } else {
       const lower = q.toLowerCase();
-      this._cachedFiltered = this._sortedEntities.filter(e =>
+      this._cachedFiltered = source.filter(e =>
         e.nameLower.includes(lower)
       );
     }
@@ -200,7 +215,7 @@ export class DatasetFilesElement extends LitElement {
   }
 
   private get isLarge(): boolean {
-    return this._sortedEntities.length > 15;
+    return this.regularEntities.length > 15;
   }
 
   // --- Event Handlers ---
@@ -374,7 +389,7 @@ export class DatasetFilesElement extends LitElement {
 
   private renderCards() {
     const fmt = this._selectedFormat;
-    const entries = this._sortedEntities
+    const entries = this.regularEntities
       .filter(e => e.formats[fmt])
       .sort((a, b) => {
         const da = a.formats[fmt].deprecated ? 1 : 0;
@@ -382,6 +397,7 @@ export class DatasetFilesElement extends LitElement {
         return da - db || a.name.localeCompare(b.name);
       });
     return html`
+      ${this.renderPlanetFeatured()}
       ${this.renderToolbar()}
       <div class="entity-grid">
         ${entries.map(e => {
@@ -459,6 +475,7 @@ export class DatasetFilesElement extends LitElement {
     const visible = filtered.slice(startIdx, endIdx);
 
     return html`
+      ${this.renderPlanetFeatured()}
       ${this.renderToolbar()}
       <div class="table-body" style="height:${CONTAINER_HEIGHT}px;overflow-y:auto" @scroll=${this.onScroll}>
         <div style="height:${totalHeight}px;position:relative">
@@ -471,6 +488,51 @@ export class DatasetFilesElement extends LitElement {
         <div class="no-results">No matching files found.</div>
       ` : nothing}
       ${this.renderSummary(filtered.length)}
+    `;
+  }
+
+  private renderPlanetFeatured() {
+    const planets = this.planetEntities;
+    if (planets.length === 0) return nothing;
+
+    return html`
+      ${planets.map(planet => {
+        const formatEntries = Object.entries(planet.formats).sort(([a], [b]) =>
+          this.formatLabel(a).localeCompare(this.formatLabel(b))
+        );
+        return html`
+          <div class="planet-featured">
+            <div class="planet-featured-header">
+              <span class="planet-featured-badge">Global</span>
+              <span class="planet-featured-text">
+                <strong>Planet-wide dataset</strong>
+                <span class="planet-featured-sep">·</span>
+                complete download of everything listed below
+              </span>
+              ${this.showVersion ? html`
+                <span class="planet-featured-version">${planet.version}</span>
+              ` : nothing}
+            </div>
+            <div class="planet-featured-list">
+              ${formatEntries.map(([ext, file]) => html`
+                <div class="planet-featured-row">
+                  <div class="planet-featured-row-left">
+                    <span class="planet-featured-row-name">${this.formatLabel(ext)}</span>
+                    <span class="planet-featured-row-size">${this.formatSize(file.size)}</span>
+                  </div>
+                  <div class="planet-featured-row-right">
+                    <button class="action-btn action-rclone compact" title="Download with Rclone"
+                      @click=${() => this.onOpenRclone(file)}>Rclone</button>
+                    <a href=${this.downloadUrl(file)} class="action-btn action-download compact">
+                      ${this.downloadIcon()}<span>Download</span>
+                    </a>
+                  </div>
+                </div>
+              `)}
+            </div>
+          </div>
+        `;
+      })}
     `;
   }
 
