@@ -47,6 +47,7 @@ const CONTAINER_HEIGHT = ROW_HEIGHT * VISIBLE_ROWS;
 export class DatasetFilesElement extends LitElement {
   @property({ attribute: 'api-url' }) accessor apiUrl = '';
   @property({ attribute: 'base-download-url' }) accessor baseDownloadUrl = '';
+  @property({ attribute: 'version-filter' }) accessor versionFilter = '';
   @property({ type: Boolean, attribute: 'show-all-formats' }) accessor showAllFormats = false;
   @property({ type: Boolean, attribute: 'show-version' }) accessor showVersion = false;
   @property({ type: Boolean, attribute: 'debug-loading' }) accessor debugLoading = false;
@@ -83,7 +84,9 @@ export class DatasetFilesElement extends LitElement {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
-      const files: FileEntry[] = data.files;
+      const files: FileEntry[] = this.versionFilter
+        ? (data.files ?? []).filter((f: FileEntry) => f.remote_version === this.versionFilter)
+        : data.files;
 
       if (!files || files.length === 0) {
         this._errorMessage = 'No files available yet.';

@@ -2,12 +2,13 @@
 interface Props {
   category: string;
   subcategory?: string;
+  version?: string;
   showAllFormats?: boolean;
   showVersion?: boolean;
   debugLoading?: boolean;
 }
 
-const { category, subcategory, showAllFormats = false, showVersion = false, debugLoading = false } = Astro.props;
+const { category, subcategory, version, showAllFormats = false, showVersion = false, debugLoading = false } = Astro.props;
 const apiUrl = `https://download.openplanetdata.com/files?category=${category}${subcategory ? `&subcategory=${subcategory}` : ''}&limit=-1`;
 const baseDownloadUrl = 'https://download.openplanetdata.com';
 ---
@@ -20,6 +21,7 @@ const baseDownloadUrl = 'https://download.openplanetdata.com';
   class="not-content"
   api-url={apiUrl}
   base-download-url={baseDownloadUrl}
+  {...(version ? { 'version-filter': version } : {})}
   {...(showAllFormats ? { 'show-all-formats': true } : {})}
   {...(showVersion ? { 'show-version': true } : {})}
   {...(debugLoading ? { 'debug-loading': true } : {})}
