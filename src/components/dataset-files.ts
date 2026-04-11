@@ -28,6 +28,7 @@ interface ResolvedEntity {
   slug: string;
   name: string;
   nameLower: string;
+  version: string;
   allDeprecated: boolean;
   formats: EntityFormats;
 }
@@ -95,13 +96,13 @@ export class DatasetFilesElement extends LitElement {
         return;
       }
 
-      // Group files by entity, keyed by extension
+      // Group files by (entity, version), keyed by extension
       const entityMap = new Map<string, EntityFormats>();
       const formatSet = new Set<string>();
       for (const file of files) {
-        const slug = file.entity;
-        if (!entityMap.has(slug)) entityMap.set(slug, {});
-        entityMap.get(slug)![file.extension] = file;
+        const key = `${file.entity}\u0000${file.remote_version}`;
+        if (!entityMap.has(key)) entityMap.set(key, {});
+        entityMap.get(key)![file.extension] = file;
         formatSet.add(file.extension);
       }
 
@@ -110,15 +111,23 @@ export class DatasetFilesElement extends LitElement {
       );
       this._selectedFormat = this._availableFormats[0] || 'geojson';
 
-      this._sortedEntities = Array.from(entityMap.entries())
-        .map(([slug, formats]) => {
-          const name = this.resolveEntityName(formats, slug);
+      this._sortedEntities = Array.from(entityMap.values())
+        .map((formats) => {
+          const first = Object.values(formats)[0]!;
+          const name = this.resolveEntityName(formats, first.entity);
           const allDeprecated = Object.values(formats).every(f => f.deprecated);
-          return { slug, name, nameLower: name.toLowerCase(), formats, allDeprecated };
+          return {
+            slug: first.entity,
+            name,
+            nameLower: name.toLowerCase(),
+            version: first.remote_version,
+            formats,
+            allDeprecated,
+          };
         })
         .sort((a, b) => {
           if (a.allDeprecated !== b.allDeprecated) return a.allDeprecated ? 1 : -1;
-          return a.name.localeCompare(b.name);
+          return a.name.localeCompare(b.name) || a.version.localeCompare(b.version);
         });
 
       this._loading = false;
