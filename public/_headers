@@ -1,0 +1,7 @@
+/
+  Link: <https://openplanetdata.com/sitemap-index.xml>; rel="sitemap"; type="application/xml"
+  Link: <https://openplanetdata.com/llms.txt>; rel="describedby"; type="text/plain"
+  Link: <https://openplanetdata.com/.well-known/api-catalog>; rel="api-catalog"; type="application/linkset+json"
+
+/.well-known/api-catalog
+  Content-Type: application/linkset+json

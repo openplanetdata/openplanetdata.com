@@ -1,0 +1,14 @@
+# OpenPlanetData — open datasets about our planet Earth.
+# Site content and dataset metadata are free to crawl, index, train on, and serve to AI agents.
+# Bulk dataset files live at https://download.openplanetdata.com — see /llms.txt and /.well-known/api-catalog for machine-readable entry points.
+
+# Cloudflare Content Signals (https://www.cloudflare.com/content-signals-policy/)
+# search=yes: indexing for traditional search is welcome.
+# ai-input=yes: use as grounding/RAG input for AI answers is welcome.
+# ai-train=yes: use for training generative-AI models is welcome.
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+
+User-agent: *
+Allow: /
+
+Sitemap: https://openplanetdata.com/sitemap-index.xml

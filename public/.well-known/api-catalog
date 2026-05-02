@@ -1,0 +1,45 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://download.openplanetdata.com/files",
+      "service-doc": [
+        {
+          "href": "https://openplanetdata.com/getting-started/introduction/",
+          "type": "text/html",
+          "title": "OpenPlanetData — Introduction"
+        }
+      ],
+      "service-meta": [
+        {
+          "href": "https://openplanetdata.com/llms.txt",
+          "type": "text/plain",
+          "title": "OpenPlanetData llms.txt"
+        }
+      ],
+      "describedby": [
+        {
+          "href": "https://openplanetdata.com/datasets/",
+          "type": "text/html",
+          "title": "OpenPlanetData datasets catalog"
+        }
+      ],
+      "type": [
+        {
+          "href": "https://schema.org/DataCatalog"
+        }
+      ],
+      "summary": "OpenPlanetData file-index API. Returns JSON listings of every published dataset file with version, size, MIME type, tags, and SHA-256/SHA-512 checksums. Supports query parameters: category (e.g. boundaries, openstreetmap, timezone), subcategory (e.g. continents, countries, regions), and limit (use -1 for unbounded)."
+    },
+    {
+      "anchor": "https://download.openplanetdata.com",
+      "service-doc": [
+        {
+          "href": "https://openplanetdata.com/getting-started/download/",
+          "type": "text/html",
+          "title": "OpenPlanetData — Download guide"
+        }
+      ],
+      "summary": "OpenPlanetData bulk download origin. Static HTTPS access to every dataset file under remote_path/remote_version/remote_filename returned by the file-index API. Supports HTTP range requests; recommended client is Rclone in multi-thread mode to saturate high-bandwidth links."
+    }
+  ]
+}

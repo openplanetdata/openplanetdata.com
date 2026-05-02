@@ -1,0 +1,36 @@
+# OpenPlanetData
+
+> Open, free, and transparent datasets about planet Earth — boundaries, OpenStreetMap snapshots, and time zones — distributed daily as GeoJSON, GeoPackage, and GeoParquet from a global Cloudflare R2 mirror. No API keys, no rate limits.
+
+OpenPlanetData publishes regularly-rebuilt geographic datasets aggregated from authoritative sources (OpenStreetMap, Natural Earth, timezone-boundary-builder, and others). Bulk files are served from `https://download.openplanetdata.com`; the file index is queryable at `https://download.openplanetdata.com/files`.
+
+## Getting started
+
+- [Introduction](https://openplanetdata.com/getting-started/introduction/): What OpenPlanetData is and why it exists.
+- [Data Formats](https://openplanetdata.com/getting-started/data-formats/): When to choose GeoJSON, GeoPackage, or GeoParquet.
+- [Download](https://openplanetdata.com/getting-started/download/): Saturating high-bandwidth links with Rclone multi-threaded transfers.
+
+## Datasets
+
+- [Datasets overview](https://openplanetdata.com/datasets/): Full catalog of available datasets.
+- [Continents](https://openplanetdata.com/datasets/boundaries/continents/): Continent boundary polygons.
+- [Countries](https://openplanetdata.com/datasets/boundaries/countries/): Country boundary polygons aligned with ISO 3166-1.
+- [Regions](https://openplanetdata.com/datasets/boundaries/regions/): First-level subdivisions aligned with ISO 3166-2.
+- [OpenStreetMap](https://openplanetdata.com/datasets/openstreetmap/): Daily planet snapshots as PBF, GOL, GOB, and GeoParquet.
+- [Time Zone](https://openplanetdata.com/datasets/time-zones/): Time zone boundaries from timezone-boundary-builder.
+
+## Data pipeline
+
+- [How we build](https://openplanetdata.com/pipeline/how-we-build/): Pipeline architecture and refresh cadence.
+- [Data sources](https://openplanetdata.com/pipeline/data-sources/): Authoritative upstream inputs.
+- [Quality assurance](https://openplanetdata.com/pipeline/quality-assurance/): Validation and integrity checks.
+
+## Programmatic access
+
+- [File index API](https://download.openplanetdata.com/files): JSON listing of every published file with size, version, and SHA-256/SHA-512 checksums. Filterable via `?category=`, `?subcategory=`, `?limit=`.
+- [API catalog](https://openplanetdata.com/.well-known/api-catalog): RFC 9727 linkset describing the file-index API.
+- [Sitemap](https://openplanetdata.com/sitemap-index.xml): Full list of crawlable pages.
+
+## License
+
+Datasets inherit the licenses of their upstream sources (notably ODbL for OpenStreetMap). Site content is published under permissive open terms — attribution to OpenPlanetData is appreciated.
