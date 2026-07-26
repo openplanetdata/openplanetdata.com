@@ -9,8 +9,6 @@ const MAX_EMAIL_LENGTH = 254;
 
 /** Nobody writes a sentence of prose this fast; a script fills the field instantly. */
 const MIN_COMPOSE_MS = 1500;
-/** Below this, a comment is noise ("ok", "??") and not worth an email. */
-const MIN_COMMENT_FOR_EMAIL = 5;
 
 const DEDUPE_WINDOW_MS = 24 * 60 * 60 * 1000;
 const MAX_COMMENTS_PER_WINDOW = 3;
@@ -142,7 +140,11 @@ export async function handleFeedback(request: Request, env: Env, ctx: ExecutionC
 			.bind(comment, reason, contactEmail, existing.id)
 			.run();
 
-		if (!helpful && comment.length >= MIN_COMMENT_FOR_EMAIL) {
+		// Any written comment is worth telling someone about. Volume is already
+		// bounded by the per-visitor comment quota, so there is no length floor:
+		// "404" and "typo" are real reports, and silently dropping them looks
+		// identical to the mail failing.
+		if (!helpful && comment) {
 			ctx.waitUntil(notify(env, { page, reason, comment, contactEmail, country }));
 		}
 		return json({ ok: true, recorded: true });
@@ -181,7 +183,7 @@ export async function handleFeedback(request: Request, env: Env, ctx: ExecutionC
 
 	// Only written complaints are worth an inbox interruption. A bare "No" click
 	// is a number on the stats page, nothing more.
-	if (!helpful && comment.length >= MIN_COMMENT_FOR_EMAIL) {
+	if (!helpful && comment) {
 		ctx.waitUntil(notify(env, { page, reason, comment, contactEmail, country }));
 	}
 
