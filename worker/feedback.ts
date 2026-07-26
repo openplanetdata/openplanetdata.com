@@ -148,10 +148,14 @@ export async function handleFeedback(request: Request, env: Env, ctx: ExecutionC
 
 	const country = (request as { cf?: { country?: string } }).cf?.country ?? null;
 
-	await env.FEEDBACK_DB.prepare(
+	// ON CONFLICT closes the gap between the SELECT above and this INSERT: two
+	// concurrent submissions both read "no existing vote", and the unique index
+	// on (ip_hash, page, day_bucket) lets exactly one of them land.
+	const inserted = await env.FEEDBACK_DB.prepare(
 		`INSERT INTO page_feedback
 		   (page, helpful, reason, comment, contact_email, country, ip_hash, created_at, day_bucket, month_bucket)
-		 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`,
+		 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)
+		 ON CONFLICT (ip_hash, page, day_bucket) DO NOTHING`,
 	)
 		.bind(
 			page,
@@ -166,6 +170,10 @@ export async function handleFeedback(request: Request, env: Env, ctx: ExecutionC
 			monthBucketOf(now),
 		)
 		.run();
+
+	if (inserted.meta.changes === 0) {
+		return json({ ok: true, recorded: false, reason: 'already_voted' });
+	}
 
 	// Only written complaints are worth an inbox interruption. A bare "No" click
 	// is a number on the stats page, nothing more.

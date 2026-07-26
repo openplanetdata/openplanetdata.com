@@ -347,12 +347,18 @@ export function initPageFeedback(): void {
 				const helpful = button.dataset.feedback === 'yes';
 				const vote = helpful ? 'yes' : 'no';
 
-				markVoted(section, vote);
-				storeVote(vote);
+				// The server locks one vote per page per day, so a second click
+				// leaves the recorded vote alone rather than sending one that
+				// would be rejected — and a double-click sends only one request.
+				// The dialog still opens: sharing and commenting stay available.
+				if (readStoredVote() === null) {
+					markVoted(section, vote);
+					storeVote(vote);
 
-				// Fire and forget: the dialog opens straight away, and a failed
-				// request should not stop someone sharing or explaining.
-				void submit({ helpful });
+					// Fire and forget: the dialog opens straight away, and a
+					// failed request should not stop someone sharing.
+					void submit({ helpful });
+				}
 
 				if (helpful) {
 					shareDialog();
