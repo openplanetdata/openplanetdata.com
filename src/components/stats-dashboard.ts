@@ -49,6 +49,7 @@ interface StatsPayload {
 		period: FeedbackTotals;
 		series: Array<{ day: number; responses: number; helpful: number }>;
 		by_page: Array<{ page: string; responses: number; helpful: number }>;
+		by_country: Array<{ code: string; responses: number; helpful: number }>;
 	} | null;
 }
 
@@ -641,6 +642,63 @@ export class StatsDashboardElement extends LitElement {
 		`;
 	}
 
+	/**
+	 * Only the feedback widget records a country — the download log stores just
+	 * the raw address — so this counts readers who voted, not people who pulled
+	 * data. The card stays hidden until somebody has actually voted, rather than
+	 * publishing an empty chart.
+	 */
+	private renderCountries(data: StatsPayload) {
+		const rows = (data.feedback?.by_country ?? []).filter((row) => row.responses > 0);
+		if (rows.length === 0) return nothing;
+
+		const items: BarItem[] = rows.map((row) => ({
+			label: countryName(row.code),
+			value: row.responses,
+		}));
+
+		const chart = html`
+			<div class="stats-chart-wrap">
+				${barChart({
+					width: Math.max(280, this._width),
+					items,
+					formatValue: (value) => this.compact(value),
+					labelWidth: Math.min(240, Math.max(140, this._width * 0.28)),
+				})}
+			</div>
+		`;
+
+		const table = html`
+			<div class="stats-table-wrap">
+				<table class="stats-table">
+					<thead>
+						<tr><th scope="col">Country</th><th scope="col">Votes</th><th scope="col">Helpful</th><th scope="col">Score</th></tr>
+					</thead>
+					<tbody>
+						${rows.map((row) => {
+							const share = row.responses > 0 ? row.helpful / row.responses : 0;
+							return html`
+								<tr>
+									<th scope="row">${countryName(row.code)}</th>
+									<td>${this.full(row.responses)}</td>
+									<td>${this.full(row.helpful)}</td>
+									<td>${Math.round(share * 100)}%</td>
+								</tr>`;
+						})}
+					</tbody>
+				</table>
+			</div>
+		`;
+
+		return this.renderCard(
+			'country',
+			'Where readers are',
+			`Countries the feedback came from, over the last ${data.period.days} days. Derived from the request, never from anything the reader submits.`,
+			chart,
+			table,
+		);
+	}
+
 	private renderSkeleton() {
 		return html`
 			<div class="stats-filters"><span class="stats-skeleton stats-skeleton-chip"></span></div>
@@ -694,6 +752,7 @@ export class StatsDashboardElement extends LitElement {
 						)}
 					</div>`}
 			${this.renderFeedback(data)}
+			${this.renderCountries(data)}
 			<p class="stats-footnote">
 				Updated every 5 minutes · figures generated ${this.fullDay(data.generated_at)}.
 				Download counts come from request logs; data served is the sum of the
@@ -707,6 +766,38 @@ export class StatsDashboardElement extends LitElement {
 /** One decimal, but only when it earns its place: 1.5 K yet 12 K, not 12.0 K. */
 function trim(value: number): string {
 	return value >= 10 || Number.isInteger(value) ? String(Math.round(value)) : value.toFixed(1);
+}
+
+/**
+ * `XX` is what the query substitutes when Cloudflare could not place the
+ * request — Tor exits report `T1`, and both should read as words rather than
+ * as codes.
+ */
+const COUNTRY_FALLBACKS: Record<string, string> = {
+	XX: 'Unknown',
+	T1: 'Tor network',
+};
+
+let regionNames: Intl.DisplayNames | null | undefined;
+
+function countryName(code: string): string {
+	const fallback = COUNTRY_FALLBACKS[code];
+	if (fallback) return fallback;
+
+	if (regionNames === undefined) {
+		// Not universally available, and it throws on some older engines.
+		try {
+			regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
+		} catch {
+			regionNames = null;
+		}
+	}
+
+	try {
+		return regionNames?.of(code) ?? code;
+	} catch {
+		return code;
+	}
 }
 
 function titleCase(value: string): string {

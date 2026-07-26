@@ -198,7 +198,7 @@ async function queryDownloads(env: Env, since: number, days: number) {
 async function loadFeedback(env: Env, since: number) {
 	try {
 		const db = env.FEEDBACK_DB;
-		const [allTime, period, series, byPage] = await db.batch([
+		const [allTime, period, series, byPage, byCountry] = await db.batch([
 			db.prepare(
 				`SELECT COUNT(*) AS responses, COALESCE(SUM(helpful), 0) AS helpful FROM page_feedback`,
 			),
@@ -222,6 +222,19 @@ async function loadFeedback(env: Env, since: number) {
 				  ORDER BY responses DESC, page
 				  LIMIT 25`,
 			).bind(since),
+			// Grouped by the expression rather than the `code` alias, for the same
+			// reason as the download breakdowns: a bare GROUP BY term resolves to a
+			// real column first.
+			db.prepare(
+				`SELECT COALESCE(NULLIF(country, ''), 'XX') AS code,
+				        COUNT(*) AS responses,
+				        COALESCE(SUM(helpful), 0) AS helpful
+				   FROM page_feedback
+				  WHERE day_bucket >= ?1
+				  GROUP BY COALESCE(NULLIF(country, ''), 'XX')
+				  ORDER BY responses DESC
+				  LIMIT 12`,
+			).bind(since),
 		]);
 
 		return {
@@ -229,6 +242,7 @@ async function loadFeedback(env: Env, since: number) {
 			period: first(period, { responses: 0, helpful: 0 }),
 			series: rows<{ day: number; responses: number; helpful: number }>(series),
 			by_page: rows<{ page: string; responses: number; helpful: number }>(byPage),
+			by_country: rows<{ code: string; responses: number; helpful: number }>(byCountry),
 		};
 	} catch (error) {
 		// Downloads are the bulk of the page; a feedback table that has not been
