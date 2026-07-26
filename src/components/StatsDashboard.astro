@@ -527,7 +527,12 @@
     background: var(--chart-series);
   }
 
+  /* Right-aligned in a fixed box so the percent signs line up down the column:
+     left-aligned, "0%" and "100%" start together and end 18px apart. */
   stats-dashboard .stats-row-score {
+    display: inline-block;
+    min-width: 2.75rem;
+    text-align: right;
     font-variant-numeric: tabular-nums;
   }
 
