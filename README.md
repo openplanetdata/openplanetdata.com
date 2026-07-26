@@ -15,6 +15,7 @@ All commands are run from the root of the project:
 | `npm run dev:api`   | Build, then serve site **and** API on `localhost:8787`        |
 | `npm run test`      | End-to-end API tests against a throwaway `wrangler dev`       |
 | `npm run typecheck` | Type-check the Worker (esbuild strips types without checking) |
+| `npm run og`        | Regenerate `public/og-image.png`, the social preview card     |
 
 Astro's dev server only serves the static site. Anything touching `/api/*` — the
 feedback widget and the statistics page — needs `npm run dev:api`, which runs the

@@ -8,6 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "dev:api": "astro build && wrangler dev",
+    "og": "node scripts/build-og-image.mjs",
     "typecheck": "tsc -p worker/tsconfig.json",
     "test": "node --test --test-concurrency=1 \"tests/*.test.mjs\"",
     "astro": "astro"
