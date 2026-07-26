@@ -252,12 +252,14 @@ async function loadFeedback(env: Env, since: number) {
 	}
 }
 
-function rows<T>(result: D1Result): T[] {
-	return (result.results ?? []) as T[];
+// `batch()` returns one result per statement, but the type system cannot know
+// that, and a defensive fallback beats a crash if that ever stops holding.
+function rows<T>(result: D1Result | undefined): T[] {
+	return (result?.results ?? []) as T[];
 }
 
-function first<T>(result: D1Result, fallback: T): T {
-	return ((result.results ?? [])[0] as T | undefined) ?? fallback;
+function first<T>(result: D1Result | undefined, fallback: T): T {
+	return ((result?.results ?? [])[0] as T | undefined) ?? fallback;
 }
 
 /**
