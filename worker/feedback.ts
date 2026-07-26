@@ -1,5 +1,6 @@
 import { EmailMessage } from 'cloudflare:email';
 import { dayBucketOf, json, monthBucketOf, type Env } from './env';
+import { buildFeedbackEmail, type Notification } from './feedback-email';
 
 const MAX_BODY_BYTES = 8 * 1024;
 const MAX_PAGE_LENGTH = 256;
@@ -235,91 +236,15 @@ async function hashIp(ip: string, salt = 'openplanetdata'): Promise<string> {
 		.slice(0, 32);
 }
 
-interface Notification {
-	page: string;
-	reason: string | null;
-	comment: string;
-	contactEmail: string | null;
-	country: string | null;
-}
-
 async function notify(env: Env, feedback: Notification): Promise<void> {
 	const { FEEDBACK_EMAIL: sender, FEEDBACK_EMAIL_TO: to, FEEDBACK_EMAIL_FROM: from } = env;
 	if (!sender || !to || !from) return;
 
-	const body = [
-		`Page:    https://openplanetdata.com${feedback.page}`,
-		`Reason:  ${feedback.reason ?? 'unspecified'}`,
-		`Country: ${feedback.country ?? 'unknown'}`,
-		`Reply:   ${feedback.contactEmail ?? 'not provided'}`,
-		'',
-		feedback.comment,
-		'',
-		'--',
-		`Stats: https://openplanetdata.com/stats/`,
-	].join('\n');
-
 	try {
-		await sender.send(
-			new EmailMessage(
-				from,
-				to,
-				buildMessage({
-					from,
-					to,
-					subject: `Page feedback: ${feedback.page}`,
-					body,
-					replyTo: feedback.contactEmail,
-				}),
-			),
-		);
+		await sender.send(new EmailMessage(from, to, buildFeedbackEmail({ from, to, feedback })));
 	} catch (error) {
 		// Never fail the visitor's submission over a delivery problem — the row
 		// is already in D1 and readable from the stats tooling.
 		console.error('feedback email failed', error);
 	}
-}
-
-interface MessageParts {
-	from: string;
-	to: string;
-	subject: string;
-	body: string;
-	replyTo: string | null;
-}
-
-function buildMessage({ from, to, subject, body, replyTo }: MessageParts): string {
-	const headers = [
-		`From: OpenPlanetData <${from}>`,
-		`To: <${to}>`,
-		replyTo ? `Reply-To: <${replyTo}>` : null,
-		`Subject: ${sanitizeHeader(subject)}`,
-		`Message-ID: <${crypto.randomUUID()}@openplanetdata.com>`,
-		`Date: ${new Date().toUTCString()}`,
-		'MIME-Version: 1.0',
-		'Content-Type: text/plain; charset="utf-8"',
-		'Content-Transfer-Encoding: base64',
-	].filter((line): line is string => line !== null);
-
-	// Base64 keeps visitor-supplied text out of the header/body grammar
-	// entirely, so no amount of newlines or non-ASCII can restructure the mail.
-	return `${headers.join('\r\n')}\r\n\r\n${base64Lines(body)}`;
-}
-
-/** Header values are ASCII and single-line; anything else is an injection attempt. */
-function sanitizeHeader(value: string): string {
-	return value.replace(/[^\x20-\x7E]+/g, ' ').slice(0, 200);
-}
-
-function base64Lines(text: string): string {
-	const bytes = new TextEncoder().encode(text);
-	let binary = '';
-	for (const byte of bytes) binary += String.fromCharCode(byte);
-
-	const encoded = btoa(binary);
-	const lines: string[] = [];
-	for (let index = 0; index < encoded.length; index += 76) {
-		lines.push(encoded.slice(index, index + 76));
-	}
-	return lines.join('\r\n');
 }
