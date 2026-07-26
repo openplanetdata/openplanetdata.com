@@ -284,6 +284,9 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
     gap: 1.5rem;
+    /* The cards inside drop their own margin, so the row carries it instead —
+       without this the next card sits flush against the grid. */
+    margin-bottom: 1.5rem;
   }
 
   stats-dashboard .stats-grid-2 .stats-card {
