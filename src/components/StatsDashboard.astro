@@ -171,6 +171,7 @@
   /* ===== Cards ===== */
 
   stats-dashboard .stats-card {
+    position: relative;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     background: var(--glass-bg);
@@ -182,10 +183,77 @@
   }
 
   stats-dashboard .stats-card-head {
+    /* Leaves room for the view toggle pinned in the corner. */
+    padding-right: 3rem;
+    margin-bottom: 1.25rem;
+  }
+
+  /* Switches how the card is drawn, so it is deliberately kept apart from the
+     controls that change what the data covers. */
+  stats-dashboard .stats-view-toggle {
+    position: absolute;
+    top: 1.35rem;
+    right: 1.35rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    padding: 0;
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    background: var(--glass-bg);
+    color: var(--sl-color-gray-3);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  stats-dashboard .stats-view-toggle:hover {
+    color: var(--sl-color-accent);
+    border-color: var(--sl-color-accent);
+  }
+
+  stats-dashboard .stats-view-toggle[aria-pressed='true'] {
+    background: var(--sl-color-accent-low);
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-accent);
+  }
+
+  /* Name on hover. Built in CSS rather than a title attribute so it matches the
+     theme and appears immediately; aria-label carries the same text. */
+  stats-dashboard .stats-view-toggle::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    right: 0;
+    z-index: 5;
+    padding: 0.3rem 0.55rem;
+    border-radius: 8px;
+    background: var(--sl-color-gray-1);
+    color: var(--sl-color-bg);
+    font-size: 0.72rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  stats-dashboard .stats-view-toggle:hover::after,
+  stats-dashboard .stats-view-toggle:focus-visible::after {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    stats-dashboard .stats-view-toggle,
+    stats-dashboard .stats-view-toggle::after {
+      transition: none;
+    }
+  }
+
+  stats-dashboard .stats-card-controls {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
+    align-items: center;
+    gap: 0.4rem;
     flex-wrap: wrap;
     margin-bottom: 1.25rem;
   }
@@ -205,13 +273,6 @@
     font-size: var(--sl-text-sm);
     line-height: 1.55;
     color: var(--sl-color-gray-3);
-  }
-
-  stats-dashboard .stats-card-tools {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    flex-wrap: wrap;
   }
 
   stats-dashboard .stats-metric-picker {

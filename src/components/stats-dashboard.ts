@@ -301,23 +301,46 @@ export class StatsDashboardElement extends LitElement {
 		const showTable = this._tables.has(id);
 		return html`
 			<section class="stats-card">
+				${this.renderViewToggle(id, showTable)}
 				<header class="stats-card-head">
-					<div>
-						<h2 class="stats-card-title">${title}</h2>
-						<p class="stats-card-subtitle">${subtitle}</p>
-					</div>
-					<div class="stats-card-tools">
-						${extra}
-						<button
-							type="button"
-							class="stats-chip stats-chip-sm ${showTable ? 'active' : ''}"
-							aria-pressed=${showTable}
-							@click=${() => this.toggleTable(id)}
-						>${showTable ? 'Chart' : 'Table'}</button>
-					</div>
+					<h2 class="stats-card-title">${title}</h2>
+					<p class="stats-card-subtitle">${subtitle}</p>
 				</header>
+				${extra === nothing ? nothing : html`<div class="stats-card-controls">${extra}</div>`}
 				${showTable ? table : body}
 			</section>
+		`;
+	}
+
+	/**
+	 * Pinned to the card corner rather than sitting in the control row: it
+	 * switches how this card is rendered, which is a different kind of action
+	 * from the filters that change what the data covers.
+	 */
+	private renderViewToggle(id: string, showTable: boolean) {
+		const label = showTable ? 'Show chart' : 'Show table';
+		return html`
+			<button
+				type="button"
+				class="stats-view-toggle"
+				aria-pressed=${showTable}
+				aria-label=${label}
+				data-tip=${label}
+				@click=${() => this.toggleTable(id)}
+			>
+				${showTable
+					? html`<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+							stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<polyline points="3 17 9 11 13 15 21 7"></polyline>
+							<polyline points="15 7 21 7 21 13"></polyline>
+						</svg>`
+					: html`<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+							stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<rect x="3" y="4" width="18" height="16" rx="2"></rect>
+							<line x1="3" y1="9.5" x2="21" y2="9.5"></line>
+							<line x1="9.5" y1="9.5" x2="9.5" y2="20"></line>
+						</svg>`}
+			</button>
 		`;
 	}
 
@@ -607,13 +630,11 @@ export class StatsDashboardElement extends LitElement {
 		return html`
 			<section class="stats-card">
 				<header class="stats-card-head">
-					<div>
-						<h2 class="stats-card-title">Page feedback</h2>
-						<p class="stats-card-subtitle">
-							Reader votes from the &ldquo;Was this page helpful?&rdquo; widget over the last
-							${data.period.days} days. Written comments stay private.
-						</p>
-					</div>
+					<h2 class="stats-card-title">Page feedback</h2>
+					<p class="stats-card-subtitle">
+						Reader votes from the &ldquo;Was this page helpful?&rdquo; widget over the last
+						${data.period.days} days. Written comments stay private.
+					</p>
 				</header>
 				${meter}
 			</section>
