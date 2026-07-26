@@ -161,6 +161,9 @@ import Pagination from '@astrojs/starlight/components/Pagination.astro';
 	/* The dialogs are appended to <body>, so they sit outside scoped styles. */
 
 	.feedback-dialog {
+		/* Tells the browser which palette to draw native controls with. Without
+		   it the <select> popup renders light while inheriting light text. */
+		color-scheme: light;
 		/* Overriding width defeats the UA stylesheet's `width: fit-content` +
 		   `margin: auto` centring, so both axes are re-centred explicitly. */
 		position: fixed;
@@ -179,6 +182,7 @@ import Pagination from '@astrojs/starlight/components/Pagination.astro';
 	}
 
 	:root[data-theme='dark'] .feedback-dialog {
+		color-scheme: dark;
 		background: #1a2620;
 		border-color: rgba(255, 255, 255, 0.12);
 	}
@@ -282,6 +286,32 @@ import Pagination from '@astrojs/starlight/components/Pagination.astro';
 		font-family: inherit;
 		font-size: var(--sl-text-sm);
 		transition: border-color 0.2s ease;
+	}
+
+	/* The popup list is drawn by the OS and cannot use a translucent glass
+	   background, so the select carries a solid one and the options are given
+	   explicit colours rather than inheriting the page's. */
+	.feedback-select {
+		background: var(--sl-color-bg);
+		color: var(--sl-color-text);
+		appearance: none;
+		background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+			linear-gradient(135deg, currentColor 50%, transparent 50%);
+		background-position: calc(100% - 1.1rem) 55%, calc(100% - 0.75rem) 55%;
+		background-size: 0.35rem 0.35rem, 0.35rem 0.35rem;
+		background-repeat: no-repeat;
+		padding-right: 2.25rem;
+	}
+
+	.feedback-select option {
+		background: var(--sl-color-bg);
+		color: var(--sl-color-text);
+	}
+
+	:root[data-theme='dark'] .feedback-select,
+	:root[data-theme='dark'] .feedback-select option {
+		background-color: #1a2620;
+		color: var(--sl-color-text);
 	}
 
 	.feedback-textarea {
