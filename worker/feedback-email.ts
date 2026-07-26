@@ -78,8 +78,8 @@ export function textBody(feedback: Notification, reason: string): string {
 export function htmlBody(feedback: Notification, reason: string): string {
 	const row = (label: string, value: string) => `
 		<tr>
-			<td style="padding:6px 16px 6px 0;font-size:13px;color:#8a7f72;white-space:nowrap;vertical-align:top;">${label}</td>
-			<td style="padding:6px 0;font-size:13px;color:#332e28;vertical-align:top;">${value}</td>
+			<td style="padding:9px 18px 9px 0;font-size:15px;color:#8a7f72;white-space:nowrap;vertical-align:top;">${label}</td>
+			<td style="padding:9px 0;font-size:15px;color:#332e28;vertical-align:top;">${value}</td>
 		</tr>`;
 
 	const pageUrl = `${SITE}${escapeHtml(feedback.page)}`;
@@ -103,13 +103,13 @@ export function htmlBody(feedback: Notification, reason: string): string {
 				style="max-width:560px;background:#fffcf7;border:1px solid #e4dbd0;border-radius:16px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,sans-serif;">
 
 				<tr><td style="padding:22px 28px 0;">
-					<div style="font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#8a7f72;">
+					<div style="font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#8a7f72;">
 						OpenPlanetData
 					</div>
-					<h1 style="margin:8px 0 4px;font-size:21px;font-weight:600;color:#332e28;">
+					<h1 style="margin:10px 0 6px;font-size:27px;font-weight:600;color:#332e28;">
 						A page was marked unhelpful
 					</h1>
-					<p style="margin:0;font-size:14px;line-height:1.55;color:#544d44;">
+					<p style="margin:0;font-size:16px;line-height:1.6;color:#544d44;">
 						Someone read a documentation page and told us it missed the mark.
 					</p>
 				</td></tr>
@@ -125,23 +125,23 @@ export function htmlBody(feedback: Notification, reason: string): string {
 
 				<tr><td style="padding:18px 28px 0;">
 					<div style="border-left:3px solid #2d6a4f;background:#f4f0e9;border-radius:0 10px 10px 0;padding:14px 16px;">
-						<div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#8a7f72;margin-bottom:6px;">
+						<div style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#8a7f72;margin-bottom:6px;">
 							What they said
 						</div>
-						<div style="font-size:15px;line-height:1.6;color:#332e28;white-space:pre-wrap;">${escapeHtml(feedback.comment)}</div>
+						<div style="font-size:18px;line-height:1.65;color:#332e28;white-space:pre-wrap;">${escapeHtml(feedback.comment)}</div>
 					</div>
 				</td></tr>
 
 				<tr><td style="padding:22px 28px 6px;">
 					<a href="${pageUrl}"
 						style="display:inline-block;background:#2d6a4f;color:#ffffff;text-decoration:none;
-							font-size:14px;font-weight:600;padding:11px 20px;border-radius:50px;">
+							font-size:16px;font-weight:600;padding:13px 24px;border-radius:50px;">
 						Open the page
 					</a>
 				</td></tr>
 
 				<tr><td style="padding:14px 28px 24px;">
-					<div style="border-top:1px solid #e4dbd0;padding-top:14px;font-size:12px;line-height:1.6;color:#8a7f72;">
+					<div style="border-top:1px solid #e4dbd0;padding-top:16px;font-size:14px;line-height:1.6;color:#8a7f72;">
 						${
 							feedback.contactEmail
 								? 'Replying to this email reaches the person who wrote it.'
