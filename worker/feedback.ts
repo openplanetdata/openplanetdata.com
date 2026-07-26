@@ -104,6 +104,11 @@ export async function handleFeedback(request: Request, env: Env, ctx: ExecutionC
 	const now = Date.now();
 	const since = now - DEDUPE_WINDOW_MS;
 
+	// Cloudflare's edge geolocation of the client IP. Resolved once here so the
+	// comment path reports it too — the widget votes first and comments second,
+	// so that is the path every real notification takes.
+	const country = (request as { cf?: { country?: string } }).cf?.country ?? null;
+
 	// One vote per visitor per page per day.
 	const existing = await env.FEEDBACK_DB.prepare(
 		`SELECT id, comment
@@ -138,7 +143,7 @@ export async function handleFeedback(request: Request, env: Env, ctx: ExecutionC
 			.run();
 
 		if (!helpful && comment.length >= MIN_COMMENT_FOR_EMAIL) {
-			ctx.waitUntil(notify(env, { page, reason, comment, contactEmail, country: null }));
+			ctx.waitUntil(notify(env, { page, reason, comment, contactEmail, country }));
 		}
 		return json({ ok: true, recorded: true });
 	}
@@ -146,8 +151,6 @@ export async function handleFeedback(request: Request, env: Env, ctx: ExecutionC
 	if (comment && (await commentQuotaReached(env, ipHash, since))) {
 		return json({ ok: true, recorded: false, reason: 'comment_quota' });
 	}
-
-	const country = (request as { cf?: { country?: string } }).cf?.country ?? null;
 
 	// ON CONFLICT closes the gap between the SELECT above and this INSERT: two
 	// concurrent submissions both read "no existing vote", and the unique index
