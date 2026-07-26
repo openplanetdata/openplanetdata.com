@@ -26,7 +26,7 @@ Worker (`worker/`) sits behind it and only handles the paths that are not files:
 | Route           | Purpose                                                                 |
 | :-------------- | :---------------------------------------------------------------------- |
 | `/api/feedback` | Records "Was this page helpful?" votes and comments                      |
-| `/api/stats`    | Download and feedback aggregates behind `/stats/` (edge-cached 5 min)    |
+| `/api/stats`    | Download and feedback aggregates behind `/statistics/` (edge-cached 5 min)    |
 
 Two D1 databases are bound:
 

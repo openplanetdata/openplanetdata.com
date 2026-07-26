@@ -1,0 +1,4 @@
+# /stats/ was published before the page was renamed, and it is referenced by
+# llms.txt and the sitemap that shipped with it.
+/stats     /statistics/    301
+/stats/    /statistics/    301

@@ -21,7 +21,7 @@ OpenPlanetData publishes regularly-rebuilt geographic datasets aggregated from a
 
 ## Usage
 
-- [Statistics](https://openplanetdata.com/stats/): Live download volume, data served, most-pulled datasets and formats, plus documentation helpfulness scores.
+- [Statistics](https://openplanetdata.com/statistics/): Live download volume, data served, most-pulled datasets and formats, plus documentation helpfulness scores.
 
 ## Data pipeline
 

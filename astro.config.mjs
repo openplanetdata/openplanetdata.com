@@ -64,7 +64,7 @@ export default defineConfig({
 				},
 				{
 					label: 'Statistics',
-					link: '/stats/',
+					link: '/statistics/',
 				},
 			],
 			head: [
