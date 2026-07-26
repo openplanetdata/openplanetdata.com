@@ -1,7 +1,13 @@
 ---
 title: OpenPlanetData
-description: Open datasets about our planet, built with transparency and precision.
+description: Free, open geographic datasets about planet Earth — country and region boundaries, daily OpenStreetMap planet snapshots, and time zones in GeoJSON, GeoPackage, and GeoParquet. No API keys, no rate limits.
 template: splash
+head:
+  # Starlight builds "<page title> | <site title>", which renders as
+  # "OpenPlanetData | OpenPlanetData" here. The homepage title is the most
+  # valuable text in the index, so it is set explicitly.
+  - tag: title
+    content: OpenPlanetData — Free open datasets about planet Earth
 hero:
   tagline: Datasets about our beautiful planet Earth. Built with transparency, precision, and community in mind.
   image:
