@@ -69,11 +69,48 @@ export default defineConfig({
 				},
 			],
 			head: [
+				// Several scrapers (LinkedIn in particular) will not render a large
+				// card unless the dimensions are declared up front, and some never
+				// fetch the file to measure it themselves. Keep these in step with
+				// scripts/build-og-image.mjs.
 				{
 					tag: 'meta',
 					attrs: {
 						property: 'og:image',
 						content: 'https://openplanetdata.com/og-image.png',
+					},
+				},
+				{
+					tag: 'meta',
+					attrs: {
+						property: 'og:image:secure_url',
+						content: 'https://openplanetdata.com/og-image.png',
+					},
+				},
+				{ tag: 'meta', attrs: { property: 'og:image:type', content: 'image/png' } },
+				{ tag: 'meta', attrs: { property: 'og:image:width', content: '1200' } },
+				{ tag: 'meta', attrs: { property: 'og:image:height', content: '630' } },
+				{
+					tag: 'meta',
+					attrs: {
+						property: 'og:image:alt',
+						content: 'OpenPlanetData — open data about planet Earth, in GeoParquet, GeoJSON, GeoPackage and PBF.',
+					},
+				},
+				// X falls back to og:image, but naming it explicitly avoids relying on
+				// that, and other tools read only the twitter:* namespace.
+				{
+					tag: 'meta',
+					attrs: {
+						name: 'twitter:image',
+						content: 'https://openplanetdata.com/og-image.png',
+					},
+				},
+				{
+					tag: 'meta',
+					attrs: {
+						name: 'twitter:image:alt',
+						content: 'OpenPlanetData — open data about planet Earth.',
 					},
 				},
 			],
