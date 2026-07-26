@@ -36,16 +36,9 @@ import Pagination from '@astrojs/starlight/components/Pagination.astro';
 </footer>
 
 <script>
-	document.querySelectorAll('.thumb-btn:not([data-initialized])').forEach(btn => {
-		btn.setAttribute('data-initialized', 'true');
-		btn.addEventListener('click', (e) => {
-			const button = e.currentTarget as HTMLButtonElement;
-			button.parentElement?.querySelectorAll('.thumb-btn').forEach(b => {
-				b.classList.remove('active');
-			});
-			button.classList.add('active');
-		});
-	});
+	import { initPageFeedback } from './page-feedback.ts';
+
+	initPageFeedback();
 
 	// Make sidebar group labels clickable to their overview pages
 	const groupLinks: Record<string, string> = {
@@ -142,6 +135,11 @@ import Pagination from '@astrojs/starlight/components/Pagination.astro';
 		box-shadow: 0 4px 12px rgba(45,106,79,0.15);
 	}
 
+	.feedback-thanks {
+		font-size: var(--sl-text-sm);
+		color: var(--sl-color-accent);
+	}
+
 	.copyright {
 		text-align: center;
 		font-size: var(--sl-text-sm);
@@ -156,5 +154,229 @@ import Pagination from '@astrojs/starlight/components/Pagination.astro';
 
 	.copyright a:hover {
 		color: var(--sl-color-accent);
+	}
+</style>
+
+<style is:global>
+	/* The dialogs are appended to <body>, so they sit outside scoped styles. */
+
+	.feedback-dialog {
+		/* Overriding width defeats the UA stylesheet's `width: fit-content` +
+		   `margin: auto` centring, so both axes are re-centred explicitly. */
+		position: fixed;
+		inset: 0;
+		margin: auto;
+		padding: 0;
+		border: 1px solid var(--glass-border);
+		border-radius: 20px;
+		background: var(--sl-color-bg);
+		color: var(--sl-color-text);
+		box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+		max-width: 34rem;
+		width: calc(100% - 2rem);
+		max-height: 85vh;
+		overflow-y: auto;
+	}
+
+	:root[data-theme='dark'] .feedback-dialog {
+		background: #1a2620;
+		border-color: rgba(255, 255, 255, 0.12);
+	}
+
+	.feedback-dialog::backdrop {
+		background: rgba(0, 0, 0, 0.45);
+		backdrop-filter: blur(4px);
+		-webkit-backdrop-filter: blur(4px);
+	}
+
+	.feedback-dialog > *,
+	.feedback-dialog .feedback-form {
+		padding: 0;
+	}
+
+	.feedback-dialog-share,
+	.feedback-dialog .feedback-form {
+		padding: 2rem;
+	}
+
+	.feedback-dialog-title {
+		margin: 0 0 0.75rem;
+		font-family: 'DM Serif Display', Georgia, serif;
+		font-weight: 400;
+		font-size: 1.5rem;
+		line-height: 1.2;
+		color: var(--sl-color-white);
+	}
+
+	.feedback-dialog-text {
+		margin: 0 0 1.5rem;
+		font-size: var(--sl-text-sm);
+		line-height: 1.65;
+		color: var(--sl-color-gray-2);
+	}
+
+	/* ----- Share ----- */
+
+	.feedback-share-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+		gap: 0.5rem;
+	}
+
+	.feedback-share-link {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		padding: 0.7rem 0.9rem;
+		border: 1px solid var(--glass-border);
+		border-radius: 12px;
+		background: var(--glass-bg);
+		color: var(--sl-color-gray-2);
+		font-size: var(--sl-text-sm);
+		font-family: inherit;
+		text-decoration: none;
+		cursor: pointer;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	.feedback-share-link:hover {
+		background: var(--glass-bg-hover);
+		border-color: var(--sl-color-accent);
+		color: var(--sl-color-accent);
+		transform: translateY(-1px);
+	}
+
+	.feedback-share-link svg {
+		flex: none;
+	}
+
+	/* ----- Comment form ----- */
+
+	.feedback-field {
+		display: block;
+		margin-bottom: 1.15rem;
+	}
+
+	.feedback-field-label {
+		display: block;
+		margin-bottom: 0.4rem;
+		font-size: var(--sl-text-sm);
+		font-weight: 500;
+		color: var(--sl-color-white);
+	}
+
+	.feedback-optional {
+		font-weight: 400;
+		color: var(--sl-color-gray-3);
+	}
+
+	.feedback-select,
+	.feedback-input,
+	.feedback-textarea {
+		width: 100%;
+		padding: 0.6rem 0.75rem;
+		border: 1px solid var(--glass-border);
+		border-radius: 10px;
+		background: var(--glass-bg);
+		color: var(--sl-color-text);
+		font-family: inherit;
+		font-size: var(--sl-text-sm);
+		transition: border-color 0.2s ease;
+	}
+
+	.feedback-textarea {
+		resize: vertical;
+		min-height: 6rem;
+		line-height: 1.5;
+	}
+
+	.feedback-select:focus,
+	.feedback-input:focus,
+	.feedback-textarea:focus {
+		outline: none;
+		border-color: var(--sl-color-accent);
+	}
+
+	.feedback-counter {
+		display: block;
+		margin-top: 0.3rem;
+		text-align: right;
+		font-size: 0.75rem;
+		color: var(--sl-color-gray-3);
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* Off-screen rather than display:none — some bots skip hidden inputs. */
+	.feedback-honeypot {
+		position: absolute;
+		left: -9999px;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+	}
+
+	.feedback-status:empty {
+		display: none;
+	}
+
+	.feedback-status {
+		margin: 0 0 1rem;
+		font-size: var(--sl-text-sm);
+		color: var(--sl-color-gray-2);
+	}
+
+	.feedback-status[data-tone='error'] {
+		color: #d03b3b;
+	}
+
+	:root[data-theme='dark'] .feedback-status[data-tone='error'] {
+		color: #e88a8a;
+	}
+
+	.feedback-dialog-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 0.6rem;
+		margin-top: 1.5rem;
+	}
+
+	.feedback-btn {
+		padding: 0.55rem 1.1rem;
+		border-radius: 50px;
+		border: 1px solid transparent;
+		font-family: inherit;
+		font-size: var(--sl-text-sm);
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	.feedback-btn-ghost {
+		background: transparent;
+		border-color: var(--glass-border);
+		color: var(--sl-color-gray-3);
+	}
+
+	.feedback-btn-ghost:hover {
+		color: var(--sl-color-text);
+		border-color: var(--sl-color-gray-4);
+	}
+
+	.feedback-btn-primary {
+		background: var(--sl-color-accent);
+		color: #fff;
+	}
+
+	:root[data-theme='dark'] .feedback-btn-primary {
+		color: #0e1a14;
+	}
+
+	.feedback-btn-primary:hover:not(:disabled) {
+		background: var(--sl-color-accent-high);
+	}
+
+	.feedback-btn-primary:disabled {
+		opacity: 0.6;
+		cursor: default;
 	}
 </style>
