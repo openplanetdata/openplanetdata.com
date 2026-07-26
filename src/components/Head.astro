@@ -1,0 +1,15 @@
+---
+import Default from '@astrojs/starlight/components/Head.astro';
+import { structuredDataFor } from './structured-data';
+
+const schemas = structuredDataFor(Astro.url.pathname);
+---
+
+<Default><slot /></Default>
+
+{/* Schema.org markup. Dataset entries are what Google Dataset Search indexes. */}
+{
+	schemas.map((schema) => (
+		<script type="application/ld+json" set:html={JSON.stringify(schema)} is:inline />
+	))
+}

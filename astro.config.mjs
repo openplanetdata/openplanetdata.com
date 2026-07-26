@@ -30,6 +30,7 @@ export default defineConfig({
 				'./src/styles/custom.css',
 			],
 			components: {
+				Head: './src/components/Head.astro',
 				PageTitle: './src/components/PageTitle.astro',
 				TableOfContents: './src/components/TableOfContents.astro',
 				ThemeSelect: './src/components/ThemeSelect.astro',
