@@ -62,6 +62,10 @@ export default defineConfig({
 						{ label: 'Time Zone', slug: 'datasets/time-zones' },
 					],
 				},
+				{
+					label: 'Statistics',
+					link: '/stats/',
+				},
 			],
 			head: [
 				{

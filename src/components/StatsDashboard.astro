@@ -1,0 +1,507 @@
+---
+// Public stats dashboard. Data comes from /api/stats at runtime rather than at
+// build time so the page stays current between deploys.
+---
+
+<script>
+  import './stats-dashboard.ts';
+</script>
+
+<stats-dashboard class="not-content"></stats-dashboard>
+
+<style is:global>
+  /* All rules are scoped under stats-dashboard so nothing leaks into the docs. */
+
+  stats-dashboard {
+    /* Chart palette — one brand-forest ramp, validated against the surfaces
+       these cards actually render on (see stats-charts.ts for the numbers).
+       A second hue here means re-running the palette validator. */
+    --chart-series: #0f7a4a;
+    --chart-track: #5fb68d;
+    --chart-area: rgba(15, 122, 74, 0.1);
+    --chart-grid: var(--sl-color-hairline);
+    --chart-ink: var(--sl-color-gray-3);
+
+    display: block;
+    margin-top: 1.5rem;
+  }
+
+  :root[data-theme='dark'] stats-dashboard {
+    --chart-series: #37a06e;
+    --chart-track: #1d6b45;
+    --chart-area: rgba(55, 160, 110, 0.12);
+  }
+
+  /* ===== Filter row ===== */
+
+  stats-dashboard .stats-filters {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+
+  stats-dashboard .stats-filters-label {
+    margin-right: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+  }
+
+  stats-dashboard .stats-chip {
+    padding: 0.4rem 0.85rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    background: var(--glass-bg);
+    color: var(--sl-color-gray-2);
+    font-family: inherit;
+    font-size: var(--sl-text-sm);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  stats-dashboard .stats-chip-sm {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.8rem;
+  }
+
+  stats-dashboard .stats-chip:hover {
+    color: var(--sl-color-accent);
+    border-color: var(--sl-color-accent);
+  }
+
+  stats-dashboard .stats-chip.active {
+    background: var(--sl-color-accent-low);
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-accent);
+    font-weight: 500;
+  }
+
+  /* ===== Hero figure ===== */
+
+  stats-dashboard .stats-hero {
+    margin-bottom: 2rem;
+  }
+
+  stats-dashboard .stats-hero-figure {
+    /* Sans, not the brand serif: a display face on a hero number reads as
+       decoration rather than data. */
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(3rem, 8vw, 4.5rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--sl-color-white);
+  }
+
+  stats-dashboard .stats-hero-label {
+    margin-top: 0.6rem;
+    max-width: 34rem;
+    font-size: var(--sl-text-sm);
+    line-height: 1.6;
+    color: var(--sl-color-gray-2);
+  }
+
+  stats-dashboard .stats-hero-label strong {
+    color: var(--sl-color-white);
+    font-weight: 600;
+  }
+
+  /* ===== Stat tiles ===== */
+
+  stats-dashboard .stats-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  stats-dashboard .stats-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 1.15rem 1.25rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--glass-shadow);
+  }
+
+  stats-dashboard .stats-tile-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--sl-color-gray-3);
+  }
+
+  stats-dashboard .stats-tile-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.65rem;
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--sl-color-white);
+  }
+
+  stats-dashboard .stats-tile-delta {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--sl-color-gray-3);
+  }
+
+  /* Direction is spelled out by the arrow and the sign, so colour is a
+     reinforcement rather than the only cue. */
+  stats-dashboard .stats-tile-delta[data-direction='up'] {
+    color: var(--chart-series);
+  }
+
+  stats-dashboard .stats-tile-delta[data-direction='down'] {
+    color: var(--sl-color-gray-2);
+  }
+
+  stats-dashboard .stats-tile-delta-note {
+    font-weight: 400;
+    color: var(--sl-color-gray-3);
+  }
+
+  /* ===== Cards ===== */
+
+  stats-dashboard .stats-card {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    box-shadow: var(--glass-shadow);
+  }
+
+  stats-dashboard .stats-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+  }
+
+  stats-dashboard .stats-card-title {
+    margin: 0;
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-weight: 400;
+    font-size: 1.35rem;
+    line-height: 1.2;
+    color: var(--sl-color-white);
+  }
+
+  stats-dashboard .stats-card-subtitle {
+    margin: 0.3rem 0 0;
+    max-width: 38rem;
+    font-size: var(--sl-text-sm);
+    line-height: 1.55;
+    color: var(--sl-color-gray-3);
+  }
+
+  stats-dashboard .stats-card-tools {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  stats-dashboard .stats-metric-picker {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  stats-dashboard .stats-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: 1.5rem;
+  }
+
+  stats-dashboard .stats-grid-2 .stats-card {
+    margin-bottom: 0;
+  }
+
+  /* ===== Chart marks ===== */
+
+  stats-dashboard .stats-chart-wrap {
+    position: relative;
+    /* Wide charts scroll inside the card rather than the page. */
+    overflow-x: auto;
+  }
+
+  stats-dashboard .chart-svg {
+    display: block;
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  /* Hairline, solid, one step off the surface — never dashed. */
+  stats-dashboard .chart-grid line {
+    stroke: var(--chart-grid);
+    stroke-width: 1;
+  }
+
+  stats-dashboard .chart-tick {
+    fill: var(--chart-ink);
+    font-size: 0.7rem;
+    font-family: 'Inter', sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+
+  stats-dashboard .chart-area {
+    fill: var(--chart-area);
+  }
+
+  stats-dashboard .chart-line {
+    fill: none;
+    stroke: var(--chart-series);
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  stats-dashboard .chart-crosshair {
+    stroke: var(--sl-color-gray-4);
+    stroke-width: 1;
+  }
+
+  /* 2px surface ring so the dot stays legible where it crosses the line. */
+  stats-dashboard .chart-dot {
+    fill: var(--chart-series);
+    stroke: var(--sl-color-bg);
+    stroke-width: 2;
+  }
+
+  stats-dashboard .chart-bar {
+    fill: var(--chart-series);
+  }
+
+  stats-dashboard .chart-bar-label {
+    fill: var(--sl-color-gray-2);
+    font-size: 0.82rem;
+    font-family: 'Inter', sans-serif;
+  }
+
+  stats-dashboard .chart-bar-value {
+    fill: var(--sl-color-white);
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ===== Tooltip ===== */
+
+  stats-dashboard .stats-tooltip {
+    position: absolute;
+    top: 0.5rem;
+    transform: translateX(0.75rem);
+    min-width: 11rem;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    background: var(--sl-color-bg);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+    pointer-events: none;
+    font-size: 0.8rem;
+  }
+
+  :root[data-theme='dark'] stats-dashboard .stats-tooltip {
+    background: #1a2620;
+  }
+
+  stats-dashboard .stats-tooltip[data-flip='true'] {
+    transform: translateX(calc(-100% - 0.75rem));
+  }
+
+  stats-dashboard .stats-tooltip-day {
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+
+  stats-dashboard .stats-tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.25rem;
+    color: var(--sl-color-gray-3);
+    line-height: 1.7;
+  }
+
+  stats-dashboard .stats-tooltip-row strong {
+    color: var(--sl-color-white);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ===== Tables (the chart's accessible twin) ===== */
+
+  stats-dashboard .stats-table-wrap {
+    max-height: 26rem;
+    overflow: auto;
+  }
+
+  stats-dashboard .stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--sl-text-sm);
+  }
+
+  stats-dashboard .stats-table th,
+  stats-dashboard .stats-table td {
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--sl-color-hairline-light);
+  }
+
+  stats-dashboard .stats-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--sl-color-bg);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+  }
+
+  :root[data-theme='dark'] stats-dashboard .stats-table thead th {
+    background: #16231c;
+  }
+
+  stats-dashboard .stats-table tbody th {
+    font-weight: 500;
+    color: var(--sl-color-white);
+  }
+
+  stats-dashboard .stats-table td {
+    color: var(--sl-color-gray-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  stats-dashboard .stats-table code {
+    font-size: 0.78rem;
+    color: var(--sl-color-gray-3);
+  }
+
+  stats-dashboard .stats-table a {
+    color: var(--sl-color-accent);
+    text-decoration: none;
+  }
+
+  stats-dashboard .stats-table a:hover {
+    text-decoration: underline;
+  }
+
+  /* ===== Meter ===== */
+
+  stats-dashboard .stats-meter-block {
+    margin-bottom: 1.5rem;
+  }
+
+  stats-dashboard .stats-meter-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  stats-dashboard .stats-meter-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 2.25rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--sl-color-white);
+  }
+
+  stats-dashboard .stats-meter-label {
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-2);
+  }
+
+  stats-dashboard .stats-meter-note {
+    display: block;
+    color: var(--sl-color-gray-3);
+  }
+
+  /* Track is a lighter step of the fill's own ramp, so the whole bar reads as
+     one scale rather than as fill-versus-background. */
+  stats-dashboard .stats-meter {
+    height: 12px;
+    border-radius: 50px;
+    background: var(--chart-track);
+    overflow: hidden;
+  }
+
+  stats-dashboard .stats-meter-fill {
+    height: 100%;
+    border-radius: 50px;
+    background: var(--chart-series);
+  }
+
+  stats-dashboard .stats-row-meter {
+    display: inline-block;
+    vertical-align: middle;
+    width: 4rem;
+    height: 6px;
+    margin-right: 0.5rem;
+    border-radius: 50px;
+    background: var(--chart-track);
+    overflow: hidden;
+  }
+
+  stats-dashboard .stats-row-meter-fill {
+    display: block;
+    height: 100%;
+    background: var(--chart-series);
+  }
+
+  stats-dashboard .stats-row-score {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ===== States ===== */
+
+  stats-dashboard .stats-empty {
+    margin: 0;
+    padding: 1.5rem 0;
+    text-align: center;
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-3);
+  }
+
+  stats-dashboard .stats-footnote {
+    margin: 2rem 0 0;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--sl-color-gray-3);
+  }
+
+  @keyframes stats-pulse {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 0.75; }
+  }
+
+  stats-dashboard .stats-skeleton {
+    display: block;
+    border-radius: 12px;
+    background: var(--sl-color-gray-5);
+    animation: stats-pulse 1.5s ease-in-out infinite;
+  }
+
+  stats-dashboard .stats-skeleton-chip { width: 12rem; height: 2rem; border-radius: 50px; }
+  stats-dashboard .stats-skeleton-hero { width: 18rem; height: 4rem; }
+  stats-dashboard .stats-skeleton-tile { width: 100%; height: 3.5rem; }
+  stats-dashboard .stats-skeleton-chart { width: 100%; height: 16rem; }
+
+  @media (prefers-reduced-motion: reduce) {
+    stats-dashboard .stats-skeleton { animation: none; }
+  }
+</style>

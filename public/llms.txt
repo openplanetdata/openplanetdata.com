@@ -19,6 +19,10 @@ OpenPlanetData publishes regularly-rebuilt geographic datasets aggregated from a
 - [OpenStreetMap](https://openplanetdata.com/datasets/openstreetmap/): Daily planet snapshots as PBF, GOL, GOB, and GeoParquet.
 - [Time Zone](https://openplanetdata.com/datasets/time-zones/): Time zone boundaries from timezone-boundary-builder.
 
+## Usage
+
+- [Statistics](https://openplanetdata.com/stats/): Live download volume, data served, most-pulled datasets and formats, plus documentation helpfulness scores.
+
 ## Data pipeline
 
 - [How we build](https://openplanetdata.com/pipeline/how-we-build/): Pipeline architecture and refresh cadence.
@@ -28,6 +32,7 @@ OpenPlanetData publishes regularly-rebuilt geographic datasets aggregated from a
 ## Programmatic access
 
 - [File index API](https://download.openplanetdata.com/files): JSON listing of every published file with size, version, and SHA-256/SHA-512 checksums. Filterable via `?category=`, `?subcategory=`, `?limit=`.
+- [Usage statistics API](https://openplanetdata.com/api/stats): JSON download and documentation-feedback aggregates. Accepts `?period=7d|30d|90d|365d`.
 - [API catalog](https://openplanetdata.com/.well-known/api-catalog): RFC 9727 linkset describing the file-index API.
 - [Sitemap](https://openplanetdata.com/sitemap-index.xml): Full list of crawlable pages.
 
