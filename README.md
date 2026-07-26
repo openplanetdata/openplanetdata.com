@@ -12,7 +12,9 @@ All commands are run from the root of the project:
 | `npm run dev`       | Start local dev server at `localhost:4321` (no API routes)   |
 | `npm run build`     | Build production site to `./dist/`                           |
 | `npm run preview`   | Preview production build locally                             |
-| `npm run dev:api`   | Build, then serve site **and** API on `localhost:8787`       |
+| `npm run dev:api`   | Build, then serve site **and** API on `localhost:8787`        |
+| `npm run test`      | End-to-end API tests against a throwaway `wrangler dev`       |
+| `npm run typecheck` | Type-check the Worker (esbuild strips types without checking) |
 
 Astro's dev server only serves the static site. Anything touching `/api/*` — the
 feedback widget and the statistics page — needs `npm run dev:api`, which runs the
@@ -35,6 +37,25 @@ Two D1 databases are bound:
 - **`INDEX_DB`** (`r2index`) — the pipeline's file catalog and download log. Read
   only; this repo never writes to it. It is bound as `remote` so `npm run dev:api`
   charts real data.
+
+### Tests
+
+`npm test` boots its own `wrangler dev` on port 8789, exercises the API against
+real D1 and real rate limiters, and shuts it down again. There is no test
+framework — `node:test` ships with Node.
+
+Isolation comes from `CF-Connecting-IP`: the Worker keys rate limiting and
+per-visitor deduplication off that header, so every test invents its own random
+address. That keeps tests independent, lets the suite finish in seconds instead
+of waiting out a rate-limit window, and stops one run colliding with rows the
+last one left in the local database. Cloudflare overwrites that header at the
+edge, so it cannot be spoofed in production.
+
+The suite covers the things that are easy to break silently: the same-origin
+check, honeypot, compose-time gate, page-path normalisation, one-vote-per-day
+(including the concurrent double-click), comments updating a vote rather than
+inserting a second row, the comment quota, and that `/api/stats` never leaks
+comment text.
 
 ### Anti-spam
 

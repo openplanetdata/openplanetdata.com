@@ -754,7 +754,7 @@ export class StatsDashboardElement extends LitElement {
 			${this.renderFeedback(data)}
 			${this.renderCountries(data)}
 			<p class="stats-footnote">
-				Updated every 5 minutes · figures generated ${this.fullDay(data.generated_at)}.
+				Figures are cached for up to 5 minutes · generated ${this.fullDay(data.generated_at)}.
 				Download counts come from request logs; data served is the sum of the
 				published file sizes, so range requests and resumed transfers are
 				approximated.
