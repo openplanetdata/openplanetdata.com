@@ -64,11 +64,27 @@ npx wrangler deploy
    npx wrangler secret put FEEDBACK_IP_SALT
    ```
 
-3. To receive negative feedback by email, verify the recipient under
-   **Email Routing → Destination addresses** in the Cloudflare dashboard, then set
-   `FEEDBACK_EMAIL_TO` in `wrangler.jsonc` to that address. `FEEDBACK_EMAIL_FROM`
-   must be on a domain with Email Routing enabled. If either is unset or
-   unverified, sending is skipped and the feedback is still stored in D1.
+3. To receive negative feedback by email, the recipient must be a **verified
+   destination address** under Email Routing → Destination addresses in the
+   Cloudflare dashboard. That is the only requirement the `send_email` binding
+   enforces — the sender domain does *not* need Email Routing enabled, and
+   enabling it on `openplanetdata.com` would replace the Google Workspace MX
+   records and break inbound mail, so don't.
+
+   The recipient is kept out of this public repo as a secret:
+
+   ```
+   npx wrangler secret put FEEDBACK_EMAIL_TO
+   ```
+
+   If it is unset or not verified, sending is skipped and the feedback is still
+   stored in D1 — nothing is lost.
+
+   Note that `openplanetdata.com` publishes `v=spf1 include:_spf.google.com`,
+   which does not cover Cloudflare's sending path, so notifications can land in
+   spam. DMARC is `p=none`, so they are not rejected. If they do get filtered,
+   either add an inbox rule or move `FEEDBACK_EMAIL_FROM` to a domain in this
+   account whose Email Routing is already `ready`.
 
 ### Reading feedback comments
 

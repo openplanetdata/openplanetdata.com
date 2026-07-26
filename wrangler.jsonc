@@ -51,10 +51,12 @@
     }
   ],
   "vars": {
-    // Must be a verified Email Routing destination address. If it is not,
-    // sending is skipped and the feedback still lands in D1.
-    "FEEDBACK_EMAIL_TO": "contact@openplanetdata.com",
     // Must be on a domain with Email Routing enabled in this account.
     "FEEDBACK_EMAIL_FROM": "feedback@openplanetdata.com"
   }
+  // FEEDBACK_EMAIL_TO is a secret, not a var: this repo is public and the
+  // recipient is a personal address. Set it with
+  //   npx wrangler secret put FEEDBACK_EMAIL_TO
+  // It must be a verified Email Routing destination address; if it is unset or
+  // unverified, sending is skipped and the feedback still lands in D1.
 }
