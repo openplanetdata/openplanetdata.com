@@ -4,5 +4,5 @@
     "useDefineForClassFields": false
   },
   "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"]
+  "exclude": ["dist", "worker"]
 }

@@ -1,11 +1,60 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "openplanetdata",
+  "main": "worker/index.ts",
   "compatibility_date": "2025-09-27",
   "observability": {
     "enabled": true
   },
-"assets": {
-    "directory": "dist"
+  "assets": {
+    "directory": "dist",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      // Page feedback written by the "Was this page helpful?" widget.
+      "binding": "FEEDBACK_DB",
+      "database_name": "openplanetdata-website",
+      "database_id": "0c2bb5d0-b436-4eef-b0d9-4792ec243cc5",
+      "migrations_dir": "migrations"
+    },
+    {
+      // Read-only: the pipeline's file catalog and download log, behind /api/stats.
+      // `remote` so `wrangler dev` charts real data instead of an empty local copy;
+      // nothing here writes to it.
+      "binding": "INDEX_DB",
+      "database_name": "r2index",
+      "database_id": "20fd9e05-f445-4169-9bcc-3404a5c62008",
+      "remote": true
+    }
+  ],
+  // Per-IP throttle on feedback submissions, enforced at the edge before the
+  // Worker touches D1.
+  "ratelimits": [
+    {
+      "name": "FEEDBACK_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 8, "period": 60 }
+    },
+    {
+      "name": "COMMENT_LIMITER",
+      "namespace_id": "1002",
+      "simple": { "limit": 2, "period": 60 }
+    }
+  ],
+  // Notification channel for negative feedback that carries a written comment.
+  // Deliberately unrestricted: Cloudflare only ever delivers to addresses
+  // verified under Email Routing -> Destination addresses.
+  "send_email": [
+    {
+      "name": "FEEDBACK_EMAIL"
+    }
+  ],
+  "vars": {
+    // Must be a verified Email Routing destination address. If it is not,
+    // sending is skipped and the feedback still lands in D1.
+    "FEEDBACK_EMAIL_TO": "contact@openplanetdata.com",
+    // Must be on a domain with Email Routing enabled in this account.
+    "FEEDBACK_EMAIL_FROM": "feedback@openplanetdata.com"
   }
 }
