@@ -447,7 +447,8 @@ export class DatasetFilesElement extends LitElement {
     );
     items.sort((a, b) => {
       if (a.file.deprecated !== b.file.deprecated) return a.file.deprecated ? 1 : -1;
-      return a.entity.name.localeCompare(b.entity.name);
+      return a.entity.name.localeCompare(b.entity.name)
+        || this.formatLabel(a.ext).localeCompare(this.formatLabel(b.ext));
     });
     return html`
       <div class="entity-grid">
