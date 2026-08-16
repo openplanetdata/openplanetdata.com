@@ -8,9 +8,11 @@ interface Props {
   debugLoading?: boolean;
   /** Replaces the default notice for a dataset that has nothing published yet. */
   emptyMessage?: string;
+  /** Extension preselected in the format picker, e.g. `pbf`. */
+  defaultFormat?: string;
 }
 
-const { category, subcategory, version, showAllFormats = false, showVersion = false, debugLoading = false, emptyMessage } = Astro.props;
+const { category, subcategory, version, showAllFormats = false, showVersion = false, debugLoading = false, emptyMessage, defaultFormat } = Astro.props;
 const apiUrl = `https://download.openplanetdata.com/files?category=${category}${subcategory ? `&subcategory=${subcategory}` : ''}&limit=-1`;
 const baseDownloadUrl = 'https://download.openplanetdata.com';
 ---
@@ -27,6 +29,7 @@ const baseDownloadUrl = 'https://download.openplanetdata.com';
   {...(showAllFormats ? { 'show-all-formats': true } : {})}
   {...(showVersion ? { 'show-version': true } : {})}
   {...(emptyMessage ? { 'empty-message': emptyMessage } : {})}
+  {...(defaultFormat ? { 'default-format': defaultFormat } : {})}
   {...(debugLoading ? { 'debug-loading': true } : {})}
 ></dataset-files>
 

@@ -55,6 +55,8 @@ export class DatasetFilesElement extends LitElement {
   @property({ type: Boolean, attribute: 'debug-loading' }) accessor debugLoading = false;
   /** Shown in place of the listing while a dataset has nothing published. */
   @property({ attribute: 'empty-message' }) accessor emptyMessage = 'No files available yet.';
+  /** Extension to preselect, when the dataset has an obvious lead format. */
+  @property({ attribute: 'default-format' }) accessor defaultFormat = '';
 
   @state() accessor _loading = true;
   @state() accessor _error = false;
@@ -114,7 +116,8 @@ export class DatasetFilesElement extends LitElement {
       this._availableFormats = Array.from(formatSet).sort((a, b) =>
         this.formatLabel(a).localeCompare(this.formatLabel(b))
       );
-      this._selectedFormat = this._availableFormats[0] || 'geojson';
+      this._selectedFormat = (formatSet.has(this.defaultFormat) ? this.defaultFormat : this._availableFormats[0])
+        || 'geojson';
 
       this._sortedEntities = Array.from(entityMap.values())
         .map((formats) => {
