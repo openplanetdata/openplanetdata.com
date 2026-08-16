@@ -46,6 +46,16 @@ interface DatasetEntry {
 }
 
 const DATASETS: Record<string, DatasetEntry> = {
+	'/datasets/boundaries/planet/': {
+		name: 'Planet Boundaries',
+		description:
+			'Planet-wide boundary files holding every continent, country, or region in one download per level, published as GeoJSON, GeoPackage, and GeoParquet.',
+		keywords: ['boundaries', 'planet', 'continents', 'countries', 'regions', 'geospatial', 'GIS', 'administrative boundaries'],
+		formats: ['geojson', 'geopackage', 'geoparquet'],
+		path: 'boundaries',
+		source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
+		frequency: 'P1D',
+	},
 	'/datasets/boundaries/continents/': {
 		name: 'Continent Boundaries',
 		description:

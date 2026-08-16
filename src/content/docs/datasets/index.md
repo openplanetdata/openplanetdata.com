@@ -17,7 +17,7 @@ OpenPlanetData provides regular snapshots of geographic datasets in optimized fo
       </svg>
     </div>
     <h3>Boundaries</h3>
-    <p>Continents, countries, and regions boundaries in GeoJSON, GeoPackage, and GeoParquet formats.</p>
+    <p>Planet-wide, continent, country, and region boundaries in GeoJSON, GeoPackage, and GeoParquet formats.</p>
   </a>
   <a href="/datasets/openstreetmap/" class="dataset-card">
     <div class="dataset-icon">
