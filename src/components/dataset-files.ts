@@ -63,7 +63,7 @@ export class DatasetFilesElement extends LitElement {
   @state() accessor _copiedHash: string | null = null;
   @state() accessor _copiedDialog = false;
   private _sortedEntities: ResolvedEntity[] = [];
-  private _cachedFilterQuery: string | null = null;
+  private _cachedFilterKey: string | null = null;
   private _cachedFiltered: ResolvedEntity[] = [];
   private _debounceTimer = 0;
   private _scrollRaf = 0;
@@ -198,30 +198,45 @@ export class DatasetFilesElement extends LitElement {
     return count;
   }
 
+  /**
+   * Entities carrying the selected format, in display order.
+   *
+   * The format filter belongs here rather than in each renderer: the
+   * OpenStreetMap extracts publish one entity per file, so three quarters of
+   * the entities hold no file in the selected format, and a table sized for
+   * rows it then skips would scroll through gaps.
+   */
   private get filteredEntries(): ResolvedEntity[] {
+    const fmt = this._selectedFormat;
     const q = this._searchQuery;
-    const source = this.regularEntities;
-    if (q === this._cachedFilterQuery) return this._cachedFiltered;
-    this._cachedFilterQuery = q;
-    if (!q) {
-      this._cachedFiltered = source;
-    } else {
-      const lower = q.toLowerCase();
-      this._cachedFiltered = source.filter(e =>
-        e.nameLower.includes(lower)
-      );
-    }
+    const key = `${fmt}\u0000${q}`;
+    if (key === this._cachedFilterKey) return this._cachedFiltered;
+    this._cachedFilterKey = key;
+    const lower = q.toLowerCase();
+    this._cachedFiltered = this.regularEntities
+      .filter(e => e.formats[fmt] && (!q || e.nameLower.includes(lower)))
+      .sort((a, b) => {
+        const da = a.formats[fmt]!.deprecated ? 1 : 0;
+        const db = b.formats[fmt]!.deprecated ? 1 : 0;
+        return da - db || a.name.localeCompare(b.name);
+      });
     return this._cachedFiltered;
   }
 
+  /** Counted per format, since that is what a single view actually lists. */
   private get isLarge(): boolean {
-    return this.regularEntities.length > 15;
+    return this.fileCount > 15;
   }
 
   // --- Event Handlers ---
 
   private onFormatSelect(ext: string) {
     this._selectedFormat = ext;
+    // Formats do not always cover the same entities, so a scroll offset kept
+    // from the previous format can land past the end of the new list.
+    this._scrollTop = 0;
+    const container = this.querySelector('.table-body') as HTMLElement | null;
+    if (container) container.scrollTop = 0;
   }
 
   private onSearchInput(e: Event) {
@@ -389,13 +404,7 @@ export class DatasetFilesElement extends LitElement {
 
   private renderCards() {
     const fmt = this._selectedFormat;
-    const entries = this.regularEntities
-      .filter(e => e.formats[fmt])
-      .sort((a, b) => {
-        const da = a.formats[fmt].deprecated ? 1 : 0;
-        const db = b.formats[fmt].deprecated ? 1 : 0;
-        return da - db || a.name.localeCompare(b.name);
-      });
+    const entries = this.filteredEntries;
     return html`
       ${this.renderPlanetFeatured()}
       ${this.renderToolbar()}
