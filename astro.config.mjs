@@ -59,7 +59,15 @@ export default defineConfig({
 								{ label: 'Regions', slug: 'datasets/boundaries/regions' },
 							],
 						},
-						{ label: 'OpenStreetMap', slug: 'datasets/openstreetmap' },
+						{
+							label: 'OpenStreetMap',
+							collapsed: false,
+							items: [
+								{ label: 'Planet', slug: 'datasets/openstreetmap/planet' },
+								{ label: 'Continents', slug: 'datasets/openstreetmap/continents' },
+								{ label: 'Countries', slug: 'datasets/openstreetmap/countries' },
+							],
+						},
 						{ label: 'Time Zone', slug: 'datasets/time-zones' },
 					],
 				},

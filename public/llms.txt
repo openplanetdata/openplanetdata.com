@@ -16,7 +16,10 @@ OpenPlanetData publishes regularly-rebuilt geographic datasets aggregated from a
 - [Continents](https://openplanetdata.com/datasets/boundaries/continents/): Continent boundary polygons.
 - [Countries](https://openplanetdata.com/datasets/boundaries/countries/): Country boundary polygons aligned with ISO 3166-1.
 - [Regions](https://openplanetdata.com/datasets/boundaries/regions/): First-level subdivisions aligned with ISO 3166-2.
-- [OpenStreetMap](https://openplanetdata.com/datasets/openstreetmap/): Daily planet snapshots as PBF, GOL, GOB, and GeoParquet.
+- [OpenStreetMap](https://openplanetdata.com/datasets/openstreetmap/): Daily OpenStreetMap snapshots as PBF, GOL, GOB, and GeoParquet.
+- [OpenStreetMap planet](https://openplanetdata.com/datasets/openstreetmap/planet/): The complete planet, one file per format.
+- [OpenStreetMap continents](https://openplanetdata.com/datasets/openstreetmap/continents/): Extracts covering one continent each.
+- [OpenStreetMap countries](https://openplanetdata.com/datasets/openstreetmap/countries/): Extracts covering one country or territory each.
 - [Time Zone](https://openplanetdata.com/datasets/time-zones/): Time zone boundaries from timezone-boundary-builder.
 
 ## Usage

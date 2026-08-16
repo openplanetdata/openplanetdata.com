@@ -76,13 +76,33 @@ const DATASETS: Record<string, DatasetEntry> = {
 		source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
 		frequency: 'P1D',
 	},
-	'/datasets/openstreetmap/': {
+	'/datasets/openstreetmap/planet/': {
 		name: 'OpenStreetMap Planet Snapshots',
 		description:
 			'Daily snapshots of the complete OpenStreetMap planet, published as PBF, GOL, GOB, and GeoParquet for fast analytical queries.',
 		keywords: ['OpenStreetMap', 'OSM', 'planet', 'PBF', 'GeoParquet', 'geospatial', 'GIS'],
 		formats: ['pbf', 'gol', 'gob', 'geoparquet'],
 		path: 'osm/planet',
+		source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
+		frequency: 'P1D',
+	},
+	'/datasets/openstreetmap/continents/': {
+		name: 'OpenStreetMap Continent Extracts',
+		description:
+			'Daily OpenStreetMap extracts covering one continent each, cut from the planet snapshot and published as PBF, GOL, GOB, and GeoParquet.',
+		keywords: ['OpenStreetMap', 'OSM', 'continents', 'extracts', 'PBF', 'GeoParquet', 'geospatial', 'GIS'],
+		formats: ['pbf', 'gol', 'gob', 'geoparquet'],
+		path: 'osm/continents',
+		source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
+		frequency: 'P1D',
+	},
+	'/datasets/openstreetmap/countries/': {
+		name: 'OpenStreetMap Country Extracts',
+		description:
+			'Daily OpenStreetMap extracts covering one country or territory each, aligned with ISO 3166-1 and published as PBF, GOL, GOB, and GeoParquet.',
+		keywords: ['OpenStreetMap', 'OSM', 'countries', 'extracts', 'ISO 3166-1', 'PBF', 'GeoParquet', 'geospatial', 'GIS'],
+		formats: ['pbf', 'gol', 'gob', 'geoparquet'],
+		path: 'osm/countries',
 		source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
 		frequency: 'P1D',
 	},

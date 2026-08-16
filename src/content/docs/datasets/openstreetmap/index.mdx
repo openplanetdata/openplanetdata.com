@@ -1,0 +1,27 @@
+---
+title: OpenStreetMap
+description: Daily OpenStreetMap snapshots — planet, continent, and country extracts in PBF, GOL, GOB, and GeoParquet.
+---
+
+OpenPlanetData provides daily snapshots of OpenStreetMap data in multiple formats, optimized for different use cases:
+
+- **PBF** - Standard OpenStreetMap binary format.
+- **GOL** - PBF variant indexed with [GeoDesk](https://www.geodesk.com/) for rapid spatial queries.
+- **GOB** - Compressed variant of GeoDesk GOL file.
+- **GeoParquet** - Column-oriented format optimized for spatial analytics.
+
+## Available OpenStreetMap Datasets
+
+- **[Planet](/datasets/openstreetmap/planet/)** — the complete OpenStreetMap planet, in a single file per format.
+- **[Continents](/datasets/openstreetmap/continents/)** — extracts covering one continent each.
+- **[Countries](/datasets/openstreetmap/countries/)** — extracts covering one country or territory each.
+
+Every extract is cut from the same daily planet snapshot, so all levels share the
+same OpenStreetMap timestamp and can be mixed without reconciling versions.
+
+## Use Cases
+
+- **Routing** — build road graphs from PBF extracts scoped to the area you serve.
+- **Geocoding** — index addresses and places for a single country instead of the planet.
+- **Analytics** — query GeoParquet extracts directly with DuckDB, Spark, or BigQuery.
+- **Rendering** — generate map tiles for a continent without downloading the planet.
