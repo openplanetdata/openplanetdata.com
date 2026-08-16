@@ -1,6 +1,15 @@
 ---
 title: OpenStreetMap Regions
 description: OpenStreetMap extracts for administrative regions and subdivisions (ISO 3166-2), coming soon.
+# Hidden while the dataset is being fixed: not linked from the sidebar or the
+# OpenStreetMap page, and kept out of site search, the sitemap and search
+# engines. Drop this block once the data is back.
+pagefind: false
+head:
+  - tag: meta
+    attrs:
+      name: robots
+      content: noindex
 ---
 
 import DatasetFiles from '../../../../components/DatasetFiles.astro';

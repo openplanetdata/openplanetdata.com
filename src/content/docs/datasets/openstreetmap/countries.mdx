@@ -1,6 +1,15 @@
 ---
 title: OpenStreetMap Countries
 description: Daily OpenStreetMap country extracts in PBF, GOL, GOB, and GeoParquet formats.
+# Hidden while the dataset is being fixed: not linked from the sidebar or the
+# OpenStreetMap page, and kept out of site search, the sitemap and search
+# engines. Drop this block once the data is back.
+pagefind: false
+head:
+  - tag: meta
+    attrs:
+      name: robots
+      content: noindex
 ---
 
 import DatasetFiles from '../../../../components/DatasetFiles.astro';

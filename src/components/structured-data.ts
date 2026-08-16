@@ -86,26 +86,29 @@ const DATASETS: Record<string, DatasetEntry> = {
 		source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
 		frequency: 'P1D',
 	},
-	'/datasets/openstreetmap/continents/': {
-		name: 'OpenStreetMap Continent Extracts',
-		description:
-			'Daily OpenStreetMap extracts covering one continent each, cut from the planet snapshot and published as PBF, GOL, GOB, and GeoParquet.',
-		keywords: ['OpenStreetMap', 'OSM', 'continents', 'extracts', 'PBF', 'GeoParquet', 'geospatial', 'GIS'],
-		formats: ['pbf', 'gol', 'gob', 'geoparquet'],
-		path: 'osm/continents',
-		source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
-		frequency: 'P1D',
-	},
-	'/datasets/openstreetmap/countries/': {
-		name: 'OpenStreetMap Country Extracts',
-		description:
-			'Daily OpenStreetMap extracts covering one country or territory each, aligned with ISO 3166-1 and published as PBF, GOL, GOB, and GeoParquet.',
-		keywords: ['OpenStreetMap', 'OSM', 'countries', 'extracts', 'ISO 3166-1', 'PBF', 'GeoParquet', 'geospatial', 'GIS'],
-		formats: ['pbf', 'gol', 'gob', 'geoparquet'],
-		path: 'osm/countries',
-		source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
-		frequency: 'P1D',
-	},
+	// The continent and country extracts are hidden while their datasets are being
+	// fixed. The pages still exist; restore the entries below once the data is
+	// published again.
+	// '/datasets/openstreetmap/continents/': {
+	// 	name: 'OpenStreetMap Continent Extracts',
+	// 	description:
+	// 		'Daily OpenStreetMap extracts covering one continent each, cut from the planet snapshot and published as PBF, GOL, GOB, and GeoParquet.',
+	// 	keywords: ['OpenStreetMap', 'OSM', 'continents', 'extracts', 'PBF', 'GeoParquet', 'geospatial', 'GIS'],
+	// 	formats: ['pbf', 'gol', 'gob', 'geoparquet'],
+	// 	path: 'osm/continents',
+	// 	source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
+	// 	frequency: 'P1D',
+	// },
+	// '/datasets/openstreetmap/countries/': {
+	// 	name: 'OpenStreetMap Country Extracts',
+	// 	description:
+	// 		'Daily OpenStreetMap extracts covering one country or territory each, aligned with ISO 3166-1 and published as PBF, GOL, GOB, and GeoParquet.',
+	// 	keywords: ['OpenStreetMap', 'OSM', 'countries', 'extracts', 'ISO 3166-1', 'PBF', 'GeoParquet', 'geospatial', 'GIS'],
+	// 	formats: ['pbf', 'gol', 'gob', 'geoparquet'],
+	// 	path: 'osm/countries',
+	// 	source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
+	// 	frequency: 'P1D',
+	// },
 	'/datasets/time-zones/': {
 		name: 'Time Zone Boundaries',
 		description:

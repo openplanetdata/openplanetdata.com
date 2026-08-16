@@ -28,7 +28,7 @@ OpenPlanetData provides regular snapshots of geographic datasets in optimized fo
       </svg>
     </div>
     <h3>OpenStreetMap</h3>
-    <p>Daily planet, continent, and country snapshots of OpenStreetMap data in PBF, GOB, GOL, and GeoParquet formats.</p>
+    <p>Daily planet snapshots of OpenStreetMap data in PBF, GOB, GOL, and GeoParquet formats.</p>
   </a>
   <a href="/datasets/time-zones/" class="dataset-card">
     <div class="dataset-icon">

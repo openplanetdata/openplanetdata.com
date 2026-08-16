@@ -1,6 +1,6 @@
 ---
 title: OpenStreetMap
-description: Daily OpenStreetMap snapshots — planet, continent, and country extracts in PBF, GOL, GOB, and GeoParquet.
+description: Daily OpenStreetMap planet snapshots in PBF, GOL, GOB, and GeoParquet.
 ---
 
 OpenPlanetData provides daily snapshots of OpenStreetMap data in multiple formats, optimized for different use cases:
@@ -13,16 +13,24 @@ OpenPlanetData provides daily snapshots of OpenStreetMap data in multiple format
 ## Available OpenStreetMap Datasets
 
 - **[Planet](/datasets/openstreetmap/planet/)** — the complete OpenStreetMap planet, in a single file per format.
+
+{/*
+  The continent, country and region extracts are hidden while their datasets are
+  being fixed. The pages still exist; restore the entries below (and the matching
+  sidebar items, llms.txt lines and structured-data entries) once the data is
+  published again.
+
 - **[Continents](/datasets/openstreetmap/continents/)** — extracts covering one continent each.
 - **[Countries](/datasets/openstreetmap/countries/)** — extracts covering one country or territory each.
 - **[Regions](/datasets/openstreetmap/regions/)** — extracts covering one administrative region each, coming soon.
 
 Every extract is cut from the same daily planet snapshot, so all levels share the
 same OpenStreetMap timestamp and can be mixed without reconciling versions.
+*/}
 
 ## Use Cases
 
-- **Routing** — build road graphs from PBF extracts scoped to the area you serve.
-- **Geocoding** — index addresses and places for a single country instead of the planet.
-- **Analytics** — query GeoParquet extracts directly with DuckDB, Spark, or BigQuery.
-- **Rendering** — generate map tiles for a continent without downloading the planet.
+- **Routing** — build road graphs from the PBF planet.
+- **Geocoding** — index addresses and places worldwide.
+- **Analytics** — query the GeoParquet planet directly with DuckDB, Spark, or BigQuery.
+- **Rendering** — generate map tiles from a single planet file.

@@ -1,6 +1,16 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import sitemap from '@astrojs/sitemap';
+
+// Pages that exist but are hidden for now: not in the sidebar, not in the
+// sitemap, and marked noindex in their own frontmatter. Keep this in step with
+// the commented-out sidebar entries below.
+const HIDDEN_PAGES = [
+	'/datasets/openstreetmap/continents/',
+	'/datasets/openstreetmap/countries/',
+	'/datasets/openstreetmap/regions/',
+];
 
 // https://astro.build/config
 export default defineConfig({
@@ -64,9 +74,12 @@ export default defineConfig({
 							collapsed: false,
 							items: [
 								{ label: 'Planet', slug: 'datasets/openstreetmap/planet' },
-								{ label: 'Continents', slug: 'datasets/openstreetmap/continents' },
-								{ label: 'Countries', slug: 'datasets/openstreetmap/countries' },
-								{ label: 'Regions', slug: 'datasets/openstreetmap/regions' },
+								// The continent, country and region extracts are hidden while their
+								// datasets are being fixed. The pages still exist; restore the entries
+								// below once the data is published again.
+								// { label: 'Continents', slug: 'datasets/openstreetmap/continents' },
+								// { label: 'Countries', slug: 'datasets/openstreetmap/countries' },
+								// { label: 'Regions', slug: 'datasets/openstreetmap/regions' },
 							],
 						},
 						{ label: 'Time Zone', slug: 'datasets/time-zones' },
@@ -123,6 +136,11 @@ export default defineConfig({
 					},
 				},
 			],
+		}),
+		// Starlight registers its own sitemap only when none is configured, so
+		// declaring it here is what lets the hidden pages be filtered out.
+		sitemap({
+			filter: (page) => !HIDDEN_PAGES.some((path) => new URL(page).pathname === path),
 		}),
 	],
 });
