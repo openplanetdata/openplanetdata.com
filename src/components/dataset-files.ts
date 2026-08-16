@@ -189,11 +189,11 @@ export class DatasetFilesElement extends LitElement {
   }
 
   /**
-   * Planet-wide files, which each dataset lists on its own planet page.
+   * Planet-wide files, featured above the listing they bundle.
    *
-   * They are dropped from the per-entity listings so a page shows one level of
-   * coverage only — except where they are all a page has, as on those planet
-   * pages themselves and on the timezone dataset.
+   * A page holding nothing else — the OpenStreetMap planet page, the timezone
+   * dataset — has no listing to sit above, so it features nothing and shows
+   * the files as the dataset they are.
    */
   private get planetEntities(): ResolvedEntity[] {
     const planets = this._sortedEntities.filter(e => e.slug === 'planet');
@@ -202,10 +202,10 @@ export class DatasetFilesElement extends LitElement {
   }
 
   private get regularEntities(): ResolvedEntity[] {
-    const planets = this.planetEntities;
-    if (planets.length === 0) return this._sortedEntities;
-    const planetSet = new Set(planets);
-    return this._sortedEntities.filter(e => !planetSet.has(e));
+    const featured = this.planetEntities;
+    if (featured.length === 0) return this._sortedEntities;
+    const featuredSet = new Set(featured);
+    return this._sortedEntities.filter(e => !featuredSet.has(e));
   }
 
   private get fileCount(): number {
@@ -425,6 +425,7 @@ export class DatasetFilesElement extends LitElement {
     const fmt = this._selectedFormat;
     const entries = this.filteredEntries;
     return html`
+      ${this.renderPlanetFeatured()}
       ${this.renderToolbar()}
       <div class="entity-grid">
         ${entries.map(e => {
@@ -503,6 +504,7 @@ export class DatasetFilesElement extends LitElement {
     const visible = filtered.slice(startIdx, endIdx);
 
     return html`
+      ${this.renderPlanetFeatured()}
       ${this.renderToolbar()}
       <div class="table-body" style="height:${CONTAINER_HEIGHT}px;overflow-y:auto" @scroll=${this.onScroll}>
         <div style="height:${totalHeight}px;position:relative">
@@ -515,6 +517,68 @@ export class DatasetFilesElement extends LitElement {
         <div class="no-results">No matching files found.</div>
       ` : nothing}
       ${this.renderSummary(filtered.length)}
+    `;
+  }
+
+  private renderPlanetFeatured() {
+    const planets = this.planetEntities;
+    if (planets.length === 0) return nothing;
+
+    return html`
+      ${planets.map(planet => {
+        const formatEntries = Object.entries(planet.formats).sort(([a], [b]) =>
+          this.formatLabel(a).localeCompare(this.formatLabel(b))
+        );
+        return html`
+          <div class="planet-featured">
+            <div class="planet-featured-header">
+              <span class="planet-featured-badge">Global</span>
+              <span class="planet-featured-text">
+                <strong>Planet-wide dataset</strong>
+                <span class="planet-featured-sep">·</span>
+                complete download of everything listed below
+              </span>
+              ${this.showVersion ? html`
+                <span class="planet-featured-version">${planet.version}</span>
+              ` : nothing}
+            </div>
+            <div class="planet-featured-list">
+              ${formatEntries.map(([ext, file]) => {
+                const sha256 = file.checksum_sha256;
+                const isCopied = this._copiedHash === sha256;
+                return html`
+                  <div class="planet-featured-row">
+                    <div class="planet-featured-row-left">
+                      <div class="planet-featured-row-name">${this.formatLabel(ext)}</div>
+                      <div class="planet-featured-row-meta">
+                        <span class="info-label">Size</span>
+                        <span class="info-value">${this.formatSize(file.size)}</span>
+                      </div>
+                      <div class="planet-featured-row-meta">
+                        <span class="info-label">SHA-256</span>
+                        <code class="info-hash" title="Click to copy full hash"
+                          @click=${() => this.onCopyHash(sha256)}
+                        >${isCopied ? 'Copied!' : sha256.slice(0, 8) + '...' + sha256.slice(-8)}</code>
+                      </div>
+                      <div class="planet-featured-row-meta">
+                        <span class="info-label">Updated</span>
+                        <span class="info-value">${this.formatDate(file.updated)}</span>
+                      </div>
+                    </div>
+                    <div class="planet-featured-row-right">
+                      <button class="action-btn action-rclone compact" title="Download with Rclone"
+                        @click=${() => this.onOpenRclone(file)}>Rclone</button>
+                      <a href=${this.downloadUrl(file)} class="action-btn action-download compact">
+                        ${this.downloadIcon()}<span>Download</span>
+                      </a>
+                    </div>
+                  </div>
+                `;
+              })}
+            </div>
+          </div>
+        `;
+      })}
     `;
   }
 

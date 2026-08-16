@@ -54,7 +54,6 @@ export default defineConfig({
 							label: 'Boundaries',
 							collapsed: false,
 							items: [
-								{ label: 'Planet', slug: 'datasets/boundaries/planet' },
 								{ label: 'Continents', slug: 'datasets/boundaries/continents' },
 								{ label: 'Countries', slug: 'datasets/boundaries/countries' },
 								{ label: 'Regions', slug: 'datasets/boundaries/regions' },

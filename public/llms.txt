@@ -13,7 +13,6 @@ OpenPlanetData publishes regularly-rebuilt geographic datasets aggregated from a
 ## Datasets
 
 - [Datasets overview](https://openplanetdata.com/datasets/): Full catalog of available datasets.
-- [Planet boundaries](https://openplanetdata.com/datasets/boundaries/planet/): Every continent, country, or region boundary in a single file per level.
 - [Continents](https://openplanetdata.com/datasets/boundaries/continents/): Continent boundary polygons.
 - [Countries](https://openplanetdata.com/datasets/boundaries/countries/): Country boundary polygons aligned with ISO 3166-1.
 - [Regions](https://openplanetdata.com/datasets/boundaries/regions/): First-level subdivisions aligned with ISO 3166-2.
