@@ -11,6 +11,7 @@ interface FileEntry {
   id: string;
   name: string | null;
   entity: string;
+  subcategory: string | null;
   extension: string;
   size: number;
   remote_path: string;
@@ -96,11 +97,13 @@ export class DatasetFilesElement extends LitElement {
         return;
       }
 
-      // Group files by (entity, version), keyed by extension
+      // Group files by (entity, subcategory, version), keyed by extension.
+      // Subcategory belongs in the key because one entity can appear under
+      // several of them — `planet` covers continents, countries and regions.
       const entityMap = new Map<string, EntityFormats>();
       const formatSet = new Set<string>();
       for (const file of files) {
-        const key = `${file.entity}\u0000${file.remote_version}`;
+        const key = `${file.entity}\u0000${file.subcategory}\u0000${file.remote_version}`;
         if (!entityMap.has(key)) entityMap.set(key, {});
         entityMap.get(key)![file.extension] = file;
         formatSet.add(file.extension);
@@ -163,11 +166,21 @@ export class DatasetFilesElement extends LitElement {
     return `${this.baseDownloadUrl}/${file.remote_path}/${file.remote_version}/${file.remote_filename}`;
   }
 
+  private titleCase(slug: string): string {
+    return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  }
+
   private resolveEntityName(formats: EntityFormats, slug: string): string {
-    for (const f of Object.values(formats)) {
+    const files = Object.values(formats);
+    for (const f of files) {
       if (f.name) return f.name;
     }
-    return slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    // Planet-wide aggregates are published unnamed, and a page can list one
+    // per subcategory, so what a file covers is the only thing telling them
+    // apart.
+    const subcategory = files[0]?.subcategory;
+    if (slug === 'planet' && subcategory) return this.titleCase(subcategory);
+    return this.titleCase(slug);
   }
 
   private rcloneCommand(file: FileEntry): string {
@@ -176,10 +189,12 @@ export class DatasetFilesElement extends LitElement {
   }
 
   private get planetEntities(): ResolvedEntity[] {
-    // Only treat the "planet" entity as a featured aggregate when it sits
-    // alongside other entities — otherwise (e.g. timezone) it's the dataset itself.
-    if (this._sortedEntities.length <= 1) return [];
-    return this._sortedEntities.filter(e => e.slug === 'planet');
+    const planets = this._sortedEntities.filter(e => e.slug === 'planet');
+    // Only feature a planet-wide file when it sits above a list of smaller
+    // ones. On a page that lists nothing else — the planet pages, or the
+    // timezone dataset — it is the subject rather than a shortcut.
+    if (planets.length === this._sortedEntities.length) return [];
+    return planets;
   }
 
   private get regularEntities(): ResolvedEntity[] {

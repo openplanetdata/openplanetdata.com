@@ -2,14 +2,16 @@
 interface Props {
   category: string;
   subcategory?: string;
+  /** Restricts the listing to a single entity, e.g. the planet-wide files. */
+  entity?: string;
   version?: string;
   showAllFormats?: boolean;
   showVersion?: boolean;
   debugLoading?: boolean;
 }
 
-const { category, subcategory, version, showAllFormats = false, showVersion = false, debugLoading = false } = Astro.props;
-const apiUrl = `https://download.openplanetdata.com/files?category=${category}${subcategory ? `&subcategory=${subcategory}` : ''}&limit=-1`;
+const { category, subcategory, entity, version, showAllFormats = false, showVersion = false, debugLoading = false } = Astro.props;
+const apiUrl = `https://download.openplanetdata.com/files?category=${category}${subcategory ? `&subcategory=${subcategory}` : ''}${entity ? `&entity=${entity}` : ''}&limit=-1`;
 const baseDownloadUrl = 'https://download.openplanetdata.com';
 ---
 
