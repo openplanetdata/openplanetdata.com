@@ -53,6 +53,8 @@ export class DatasetFilesElement extends LitElement {
   @property({ type: Boolean, attribute: 'show-all-formats' }) accessor showAllFormats = false;
   @property({ type: Boolean, attribute: 'show-version' }) accessor showVersion = false;
   @property({ type: Boolean, attribute: 'debug-loading' }) accessor debugLoading = false;
+  /** Shown in place of the listing while a dataset has nothing published. */
+  @property({ attribute: 'empty-message' }) accessor emptyMessage = 'No files available yet.';
 
   @state() accessor _loading = true;
   @state() accessor _error = false;
@@ -91,7 +93,7 @@ export class DatasetFilesElement extends LitElement {
         : data.files;
 
       if (!files || files.length === 0) {
-        this._errorMessage = 'No files available yet.';
+        this._errorMessage = this.emptyMessage;
         this._error = true;
         this._loading = false;
         return;

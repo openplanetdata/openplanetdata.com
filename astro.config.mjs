@@ -66,6 +66,7 @@ export default defineConfig({
 								{ label: 'Planet', slug: 'datasets/openstreetmap/planet' },
 								{ label: 'Continents', slug: 'datasets/openstreetmap/continents' },
 								{ label: 'Countries', slug: 'datasets/openstreetmap/countries' },
+								{ label: 'Regions', slug: 'datasets/openstreetmap/regions' },
 							],
 						},
 						{ label: 'Time Zone', slug: 'datasets/time-zones' },
