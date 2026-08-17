@@ -78,7 +78,8 @@
     zoom: 1.5,
     minZoom: 1.5,
     maxZoom: 6,
-    attributionControl: false,
+    // The default attribution control stays on: the CARTO basemap is built
+    // from OpenStreetMap data and both require visible credit.
     scrollZoom: false,
   });
 
@@ -147,6 +148,24 @@
   }
 
   :root[data-theme='dark'] .world-map-container :global(.maplibregl-ctrl-group button span) {
+    filter: invert(1);
+  }
+
+  /* Attribution: keep MapLibre's layout, match the glass palette. */
+  .world-map-container :global(.maplibregl-ctrl-attrib) {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top-left-radius: 8px;
+    color: var(--sl-color-gray-2);
+    font-size: 0.7rem;
+  }
+
+  .world-map-container :global(.maplibregl-ctrl-attrib a) {
+    color: var(--sl-color-text);
+  }
+
+  :root[data-theme='dark'] .world-map-container :global(.maplibregl-ctrl-attrib-button) {
     filter: invert(1);
   }
 </style>
