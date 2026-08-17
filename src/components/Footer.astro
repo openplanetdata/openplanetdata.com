@@ -31,7 +31,16 @@ import Pagination from '@astrojs/starlight/components/Pagination.astro';
 	<Pagination />
 
 	<div class="copyright">
-		&copy; {new Date().getFullYear()} OpenPlanetData &mdash; Made with &#10084; by <a href="https://github.com/laurentpellegrino" target="_blank" rel="noopener">Laurent Pellegrino</a> and <a href="https://github.com/openplanetdata" target="_blank" rel="noopener">contributors</a>.
+		<span class="copyright-line">
+			&copy; {new Date().getFullYear()} OpenPlanetData &mdash; Made with &#10084; by <a href="https://github.com/laurentpellegrino" target="_blank" rel="noopener">Laurent Pellegrino</a> and <a href="https://github.com/openplanetdata" target="_blank" rel="noopener">contributors</a>.
+		</span>
+		<span class="copyright-line">
+			Datasets based on OpenStreetMap data are &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>, <a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener">ODbL</a>
+			<span class="copyright-sep" aria-hidden="true">&middot;</span>
+			<a href="/terms/">Terms</a>
+			<span class="copyright-sep" aria-hidden="true">&middot;</span>
+			<a href="/privacy/">Privacy</a>
+		</span>
 	</div>
 </footer>
 
@@ -155,6 +164,18 @@ import Pagination from '@astrojs/starlight/components/Pagination.astro';
 
 	.copyright a:hover {
 		color: var(--sl-color-accent);
+	}
+
+	.copyright-line {
+		display: block;
+	}
+
+	.copyright-line + .copyright-line {
+		margin-top: 0.35rem;
+	}
+
+	.copyright-sep {
+		margin: 0 0.35em;
 	}
 </style>
 

@@ -42,6 +42,10 @@ OpenPlanetData provides regular snapshots of geographic datasets in optimized fo
   </a>
 </div>
 
+## Licensing and Attribution
+
+Datasets based on OpenStreetMap data (&copy; [OpenStreetMap contributors](https://www.openstreetmap.org/copyright)) are made available under the [Open Database License (ODbL)](https://opendatacommons.org/licenses/odbl/). Today that is every dataset listed above, including the time zones, which derive from OpenStreetMap through timezone-boundary-builder. When you use or redistribute them, credit OpenStreetMap contributors and keep the ODbL &mdash; see the [Terms of Use](/terms/) for the details.
+
 <style>
   .dataset-grid {
     display: grid;

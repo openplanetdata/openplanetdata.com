@@ -39,4 +39,7 @@ OpenPlanetData publishes regularly-rebuilt geographic datasets aggregated from a
 
 ## License
 
-Datasets inherit the licenses of their upstream sources (notably ODbL for OpenStreetMap). Site content is published under permissive open terms — attribution to OpenPlanetData is appreciated.
+- [Terms of Use](https://openplanetdata.com/terms/): Data licensing and attribution, and the terms the datasets and site are provided under.
+- [Privacy Policy](https://openplanetdata.com/privacy/): What the website and download mirror record about visitors.
+
+Datasets based on OpenStreetMap data (© OpenStreetMap contributors, https://www.openstreetmap.org/copyright) are made available under the Open Database License (ODbL, https://opendatacommons.org/licenses/odbl/). Today that is every published dataset. Attribution to OpenPlanetData is appreciated but not required.
