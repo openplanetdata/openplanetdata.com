@@ -1,17 +1,22 @@
 ---
-// Sponsors component displaying our main sponsors
+// Sponsors component displaying our main sponsors.
+//
+// The class names deliberately avoid the word "sponsor": EasyList carries a
+// generic `##.sponsor-link` cosmetic rule, so Adblock Plus and uBlock Origin
+// hid the logos while leaving the "Sponsored by" heading in place. Keep any
+// new class here free of sponsor/ad/promo-style names.
 import cloudfareLogo from '../assets/cloudflare-logo.svg';
 import cloudfareLogoDark from '../assets/cloudflare-logo-dark.svg';
 ---
 
-<div class="sponsors-section">
-  <p class="sponsors-title">Sponsored by</p>
-  <div class="sponsors-grid">
-    <a href="https://www.cloudflare.com" target="_blank" rel="noopener" class="sponsor-link">
-      <img src={cloudfareLogo.src} alt="Cloudflare" class="sponsor-logo cloudflare-logo cloudflare-light" />
-      <img src={cloudfareLogoDark.src} alt="Cloudflare" class="sponsor-logo cloudflare-logo cloudflare-dark" />
+<div class="backers-section">
+  <p class="backers-title">Sponsored by</p>
+  <div class="backers-grid">
+    <a href="https://www.cloudflare.com" target="_blank" rel="noopener" class="backer-link">
+      <img src={cloudfareLogo.src} alt="Cloudflare" class="backer-logo cloudflare-logo cloudflare-light" />
+      <img src={cloudfareLogoDark.src} alt="Cloudflare" class="backer-logo cloudflare-logo cloudflare-dark" />
     </a>
-    <a href="https://ipregistry.co" target="_blank" rel="noopener" class="sponsor-link ipregistry-link">
+    <a href="https://ipregistry.co" target="_blank" rel="noopener" class="backer-link ipregistry-link">
       <img src="https://cdn.ipregistry.co/logo/symbol/ipregistry-symbol.svg" alt="Ipregistry" class="ipregistry-icon" />
       <span class="ipregistry-text">ipregistry</span>
     </a>
@@ -27,7 +32,7 @@ import cloudfareLogoDark from '../assets/cloudflare-logo-dark.svg';
     font-style: normal;
   }
 
-  .sponsors-section {
+  .backers-section {
     margin-top: 3rem;
     padding: 2.5rem;
     background: var(--glass-bg);
@@ -41,7 +46,7 @@ import cloudfareLogoDark from '../assets/cloudflare-logo-dark.svg';
     overflow: hidden;
   }
 
-  .sponsors-title {
+  .backers-title {
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--sl-color-gray-3);
@@ -50,7 +55,7 @@ import cloudfareLogoDark from '../assets/cloudflare-logo-dark.svg';
     letter-spacing: 0.1em;
   }
 
-  .sponsors-grid {
+  .backers-grid {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -58,18 +63,18 @@ import cloudfareLogoDark from '../assets/cloudflare-logo-dark.svg';
     flex-wrap: wrap;
   }
 
-  .sponsor-link {
+  .backer-link {
     display: flex;
     align-items: center;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .sponsor-link:hover {
+  .backer-link:hover {
     opacity: 0.85;
     transform: translateY(-3px);
   }
 
-  .sponsor-logo {
+  .backer-logo {
     height: auto;
     width: auto;
   }

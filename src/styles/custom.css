@@ -395,8 +395,10 @@ div.sl-link-card > svg.icon {
   transform: translateY(-2px) scale(1.03);
 }
 
-/* ===== Sponsors Section - Glass Card ===== */
-.sponsors-section {
+/* ===== Sponsors Section - Glass Card =====
+   Named "backers" rather than "sponsors": EasyList hides `.sponsor-link`
+   generically, so ad blockers were removing the logos. See Sponsors.astro. */
+.backers-section {
   margin-top: 3rem;
   padding: 2.5rem;
   background: var(--glass-bg);
@@ -410,7 +412,7 @@ div.sl-link-card > svg.icon {
   overflow: hidden;
 }
 
-.sponsors-section::before {
+.backers-section::before {
   content: '';
   position: absolute;
   top: 0;
@@ -421,11 +423,11 @@ div.sl-link-card > svg.icon {
   pointer-events: none;
 }
 
-:root[data-theme='dark'] .sponsors-section::before {
+:root[data-theme='dark'] .backers-section::before {
   background: linear-gradient(90deg, transparent, rgba(82, 183, 136, 0.2), transparent);
 }
 
-.sponsors-title {
+.backers-title {
   font-family: 'Inter', sans-serif;
   font-size: 0.8rem;
   font-weight: 600;
@@ -435,7 +437,7 @@ div.sl-link-card > svg.icon {
   letter-spacing: 0.12em;
 }
 
-.sponsors-grid {
+.backers-grid {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -443,7 +445,7 @@ div.sl-link-card > svg.icon {
   flex-wrap: wrap;
 }
 
-.sponsor-link {
+.backer-link {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -454,12 +456,12 @@ div.sl-link-card > svg.icon {
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.sponsor-link:hover {
+.backer-link:hover {
   color: var(--sl-color-accent);
   transform: translateY(-3px);
 }
 
-.sponsor-logo {
+.backer-logo {
   height: 32px;
   width: auto;
 }
