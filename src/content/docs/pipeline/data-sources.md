@@ -1,86 +1,45 @@
 ---
 title: Data Sources
-description: The authoritative sources we use to build our datasets.
+description: The upstream sources our datasets are built from, how often we refresh them, and their licenses.
 ---
 
-Transparency about data sources is fundamental to OpenPlanetData. This page documents all the sources we use, what data they provide, and how we evaluate their reliability.
+Transparency about data sources is fundamental to OpenPlanetData. This page lists the upstream sources every published dataset is built from, how often we pull them, and the license the resulting data is distributed under.
 
-## Source Selection Criteria
+## OpenStreetMap
 
-We evaluate potential data sources based on:
+[OpenStreetMap](https://www.openstreetmap.org) is a collaborative map of the world built by a community of volunteers. It is the source of almost everything we publish.
 
-| Criterion | Description |
-|-----------|-------------|
-| **Authority** | Is the source the official or authoritative provider of this data? |
-| **Accuracy** | How accurate is the data based on independent verification? |
-| **Currency** | How frequently is the source updated? |
-| **Accessibility** | Is the data freely accessible and machine-readable? |
-| **Licensing** | Does the license allow redistribution? |
+**How we fetch it:** every day we download the latest weekly [planet dump](https://planet.openstreetmap.org/) and bring it up to date with the official hourly [replication diffs](https://planet.openstreetmap.org/replication/hour/). Each release therefore reflects OpenStreetMap as of the most recent hourly diff available when the pipeline runs.
 
-## Country Data Sources
+**What we build from it:**
 
-### ISO 3166 Maintenance Agency
+- **[OpenStreetMap planet](/datasets/openstreetmap/planet/)** — the planet itself, in PBF, GOL, GOB, and GeoParquet.
+- **Coastline** — land and water polygons extracted from OpenStreetMap coastline ways with [osmcoastline](https://osmcode.org/osmcoastline/).
+- **[Boundaries](/datasets/boundaries/)** — continent, country, and region polygons built from OpenStreetMap administrative boundaries, clipped to the coastline.
 
-The official source for country codes:
+## timezone-boundary-builder
 
-- **ISO 3166-1** - Country codes (alpha-2, alpha-3, numeric)
-- **ISO 3166-2** - Subdivision codes
+[timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder) builds time zone boundary polygons from OpenStreetMap data. We use the `timezones-with-oceans` file of its latest release and convert it for the **[Time Zones](/datasets/time-zones/)** dataset.
 
-**What we use:** Official country codes, country names
+## Refresh Schedule
 
-### United Nations
+| Dataset | Source | Refresh |
+|---------|--------|---------|
+| OpenStreetMap planet | OpenStreetMap planet dump + hourly diffs | Daily, starting at 01:00 UTC |
+| Coastline | OpenStreetMap planet | Weekly, Mondays at 02:00 UTC |
+| Boundaries | OpenStreetMap planet + coastline | Weekly, after each coastline build |
+| Time Zones | timezone-boundary-builder latest release | Daily check at 01:00 UTC |
 
-Official international organization data:
+## Licensing
 
-- **UN Statistics Division** - Country and area codes
-- **UN Member States** - Membership information
-
-**What we use:** Country status, UN membership, official names
-
-### GeoNames
-
-Open geographic database with extensive location data:
-
-- **Countries** - Country information and boundaries
-- **Administrative Divisions** - Regions, states, provinces
-
-**What we use:** Geographic coordinates, population data, alternate names
-
-### Other Sources
-
-| Source | Data Provided |
-|--------|---------------|
-| [Rest Countries](https://restcountries.com) | Supplementary country data |
-| [World Bank](https://data.worldbank.org) | Population, economic data |
-| [CIA World Factbook](https://www.cia.gov/the-world-factbook/) | General country information |
-
-## Source Freshness
-
-We monitor source updates and refresh our data accordingly:
-
-| Source Type | Check Frequency | Update Trigger |
-|-------------|-----------------|----------------|
-| Country Data | Monthly | Monthly pipeline run |
-| Static References | Quarterly | Manual review |
-
-## Handling Source Conflicts
-
-When sources disagree, we apply these rules:
-
-1. **Official sources first** - ISO for country codes, UN for designations
-2. **Consensus wins** - If 3+ sources agree, use that value
-3. **Document ambiguity** - Flag uncertain data in metadata
-4. **Manual review** - Critical conflicts are reviewed by maintainers
-
-## Licensing Compliance
-
-All sources we use have licenses compatible with our CC BY 4.0 distribution:
+Every dataset listed above is derived from OpenStreetMap data, including the time zones, which timezone-boundary-builder builds from OpenStreetMap.
 
 | Source | License |
 |--------|---------|
-| GeoNames | CC BY 4.0 |
-| ISO Codes | Freely usable |
-| UN Data | Open |
+| OpenStreetMap | [Open Database License (ODbL) 1.0](https://opendatacommons.org/licenses/odbl/) |
+| timezone-boundary-builder | [Open Database License (ODbL) 1.0](https://opendatacommons.org/licenses/odbl/) |
+
+These datasets are &copy; [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) and are made available under the ODbL. When you use or redistribute them, credit **&copy; OpenStreetMap contributors**, make clear the data is available under the ODbL, and share any adapted database you publish under the ODbL as well. The [Terms of Use](/terms/) and the [OSMF attribution guidelines](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines) give the details.
 
 ## Suggesting New Sources
 

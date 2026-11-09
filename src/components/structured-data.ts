@@ -5,16 +5,17 @@
  * dedicated vertical that indexes exactly this markup, and a site whose whole
  * purpose is publishing datasets should be in it.
  *
- * Deliberately no `license` field. Google recommends one, but the site's own
- * pages disagree about the terms — `pipeline/data-sources.md` claims CC BY 4.0
- * while `llms.txt` and the dataset pages describe OpenStreetMap-derived data,
- * which carries ODbL share-alike. Publishing a machine-readable licence claim
- * while that is unresolved would be worse than publishing none, so the field is
- * left out until the source of truth is settled.
+ * Every dataset listed here is derived from OpenStreetMap data (the time zones
+ * through timezone-boundary-builder), so each one carries the ODbL licence and
+ * the "© OpenStreetMap contributors" credit. A dataset from another source must
+ * declare its own licence and credit instead.
  */
 
 const SITE = 'https://openplanetdata.com';
 const DOWNLOADS = 'https://download.openplanetdata.com';
+
+const ODBL = 'https://opendatacommons.org/licenses/odbl/1-0/';
+const OSM_CREDIT = '© OpenStreetMap contributors';
 
 const PUBLISHER = {
 	'@type': 'Organization',
@@ -43,6 +44,8 @@ interface DatasetEntry {
 	path: string;
 	source?: { name: string; url: string };
 	frequency: string;
+	license: string;
+	creditText: string;
 }
 
 const DATASETS: Record<string, DatasetEntry> = {
@@ -54,7 +57,9 @@ const DATASETS: Record<string, DatasetEntry> = {
 		formats: ['geojson', 'geopackage', 'geoparquet'],
 		path: 'boundaries/continents',
 		source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
-		frequency: 'P1D',
+		frequency: 'P1W',
+		license: ODBL,
+		creditText: OSM_CREDIT,
 	},
 	'/datasets/boundaries/countries/': {
 		name: 'Country Boundaries',
@@ -64,7 +69,9 @@ const DATASETS: Record<string, DatasetEntry> = {
 		formats: ['geojson', 'geopackage', 'geoparquet'],
 		path: 'boundaries/countries',
 		source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
-		frequency: 'P1D',
+		frequency: 'P1W',
+		license: ODBL,
+		creditText: OSM_CREDIT,
 	},
 	'/datasets/boundaries/regions/': {
 		name: 'Region Boundaries',
@@ -74,7 +81,9 @@ const DATASETS: Record<string, DatasetEntry> = {
 		formats: ['geojson', 'geopackage', 'geoparquet'],
 		path: 'boundaries/regions',
 		source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
-		frequency: 'P1D',
+		frequency: 'P1W',
+		license: ODBL,
+		creditText: OSM_CREDIT,
 	},
 	'/datasets/openstreetmap/planet/': {
 		name: 'OpenStreetMap Planet Snapshots',
@@ -85,6 +94,8 @@ const DATASETS: Record<string, DatasetEntry> = {
 		path: 'osm/planet',
 		source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
 		frequency: 'P1D',
+		license: ODBL,
+		creditText: OSM_CREDIT,
 	},
 	// The continent and country extracts are hidden while their datasets are being
 	// fixed. The pages still exist; restore the entries below once the data is
@@ -98,6 +109,8 @@ const DATASETS: Record<string, DatasetEntry> = {
 	// 	path: 'osm/continents',
 	// 	source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
 	// 	frequency: 'P1D',
+	// 	license: ODBL,
+	// 	creditText: OSM_CREDIT,
 	// },
 	// '/datasets/openstreetmap/countries/': {
 	// 	name: 'OpenStreetMap Country Extracts',
@@ -108,6 +121,8 @@ const DATASETS: Record<string, DatasetEntry> = {
 	// 	path: 'osm/countries',
 	// 	source: { name: 'OpenStreetMap', url: 'https://www.openstreetmap.org' },
 	// 	frequency: 'P1D',
+	// 	license: ODBL,
+	// 	creditText: OSM_CREDIT,
 	// },
 	'/datasets/time-zones/': {
 		name: 'Time Zone Boundaries',
@@ -121,6 +136,8 @@ const DATASETS: Record<string, DatasetEntry> = {
 			url: 'https://github.com/evansiroky/timezone-boundary-builder',
 		},
 		frequency: 'P1D',
+		license: ODBL,
+		creditText: OSM_CREDIT,
 	},
 };
 
@@ -135,6 +152,8 @@ function datasetSchema(url: string, entry: DatasetEntry) {
 		creator: PUBLISHER,
 		publisher: PUBLISHER,
 		isAccessibleForFree: true,
+		license: entry.license,
+		creditText: entry.creditText,
 		// The datasets are global by definition.
 		spatialCoverage: {
 			'@type': 'Place',
