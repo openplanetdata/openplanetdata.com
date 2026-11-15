@@ -33,15 +33,18 @@ const DOWNLOADS_JOIN = `
 	        AND f.remote_version IS d.remote_version`;
 
 /**
- * A logged request is either a download of a file or a partial read: a tool
- * (a tile reader, a Parquet client) that fetched only a byte range of it.
- * Counting a partial read as a download would let a 64-byte header probe weigh
- * as much as a 72 GB planet, so the two are counted apart, and a partial read
- * adds the bytes it asked for rather than the size of the file.
+ * A logged request is either a download of a file or a partial download: a
+ * tool (a tile reader, a Parquet client) that fetched only byte ranges of it.
+ * Counting a partial download as a download would let a 64-byte header probe
+ * weigh as much as a 72 GB planet, so the two are counted apart.
+ *
+ * Data served covers downloads only. A partial download is logged once, by its
+ * first request, so the bytes on its row are those of a header, not what the
+ * tool went on to fetch: adding them up would publish a figure nobody measured.
  */
 const DOWNLOADS = `COALESCE(SUM(d.partial = 0), 0)`;
 const PARTIAL_READS = `COALESCE(SUM(d.partial = 1), 0)`;
-const BYTES = `COALESCE(SUM(CASE WHEN d.partial = 1 THEN COALESCE(d.bytes, 0) ELSE f.size END), 0)`;
+const BYTES = `COALESCE(SUM(CASE WHEN d.partial = 1 THEN 0 ELSE f.size END), 0)`;
 
 /**
  * IP addresses are not stored: each request carries a keyed hash of its address
@@ -262,8 +265,8 @@ async function queryDownloads(env: Env, since: number, days: number) {
 			  ORDER BY downloads DESC
 			  LIMIT 10`,
 		).bind(since),
-		// Downloads and partial reads together: a tool that only ever reads
-		// parts of files is still a tool people use.
+		// Downloads and partial downloads together: a tool that only ever
+		// fetches parts of files is still a tool people use.
 		db.prepare(
 			`SELECT ${TOOL} AS label,
 			        ${TOTALS}

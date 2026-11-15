@@ -4,7 +4,7 @@ import { areaChart, barChart, nearestIndex, plotX, type BarItem, type Point } fr
 
 interface Totals {
 	downloads: number;
-	/** Requests for a byte range of a file, counted apart from downloads. */
+	/** Partial downloads: requests for byte ranges of a file, counted apart from downloads. */
 	partial_reads: number;
 	visitors: number;
 	bytes: number;
@@ -67,10 +67,11 @@ const PERIODS = [
 	{ key: '365d', label: '12 months' },
 ];
 
-type Metric = 'downloads' | 'bytes' | 'visitors';
+type Metric = 'downloads' | 'partial_reads' | 'bytes' | 'visitors';
 
 const METRICS: Array<{ key: Metric; label: string }> = [
 	{ key: 'downloads', label: 'Downloads' },
+	{ key: 'partial_reads', label: 'Partial downloads' },
 	{ key: 'bytes', label: 'Data served' },
 	{ key: 'visitors', label: 'Unique clients' },
 ];
@@ -295,12 +296,12 @@ export class StatsDashboardElement extends LitElement {
 					<span class="stats-tile-label">Downloads</span>
 					<span class="stats-tile-value">${this.full(period.downloads)}</span>
 					${this.renderDelta(period.downloads, previous.downloads)}
-					${period.partial_reads > 0
-						? html`<span class="stats-tile-delta-note">
-								+ ${this.full(period.partial_reads)} partial
-								${period.partial_reads === 1 ? 'read' : 'reads'}
-							</span>`
-						: nothing}
+				</div>
+				<div class="stats-tile">
+					<span class="stats-tile-label">Partial downloads</span>
+					<span class="stats-tile-value">${this.full(period.partial_reads)}</span>
+					${this.renderDelta(period.partial_reads, previous.partial_reads)}
+					<span class="stats-tile-delta-note">byte ranges of a file</span>
 				</div>
 				<div class="stats-tile">
 					<span class="stats-tile-label">Data served</span>
@@ -438,6 +439,7 @@ export class StatsDashboardElement extends LitElement {
 							>
 								<div class="stats-tooltip-day">${this.fullDay(hovered.day)}</div>
 								<div class="stats-tooltip-row"><span>Downloads</span><strong>${this.full(hovered.downloads)}</strong></div>
+								<div class="stats-tooltip-row"><span>Partial downloads</span><strong>${this.full(hovered.partial_reads)}</strong></div>
 								<div class="stats-tooltip-row"><span>Data served</span><strong>${this.bytes(hovered.bytes)}</strong></div>
 								<div class="stats-tooltip-row"><span>Unique clients</span><strong>${this.full(hovered.visitors)}</strong></div>
 							</div>`
@@ -450,7 +452,7 @@ export class StatsDashboardElement extends LitElement {
 			<div class="stats-table-wrap">
 				<table class="stats-table">
 					<thead>
-						<tr><th scope="col">Day</th><th scope="col">Downloads</th><th scope="col">Data served</th><th scope="col">Unique clients</th></tr>
+						<tr><th scope="col">Day</th><th scope="col">Downloads</th><th scope="col">Partial downloads</th><th scope="col">Data served</th><th scope="col">Unique clients</th></tr>
 					</thead>
 					<tbody>
 						${[...series].reverse().map(
@@ -458,6 +460,7 @@ export class StatsDashboardElement extends LitElement {
 								<tr>
 									<th scope="row">${this.fullDay(entry.day)}</th>
 									<td>${this.full(entry.downloads)}</td>
+									<td>${this.full(entry.partial_reads)}</td>
 									<td>${this.bytes(entry.bytes)}</td>
 									<td>${this.full(entry.visitors)}</td>
 								</tr>`,
@@ -546,7 +549,7 @@ export class StatsDashboardElement extends LitElement {
 			<div class="stats-table-wrap">
 				<table class="stats-table">
 					<thead>
-						<tr><th scope="col">Client</th><th scope="col">Downloads</th><th scope="col">Partial reads</th><th scope="col">Data served</th></tr>
+						<tr><th scope="col">Client</th><th scope="col">Downloads</th><th scope="col">Partial downloads</th><th scope="col">Data served</th></tr>
 					</thead>
 					<tbody>
 						${clients.map(
@@ -555,7 +558,7 @@ export class StatsDashboardElement extends LitElement {
 									<th scope="row">${name(row)}</th>
 									<td>${this.full(row.downloads)}</td>
 									<td>${this.full(row.partial_reads)}</td>
-									<td>${this.bytes(row.bytes)}</td>
+									<td>${row.downloads > 0 ? this.bytes(row.bytes) : html`<span title="Not measured for partial downloads">—</span>`}</td>
 								</tr>`,
 						)}
 					</tbody>
@@ -566,7 +569,7 @@ export class StatsDashboardElement extends LitElement {
 		return this.renderCard(
 			'client',
 			'By client',
-			`The tools that fetch the data, over the last ${data.period.days} days: downloads and partial reads together. A tool is named once three clients use it.`,
+			`The tools that fetch the data, over the last ${data.period.days} days: downloads and partial downloads together. A tool is named once three clients use it.`,
 			chart,
 			table,
 		);
@@ -840,11 +843,11 @@ export class StatsDashboardElement extends LitElement {
 			<p class="stats-footnote">
 				Figures are cached for up to 5 minutes · generated ${this.fullDay(data.generated_at)}.
 				Download counts come from request logs, at most one per client and file
-				per hour. A partial read, where a tool fetches only a byte range of a
-				file, is not a download: it is counted apart and adds only the bytes it
-				asked for. Data served is otherwise the sum of the published file sizes,
-				so resumed transfers are approximated. What our own build pipelines
-				fetch is left out.
+				per hour. A partial download, where a tool fetches only byte ranges of a
+				file, is counted apart. Data served is the sum of the published sizes
+				of the downloaded files: what partial downloads transfer is not
+				measured, and resumed transfers are approximated. What our own build
+				pipelines fetch is left out.
 			</p>
 		`;
 	}
