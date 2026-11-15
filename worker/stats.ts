@@ -23,18 +23,35 @@ const DOWNLOADS_JOIN = `
 	        AND f.remote_filename = d.remote_filename
 	        AND f.remote_version IS d.remote_version`;
 
+/**
+ * A logged request is either a download of a file or a partial read: a tool
+ * (a tile reader, a Parquet client) that fetched only a byte range of it.
+ * Counting a partial read as a download would let a 64-byte header probe weigh
+ * as much as a 72 GB planet, so the two are counted apart, and a partial read
+ * adds the bytes it asked for rather than the size of the file.
+ */
+const DOWNLOADS = `COALESCE(SUM(d.partial = 0), 0)`;
+const PARTIAL_READS = `COALESCE(SUM(d.partial = 1), 0)`;
+const BYTES = `COALESCE(SUM(CASE WHEN d.partial = 1 THEN COALESCE(d.bytes, 0) ELSE f.size END), 0)`;
+
+/** Totals over a set of logged requests. Visitors are counted over both kinds. */
+const TOTALS = `${DOWNLOADS} AS downloads,
+			        ${PARTIAL_READS} AS partial_reads,
+			        COUNT(DISTINCT d.ip_address) AS visitors,
+			        ${BYTES} AS bytes`;
+
 interface Totals {
 	downloads: number;
+	partial_reads: number;
 	visitors: number;
 	bytes: number;
 }
 
-interface SeriesPoint {
+interface SeriesPoint extends Totals {
 	day: number;
-	downloads: number;
-	visitors: number;
-	bytes: number;
 }
+
+const NO_TOTALS: Totals = { downloads: 0, partial_reads: 0, visitors: 0, bytes: 0 };
 
 interface Breakdown {
 	label: string;
@@ -107,31 +124,23 @@ async function queryDownloads(env: Env, since: number, days: number) {
 
 	const [allTime, period, previous, series, byCategory, byFormat, top, catalog] = await db.batch([
 		db.prepare(
-			`SELECT COUNT(*) AS downloads,
-			        COUNT(DISTINCT d.ip_address) AS visitors,
-			        COALESCE(SUM(f.size), 0) AS bytes
+			`SELECT ${TOTALS}
 			   ${DOWNLOADS_JOIN}`,
 		),
 		db.prepare(
-			`SELECT COUNT(*) AS downloads,
-			        COUNT(DISTINCT d.ip_address) AS visitors,
-			        COALESCE(SUM(f.size), 0) AS bytes
+			`SELECT ${TOTALS}
 			   ${DOWNLOADS_JOIN}
 			  WHERE d.day_bucket >= ?1`,
 		).bind(since),
 		// The window immediately before this one, so each tile can show a delta.
 		db.prepare(
-			`SELECT COUNT(*) AS downloads,
-			        COUNT(DISTINCT d.ip_address) AS visitors,
-			        COALESCE(SUM(f.size), 0) AS bytes
+			`SELECT ${TOTALS}
 			   ${DOWNLOADS_JOIN}
 			  WHERE d.day_bucket >= ?1 AND d.day_bucket < ?2`,
 		).bind(previousSince, since),
 		db.prepare(
 			`SELECT d.day_bucket AS day,
-			        COUNT(*) AS downloads,
-			        COUNT(DISTINCT d.ip_address) AS visitors,
-			        COALESCE(SUM(f.size), 0) AS bytes
+			        ${TOTALS}
 			   ${DOWNLOADS_JOIN}
 			  WHERE d.day_bucket >= ?1
 			  GROUP BY d.day_bucket
@@ -140,22 +149,26 @@ async function queryDownloads(env: Env, since: number, days: number) {
 		// Grouped by the expression, not by the `label` alias: `files` has a
 		// `name` column, and SQLite resolves a bare GROUP BY term to a real
 		// column before an output alias — which silently groups by entity.
+		// The breakdowns rank downloads, so a group that was only ever read
+		// partially is left out rather than listed with a zero.
 		db.prepare(
 			`SELECT COALESCE(NULLIF(f.category, ''), 'unknown') AS label,
-			        COUNT(*) AS downloads,
-			        COALESCE(SUM(f.size), 0) AS bytes
+			        ${DOWNLOADS} AS downloads,
+			        ${BYTES} AS bytes
 			   ${DOWNLOADS_JOIN}
 			  WHERE d.day_bucket >= ?1
 			  GROUP BY COALESCE(NULLIF(f.category, ''), 'unknown')
+			 HAVING ${DOWNLOADS} > 0
 			  ORDER BY downloads DESC`,
 		).bind(since),
 		db.prepare(
 			`SELECT COALESCE(NULLIF(f.extension, ''), 'unknown') AS label,
-			        COUNT(*) AS downloads,
-			        COALESCE(SUM(f.size), 0) AS bytes
+			        ${DOWNLOADS} AS downloads,
+			        ${BYTES} AS bytes
 			   ${DOWNLOADS_JOIN}
 			  WHERE d.day_bucket >= ?1
 			  GROUP BY COALESCE(NULLIF(f.extension, ''), 'unknown')
+			 HAVING ${DOWNLOADS} > 0
 			  ORDER BY downloads DESC`,
 		).bind(since),
 		db.prepare(
@@ -163,11 +176,12 @@ async function queryDownloads(env: Env, since: number, days: number) {
 			        MAX(COALESCE(f.category, '')) AS category,
 			        MAX(COALESCE(f.entity, '')) AS entity,
 			        MAX(COALESCE(f.extension, '')) AS extension,
-			        COUNT(*) AS downloads,
-			        COALESCE(SUM(f.size), 0) AS bytes
+			        ${DOWNLOADS} AS downloads,
+			        ${BYTES} AS bytes
 			   ${DOWNLOADS_JOIN}
 			  WHERE d.day_bucket >= ?1
 			  GROUP BY d.remote_path
+			 HAVING ${DOWNLOADS} > 0
 			  ORDER BY downloads DESC
 			  LIMIT 10`,
 		).bind(since),
@@ -184,9 +198,9 @@ async function queryDownloads(env: Env, since: number, days: number) {
 	return {
 		catalog: first(catalog, { files: 0, bytes: 0, categories: 0, updated: 0 }),
 		downloads: {
-			all_time: first<Totals>(allTime, { downloads: 0, visitors: 0, bytes: 0 }),
-			period: first<Totals>(period, { downloads: 0, visitors: 0, bytes: 0 }),
-			previous: first<Totals>(previous, { downloads: 0, visitors: 0, bytes: 0 }),
+			all_time: first<Totals>(allTime, NO_TOTALS),
+			period: first<Totals>(period, NO_TOTALS),
+			previous: first<Totals>(previous, NO_TOTALS),
 			series: fillDays(rows<SeriesPoint>(series), since),
 			by_category: rows<Breakdown>(byCategory),
 			by_format: rows<Breakdown>(byFormat),
@@ -272,7 +286,7 @@ function fillDays(series: SeriesPoint[], since: number): SeriesPoint[] {
 	const filled: SeriesPoint[] = [];
 
 	for (let day = since; day <= today; day += 86_400_000) {
-		filled.push(byDay.get(day) ?? { day, downloads: 0, visitors: 0, bytes: 0 });
+		filled.push(byDay.get(day) ?? { day, ...NO_TOTALS });
 	}
 	return filled;
 }

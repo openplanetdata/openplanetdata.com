@@ -317,6 +317,49 @@ describe('GET /api/stats', () => {
 		}
 	});
 
+	it('counts partial reads apart from downloads', async () => {
+		const response = await fetch(`${BASE}/api/stats?period=30d`);
+		assert.equal(response.status, 200);
+
+		const { downloads } = await response.json();
+		assert.ok(downloads, 'download statistics should be available');
+
+		const count = (value, name) =>
+			assert.ok(Number.isInteger(value) && value >= 0, `${name} should be a count, got ${value}`);
+
+		for (const key of ['all_time', 'period', 'previous']) {
+			for (const field of ['downloads', 'partial_reads', 'visitors', 'bytes']) {
+				count(downloads[key][field], `downloads.${key}.${field}`);
+			}
+		}
+		assert.ok(downloads.period.downloads <= downloads.all_time.downloads);
+		assert.ok(downloads.period.partial_reads <= downloads.all_time.partial_reads);
+		assert.ok(downloads.period.bytes <= downloads.all_time.bytes);
+
+		// The daily series is the same requests split by day: both kinds must add up.
+		assert.equal(downloads.series.length, 30);
+		for (const point of downloads.series) {
+			count(point.downloads, 'series downloads');
+			count(point.partial_reads, 'series partial_reads');
+		}
+		const sum = (field) => downloads.series.reduce((total, point) => total + point[field], 0);
+		assert.equal(sum('downloads'), downloads.period.downloads);
+		assert.equal(sum('partial_reads'), downloads.period.partial_reads);
+		assert.equal(sum('bytes'), downloads.period.bytes);
+
+		// Every breakdown splits the period's downloads, and lists no empty group.
+		for (const key of ['by_category', 'by_format']) {
+			const total = downloads[key].reduce((acc, row) => acc + row.downloads, 0);
+			assert.equal(total, downloads.period.downloads, `${key} should add up to the period's downloads`);
+			assert.ok(downloads[key].every((row) => row.downloads > 0), `${key} should list no empty group`);
+		}
+		assert.ok(downloads.top.length <= 10);
+		assert.ok(downloads.top.every((row) => row.downloads > 0));
+		for (let i = 1; i < downloads.top.length; i++) {
+			assert.ok(downloads.top[i - 1].downloads >= downloads.top[i].downloads, 'top files should be ranked');
+		}
+	});
+
 	it('never exposes comment text', async () => {
 		const response = await fetch(`${BASE}/api/stats?period=90d`);
 		const raw = await response.text();

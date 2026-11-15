@@ -4,6 +4,8 @@ import { areaChart, barChart, nearestIndex, plotX, type BarItem, type Point } fr
 
 interface Totals {
 	downloads: number;
+	/** Requests for a byte range of a file, counted apart from downloads. */
+	partial_reads: number;
 	visitors: number;
 	bytes: number;
 }
@@ -269,6 +271,12 @@ export class StatsDashboardElement extends LitElement {
 					<span class="stats-tile-label">Downloads</span>
 					<span class="stats-tile-value">${this.full(period.downloads)}</span>
 					${this.renderDelta(period.downloads, previous.downloads)}
+					${period.partial_reads > 0
+						? html`<span class="stats-tile-delta-note">
+								+ ${this.full(period.partial_reads)} partial
+								${period.partial_reads === 1 ? 'read' : 'reads'}
+							</span>`
+						: nothing}
 				</div>
 				<div class="stats-tile">
 					<span class="stats-tile-label">Data served</span>
@@ -755,9 +763,11 @@ export class StatsDashboardElement extends LitElement {
 			${this.renderCountries(data)}
 			<p class="stats-footnote">
 				Figures are cached for up to 5 minutes · generated ${this.fullDay(data.generated_at)}.
-				Download counts come from request logs; data served is the sum of the
-				published file sizes, so range requests and resumed transfers are
-				approximated.
+				Download counts come from request logs, at most one per client and file
+				per hour. A partial read, where a tool fetches only a byte range of a
+				file, is not a download: it is counted apart and adds only the bytes it
+				asked for. Data served is otherwise the sum of the published file sizes,
+				so resumed transfers are approximated.
 			</p>
 		`;
 	}
