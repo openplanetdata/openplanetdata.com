@@ -524,6 +524,17 @@ export class StatsDashboardElement extends LitElement {
 		return this.renderCard(id, title, subtitle, chart, table);
 	}
 
+	/**
+	 * The width a chart gets inside a card of the two-column grid. The grid
+	 * (.stats-grid-2) puts two cards side by side when each has 20rem, with a
+	 * 1.5rem gap, and stacks them otherwise; a card has 25px of padding a side.
+	 */
+	private gridChartWidth(): number {
+		const sideBySide = this._width >= 664;
+		const card = sideBySide ? (this._width - 24) / 2 : this._width;
+		return Math.max(280, card - 50);
+	}
+
 	private renderClients(data: StatsPayload) {
 		const clients = data.downloads?.by_client ?? [];
 		if (clients.length === 0) return nothing;
@@ -534,13 +545,14 @@ export class StatsDashboardElement extends LitElement {
 			value: row.downloads + row.partial_reads,
 		}));
 
+		const width = this.gridChartWidth();
 		const chart = html`
 			<div class="stats-chart-wrap">
 				${barChart({
-					width: Math.max(320, this._width),
+					width,
 					items,
 					formatValue: (value) => this.compact(value),
-					labelWidth: Math.min(320, Math.max(160, this._width * 0.36)),
+					labelWidth: Math.min(200, Math.max(140, width * 0.4)),
 				})}
 			</div>
 		`;
@@ -584,13 +596,14 @@ export class StatsDashboardElement extends LitElement {
 			value: entry.downloads,
 		}));
 
+		const width = this.gridChartWidth();
 		const chart = html`
 			<div class="stats-chart-wrap">
 				${barChart({
-					width: Math.max(320, this._width),
+					width,
 					items,
 					formatValue: (value) => this.compact(value),
-					labelWidth: Math.min(320, Math.max(160, this._width * 0.36)),
+					labelWidth: Math.min(250, Math.max(150, width * 0.54)),
 				})}
 			</div>
 		`;
@@ -820,8 +833,10 @@ export class StatsDashboardElement extends LitElement {
 					${this.renderHero(data)}
 					${this.renderTiles(data)}
 					${this.renderTimeChart(data)}
-					${this.renderTop(data)}
-					${this.renderClients(data)}
+					<div class="stats-grid-2">
+						${this.renderTop(data)}
+						${this.renderClients(data)}
+					</div>
 					<div class="stats-grid-2">
 						${this.renderBreakdown(
 							'category',

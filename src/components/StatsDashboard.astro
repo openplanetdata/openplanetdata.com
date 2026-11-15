@@ -12,6 +12,17 @@
 <style is:global>
   /* All rules are scoped under stats-dashboard so nothing leaks into the docs. */
 
+  /* The dashboard is charts and tables, not prose, and this page has no table
+     of contents: it gets a wider column than the docs. Only a page that holds
+     the dashboard is affected. Prose above it keeps a readable line length. */
+  :root:has(stats-dashboard) {
+    --sl-content-width: 64rem;
+  }
+
+  :root:has(stats-dashboard) .sl-markdown-content > p {
+    max-width: 50rem;
+  }
+
   stats-dashboard {
     /* Chart palette — one brand-forest ramp, validated against the surfaces
        these cards actually render on (see stats-charts.ts for the numbers).
