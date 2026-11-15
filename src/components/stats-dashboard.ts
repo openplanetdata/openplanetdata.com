@@ -1,6 +1,7 @@
 import { LitElement, html, nothing, type TemplateResult } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { areaChart, barChart, nearestIndex, plotX, type BarItem, type Point } from './stats-charts';
+import { loadCountryShapes, worldMap, type CountryShape } from './stats-map';
 
 interface Totals {
 	downloads: number;
@@ -21,6 +22,13 @@ interface Breakdown {
 }
 
 interface ClientBreakdown extends Breakdown {
+	partial_reads: number;
+}
+
+interface CountryBreakdown {
+	/** ISO 3166-1 alpha-2. */
+	code: string;
+	downloads: number;
 	partial_reads: number;
 }
 
@@ -49,6 +57,7 @@ interface StatsPayload {
 		by_category: Breakdown[];
 		by_format: Breakdown[];
 		by_client: ClientBreakdown[];
+		by_country: CountryBreakdown[];
 		top: TopEntry[];
 	} | null;
 	feedback: {
@@ -136,6 +145,8 @@ export class StatsDashboardElement extends LitElement {
 	@state() accessor _width = 720;
 	/** Charts showing their table twin instead of the plot. */
 	@state() accessor _tables = new Set<string>();
+	/** Country outlines for the map; loaded the first time there is something to show on it. */
+	@state() accessor _shapes: CountryShape[] | null = null;
 
 	private _observer: ResizeObserver | null = null;
 
@@ -170,6 +181,10 @@ export class StatsDashboardElement extends LitElement {
 			const response = await fetch(`/api/stats?period=${this._period}`);
 			if (!response.ok) throw new Error(`HTTP ${response.status}`);
 			this._data = (await response.json()) as StatsPayload;
+			if (this._shapes === null && (this._data.downloads?.by_country?.length ?? 0) > 0) {
+				// The map is an extra: if the outlines fail to load, the ranked list still shows.
+				loadCountryShapes().then((shapes) => { this._shapes = shapes; }).catch(() => {});
+			}
 		} catch {
 			this._error = true;
 		} finally {
@@ -535,6 +550,95 @@ export class StatsDashboardElement extends LitElement {
 		return Math.max(280, card - 50);
 	}
 
+	private renderDownloadCountries(data: StatsPayload) {
+		const rows = data.downloads?.by_country ?? [];
+		if (rows.length === 0) return nothing;
+
+		const total = (row: CountryBreakdown) => row.downloads + row.partial_reads;
+		const values = new Map(rows.map((row) => [row.code, total(row)]));
+		const byCode = new Map(rows.map((row) => [row.code, row]));
+
+		// A country's share of the requests whose country is known.
+		const located = rows.reduce((sum, row) => sum + total(row), 0);
+		const share = (value: number) => {
+			const percent = located > 0 ? (value / located) * 100 : 0;
+			if (percent > 0 && percent < 0.5) return '<1%';
+			return `${Math.round(percent)}%`;
+		};
+
+		// The map and the ranked list sit side by side when the card is wide enough.
+		const inner = Math.max(280, this._width - 50);
+		const sideBySide = inner >= 760;
+		const mapWidth = sideBySide ? Math.round(inner * 0.55) : inner;
+		const listWidth = sideBySide ? inner - mapWidth - 32 : inner;
+
+		const describe = (shape: CountryShape, value: number) => {
+			const name = shape.code ? countryName(shape.code) : shape.name;
+			if (value === 0 || !shape.code) return `${name}: none`;
+			const row = byCode.get(shape.code)!;
+			const parts = [`${this.full(row.downloads)} ${row.downloads === 1 ? 'download' : 'downloads'}`];
+			if (row.partial_reads > 0) {
+				parts.push(`${this.full(row.partial_reads)} partial ${row.partial_reads === 1 ? 'download' : 'downloads'}`);
+			}
+			return `${name}: ${parts.join(', ')} (${share(value)})`;
+		};
+
+		const items: BarItem[] = rows.slice(0, 8).map((row) => ({
+			label: countryName(row.code),
+			value: total(row),
+			icon: countryFlag(row.code),
+			note: share(total(row)),
+		}));
+
+		const chart = html`
+			<div class="stats-map-layout" data-side-by-side=${sideBySide}>
+				<div class="stats-map-wrap" style=${`width:${mapWidth}px`}>
+					${this._shapes
+						? worldMap({ width: mapWidth, shapes: this._shapes, values, describe })
+						: nothing}
+				</div>
+				<div class="stats-chart-wrap">
+					${barChart({
+						width: listWidth,
+						items,
+						formatValue: (value) => this.compact(value),
+						labelWidth: Math.min(170, Math.max(130, listWidth * 0.38)),
+						valueWidth: 58,
+					})}
+				</div>
+			</div>
+		`;
+
+		const table = html`
+			<div class="stats-table-wrap">
+				<table class="stats-table">
+					<thead>
+						<tr><th scope="col">Country</th><th scope="col">Downloads</th><th scope="col">Partial downloads</th><th scope="col">Share</th></tr>
+					</thead>
+					<tbody>
+						${rows.map(
+							(row) => html`
+								<tr>
+									<th scope="row">${this.renderCountry(row.code)}</th>
+									<td>${this.full(row.downloads)}</td>
+									<td>${this.full(row.partial_reads)}</td>
+									<td>${share(total(row))}</td>
+								</tr>`,
+						)}
+					</tbody>
+				</table>
+			</div>
+		`;
+
+		return this.renderCard(
+			'download-country',
+			'Where downloads come from',
+			`Countries the files were fetched from, over the last ${data.period.days} days: downloads and partial downloads together. Recorded since 15 November 2026, from the connection and never from an address we keep.`,
+			chart,
+			table,
+		);
+	}
+
 	private renderClients(data: StatsPayload) {
 		const clients = data.downloads?.by_client ?? [];
 		if (clients.length === 0) return nothing;
@@ -747,6 +851,17 @@ export class StatsDashboardElement extends LitElement {
 	 * data. The card stays hidden until somebody has actually voted, rather than
 	 * publishing an empty chart.
 	 */
+	/** A country name with its flag, for a table cell. */
+	private renderCountry(code: string) {
+		const flag = countryFlag(code);
+		return html`<span class="stats-country">
+			${flag
+				? html`<img class="stats-flag" src=${flag} alt="" width="22" height="22" loading="lazy"
+						@error=${(event: Event) => (event.target as HTMLElement).remove()} />`
+				: nothing}${countryName(code)}
+		</span>`;
+	}
+
 	private renderCountries(data: StatsPayload) {
 		const rows = (data.feedback?.by_country ?? []).filter((row) => row.responses > 0);
 		if (rows.length === 0) return nothing;
@@ -754,6 +869,7 @@ export class StatsDashboardElement extends LitElement {
 		const items: BarItem[] = rows.map((row) => ({
 			label: countryName(row.code),
 			value: row.responses,
+			icon: countryFlag(row.code),
 		}));
 
 		const chart = html`
@@ -778,7 +894,7 @@ export class StatsDashboardElement extends LitElement {
 							const share = row.responses > 0 ? row.helpful / row.responses : 0;
 							return html`
 								<tr>
-									<th scope="row">${countryName(row.code)}</th>
+									<th scope="row">${this.renderCountry(row.code)}</th>
 									<td>${this.full(row.responses)}</td>
 									<td>${this.full(row.helpful)}</td>
 									<td>${Math.round(share * 100)}%</td>
@@ -852,7 +968,8 @@ export class StatsDashboardElement extends LitElement {
 							data.downloads!.by_format,
 							FORMAT_LABELS,
 						)}
-					</div>`}
+					</div>
+					${this.renderDownloadCountries(data)}`}
 			${this.renderFeedback(data)}
 			${this.renderCountries(data)}
 			<p class="stats-footnote">
@@ -882,6 +999,15 @@ const COUNTRY_FALLBACKS: Record<string, string> = {
 	XX: 'Unknown',
 	T1: 'Tor network',
 };
+
+/**
+ * The flag of a country, from Ipregistry's flag assets. None for a code that
+ * is not a country (unknown, Tor).
+ */
+function countryFlag(code: string): string | undefined {
+	if (!/^[A-Z]{2}$/.test(code) || code in COUNTRY_FALLBACKS) return undefined;
+	return `https://cdn.ipregistry.co/flags/twemoji/${code.toLowerCase()}.svg`;
+}
 
 let regionNames: Intl.DisplayNames | null | undefined;
 

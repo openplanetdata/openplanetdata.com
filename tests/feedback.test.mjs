@@ -381,6 +381,26 @@ describe('GET /api/stats', () => {
 			assert.equal(tools[tools.length - 1].label, 'other', '"other" comes last');
 		}
 
+		// Countries: each once, by code, never more requests than the period has.
+		const countries = downloads.by_country;
+		assert.ok(Array.isArray(countries), 'by_country should be a list');
+		assert.equal(new Set(countries.map((row) => row.code)).size, countries.length, 'a country is listed once');
+		for (const row of countries) {
+			assert.match(row.code, /^[A-Z]{2}$/, `unexpected country code ${row.code}`);
+			count(row.downloads, `by_country ${row.code} downloads`);
+			count(row.partial_reads, `by_country ${row.code} partial_reads`);
+			assert.ok(row.downloads + row.partial_reads > 0, 'a listed country has requests');
+		}
+		const countrySum = (field) => countries.reduce((total, row) => total + row[field], 0);
+		assert.ok(countrySum('downloads') <= downloads.period.downloads, 'located downloads cannot exceed the downloads');
+		assert.ok(countrySum('partial_reads') <= downloads.period.partial_reads, 'located partial downloads cannot exceed them');
+		for (let i = 1; i < countries.length; i++) {
+			assert.ok(
+				countries[i - 1].downloads + countries[i - 1].partial_reads >= countries[i].downloads + countries[i].partial_reads,
+				'countries should be ranked by requests',
+			);
+		}
+
 		assert.ok(downloads.top.length <= 10);
 		assert.ok(downloads.top.every((row) => row.downloads > 0));
 		for (let i = 1; i < downloads.top.length; i++) {

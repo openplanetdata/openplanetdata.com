@@ -103,6 +103,13 @@ interface ToolBreakdown {
 	bytes: number;
 }
 
+interface CountryBreakdown {
+	/** ISO 3166-1 alpha-2. */
+	code: string;
+	downloads: number;
+	partial_reads: number;
+}
+
 /**
  * The tools to publish, from every tool ranked by use: those with enough
  * clients keep their name, up to the list limit, and everything else is added
@@ -202,7 +209,7 @@ async function queryDownloads(env: Env, since: number, days: number) {
 	const db = env.INDEX_DB;
 	const previousSince = since - days * 86_400_000;
 
-	const [allTime, period, previous, series, byCategory, byFormat, top, byTool, catalog] = await db.batch([
+	const [allTime, period, previous, series, byCategory, byFormat, top, byTool, byCountry, catalog] = await db.batch([
 		db.prepare(
 			`SELECT ${TOTALS}
 			   ${DOWNLOADS_JOIN}`,
@@ -275,6 +282,18 @@ async function queryDownloads(env: Env, since: number, days: number) {
 			  GROUP BY ${TOOL}
 			  ORDER BY COUNT(*) DESC, label`,
 		).bind(since),
+		// Where requests come from: the country Cloudflare derives from the
+		// connection, recorded with each request since 15 November 2026.
+		// Earlier requests carry none and are left out.
+		db.prepare(
+			`SELECT d.country AS code,
+			        ${DOWNLOADS} AS downloads,
+			        ${PARTIAL_READS} AS partial_reads
+			   ${DOWNLOADS_JOIN}
+			  WHERE d.day_bucket >= ?1 AND d.country IS NOT NULL
+			  GROUP BY d.country
+			  ORDER BY COUNT(*) DESC, d.country`,
+		).bind(since),
 		db.prepare(
 			`SELECT COUNT(*) AS files,
 			        COALESCE(SUM(size), 0) AS bytes,
@@ -295,6 +314,7 @@ async function queryDownloads(env: Env, since: number, days: number) {
 			by_category: rows<Breakdown>(byCategory),
 			by_format: rows<Breakdown>(byFormat),
 			by_client: listTools(rows<ToolBreakdown & { visitors: number }>(byTool)),
+			by_country: rows<CountryBreakdown>(byCountry),
 			top: rows(top),
 		},
 	};

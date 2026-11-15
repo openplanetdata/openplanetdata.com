@@ -32,6 +32,8 @@
     --chart-area: rgba(15, 122, 74, 0.1);
     --chart-grid: var(--sl-color-hairline);
     --chart-ink: var(--sl-color-gray-3);
+    --chart-map-empty: rgba(15, 122, 74, 0.09);
+    --chart-map-border: rgba(255, 255, 255, 0.85);
 
     display: block;
     margin-top: 1.5rem;
@@ -41,6 +43,8 @@
     --chart-series: #37a06e;
     --chart-track: #1d6b45;
     --chart-area: rgba(55, 160, 110, 0.12);
+    --chart-map-empty: rgba(55, 160, 110, 0.13);
+    --chart-map-border: rgba(8, 16, 12, 0.75);
   }
 
   /* ===== Filter row ===== */
@@ -367,6 +371,79 @@
     font-family: 'Inter', sans-serif;
   }
 
+  /* ===== World map ===== */
+
+  stats-dashboard .stats-map-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  stats-dashboard .stats-map-layout[data-side-by-side='true'] {
+    flex-direction: row;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  stats-dashboard .stats-map-wrap {
+    flex: none;
+    max-width: 100%;
+  }
+
+  /* Clipped to its frame: the outlines that cross the antimeridian are drawn
+     past both edges and rely on it. */
+  stats-dashboard .stats-map {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    overflow: hidden;
+  }
+
+  /* A country with no downloads is a quiet outline; one with downloads takes
+     the series colour, at an opacity that carries the amount. */
+  stats-dashboard .map-country {
+    fill: var(--chart-map-empty);
+    stroke: var(--chart-map-border);
+    stroke-width: 0.6;
+    stroke-linejoin: round;
+  }
+
+  stats-dashboard .map-country-active {
+    fill: var(--chart-series);
+  }
+
+  stats-dashboard .map-country-active:hover {
+    fill-opacity: 1 !important;
+  }
+
+  /* A secondary figure (a share) in its own right-aligned column: quieter than
+     the value, with fixed-width digits so the column reads down cleanly. */
+  stats-dashboard .chart-bar-note {
+    fill: var(--sl-color-gray-3);
+    font-size: 0.8rem;
+    font-family: 'Inter', sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+
+  stats-dashboard .stats-country {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  stats-dashboard .stats-flag {
+    flex: none;
+    width: 22px;
+    height: 22px;
+  }
+
+  /* A hairline edge, so a mostly white flag (Japan, Poland) still reads as a
+     flag on a light card. */
+  stats-dashboard .stats-flag,
+  stats-dashboard .chart-bar-icon {
+    filter: drop-shadow(0 0 0.6px rgba(0, 0, 0, 0.45));
+  }
+
   stats-dashboard .chart-bar-value {
     fill: var(--sl-color-white);
     font-size: 0.82rem;
@@ -483,11 +560,13 @@
     margin-bottom: 1.5rem;
   }
 
+  /* The label runs over two lines, so the figure is centred against the
+     block rather than sat on the baseline of its first line. */
   stats-dashboard .stats-meter-head {
     display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 0.9rem;
     flex-wrap: wrap;
   }
 
@@ -501,6 +580,7 @@
 
   stats-dashboard .stats-meter-label {
     font-size: var(--sl-text-sm);
+    line-height: 1.35;
     color: var(--sl-color-gray-2);
   }
 

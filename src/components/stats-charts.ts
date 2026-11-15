@@ -14,7 +14,7 @@
  * floor, CVD separation, contrast). Adding a second hue means re-running it.
  */
 
-import { svg, type TemplateResult } from 'lit';
+import { nothing, svg, type TemplateResult } from 'lit';
 
 export interface Point {
 	day: number;
@@ -26,6 +26,10 @@ export interface BarItem {
 	value: number;
 	/** Optional second line under the label. */
 	detail?: string;
+	/** Optional image shown before the label, such as a country flag. */
+	icon?: string;
+	/** Optional secondary figure, such as a share, set in its own column at the right edge. */
+	note?: string;
 }
 
 /** Mark specs from the data-viz method: thin marks, hairline chrome. */
@@ -124,19 +128,26 @@ export interface BarChartOptions {
 	items: BarItem[];
 	formatValue: (value: number) => string;
 	labelWidth?: number;
+	/** Room kept after the longest bar for its value; less is enough when values are short. */
+	valueWidth?: number;
 }
 
 const BAR_ROW_HEIGHT = 44;
 const BAR_VALUE_WIDTH = 84;
+const BAR_ICON_SIZE = 22;
+const BAR_ICON_GAP = 12;
+const BAR_NOTE_WIDTH = 48;
 
 /**
  * Horizontal bars for nominal categories. Every bar takes the same hue: the
  * length already encodes the value, so colouring by size would spend the
  * identity channel restating it.
  */
-export function barChart({ width, items, formatValue, labelWidth = 150 }: BarChartOptions): TemplateResult {
+export function barChart({ width, items, formatValue, labelWidth = 150, valueWidth = BAR_VALUE_WIDTH }: BarChartOptions): TemplateResult {
 	const max = Math.max(...items.map((item) => item.value), 1);
-	const trackWidth = Math.max(40, width - labelWidth - BAR_VALUE_WIDTH);
+	// Notes line up in a column of their own, so the bars give up that much room.
+	const noteWidth = items.some((item) => item.note) ? BAR_NOTE_WIDTH : 0;
+	const trackWidth = Math.max(40, width - labelWidth - valueWidth - noteWidth);
 	const height = items.length * BAR_ROW_HEIGHT;
 
 	return svg`
@@ -147,16 +158,26 @@ export function barChart({ width, items, formatValue, labelWidth = 150 }: BarCha
 				const barY = rowY + (BAR_ROW_HEIGHT - barHeight) / 2;
 				const barWidth = Math.max(2, (item.value / max) * trackWidth);
 
+				// An icon (a flag) sits before the label and takes its share of the label column.
+				const labelX = item.icon ? BAR_ICON_SIZE + BAR_ICON_GAP : 0;
+
 				return svg`
-					<text class="chart-bar-label" x="0" y=${rowY + BAR_ROW_HEIGHT / 2 + 4}>
-						${truncate(item.label, labelWidth - 12)}
+					${item.icon
+						? svg`<image class="chart-bar-icon" href=${item.icon} x="0" y=${rowY + (BAR_ROW_HEIGHT - BAR_ICON_SIZE) / 2}
+								width=${BAR_ICON_SIZE} height=${BAR_ICON_SIZE} />`
+						: nothing}
+					<text class="chart-bar-label" x=${labelX} y=${rowY + BAR_ROW_HEIGHT / 2 + 4}>
+						${truncate(item.label, labelWidth - 12 - labelX)}
 						<title>${item.label}</title>
 					</text>
 					<rect class="chart-bar" x=${labelWidth} y=${barY}
 						width=${barWidth} height=${barHeight} rx=${BAR_RADIUS} />
 					<text class="chart-bar-value" x=${labelWidth + barWidth + 10} y=${rowY + BAR_ROW_HEIGHT / 2 + 4}>
 						${formatValue(item.value)}
-					</text>`;
+					</text>
+					${item.note
+						? svg`<text class="chart-bar-note" x=${width} y=${rowY + BAR_ROW_HEIGHT / 2 + 4} text-anchor="end">${item.note}</text>`
+						: nothing}`;
 			})}
 		</svg>
 	`;
