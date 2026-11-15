@@ -43,10 +43,17 @@ const DOWNLOADS = `COALESCE(SUM(d.partial = 0), 0)`;
 const PARTIAL_READS = `COALESCE(SUM(d.partial = 1), 0)`;
 const BYTES = `COALESCE(SUM(CASE WHEN d.partial = 1 THEN COALESCE(d.bytes, 0) ELSE f.size END), 0)`;
 
+/**
+ * IP addresses are not stored: each request carries a keyed hash of its address
+ * instead, and that is what tells one client from another. The address is only
+ * read for a request that has no hash yet.
+ */
+const CLIENT = `COALESCE(d.ip_hash, d.ip_address)`;
+
 /** Totals over a set of logged requests. Visitors are counted over both kinds. */
 const TOTALS = `${DOWNLOADS} AS downloads,
 			        ${PARTIAL_READS} AS partial_reads,
-			        COUNT(DISTINCT d.ip_address) AS visitors,
+			        COUNT(DISTINCT ${CLIENT}) AS visitors,
 			        ${BYTES} AS bytes`;
 
 interface Totals {
