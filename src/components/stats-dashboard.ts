@@ -20,6 +20,10 @@ interface Breakdown {
 	bytes: number;
 }
 
+interface ClientBreakdown extends Breakdown {
+	partial_reads: number;
+}
+
 interface TopEntry extends Breakdown {
 	path: string;
 	category: string;
@@ -44,6 +48,7 @@ interface StatsPayload {
 		series: SeriesPoint[];
 		by_category: Breakdown[];
 		by_format: Breakdown[];
+		by_client: ClientBreakdown[];
 		top: TopEntry[];
 	} | null;
 	feedback: {
@@ -77,6 +82,25 @@ const CATEGORY_LABELS: Record<string, string> = {
 	postcodes: 'Postcodes',
 	coastline: 'Coastline',
 	unknown: 'No longer published',
+};
+
+// Names for the tools the download service recognises. A tool that declares
+// its own label with ?client= is shown under that label.
+const CLIENT_LABELS: Record<string, string> = {
+	browser: 'Web browsers',
+	rclone: 'rclone',
+	curl: 'curl',
+	wget: 'Wget',
+	aria2: 'aria2',
+	'python-requests': 'Python (requests)',
+	aiohttp: 'Python (aiohttp)',
+	okhttp: 'OkHttp (Java, Android)',
+	node: 'Node.js',
+	duckdb: 'DuckDB',
+	gdal: 'GDAL',
+	'geodesk-gol': 'GeoDesk GOL',
+	unidentified: 'No user agent',
+	other: 'Other tools',
 };
 
 const FORMAT_LABELS: Record<string, string> = {
@@ -497,6 +521,57 @@ export class StatsDashboardElement extends LitElement {
 		return this.renderCard(id, title, subtitle, chart, table);
 	}
 
+	private renderClients(data: StatsPayload) {
+		const clients = data.downloads?.by_client ?? [];
+		if (clients.length === 0) return nothing;
+
+		const name = (row: ClientBreakdown) => CLIENT_LABELS[row.label] ?? row.label;
+		const items: BarItem[] = clients.map((row) => ({
+			label: name(row),
+			value: row.downloads + row.partial_reads,
+		}));
+
+		const chart = html`
+			<div class="stats-chart-wrap">
+				${barChart({
+					width: Math.max(320, this._width),
+					items,
+					formatValue: (value) => this.compact(value),
+					labelWidth: Math.min(320, Math.max(160, this._width * 0.36)),
+				})}
+			</div>
+		`;
+
+		const table = html`
+			<div class="stats-table-wrap">
+				<table class="stats-table">
+					<thead>
+						<tr><th scope="col">Client</th><th scope="col">Downloads</th><th scope="col">Partial reads</th><th scope="col">Data served</th></tr>
+					</thead>
+					<tbody>
+						${clients.map(
+							(row) => html`
+								<tr>
+									<th scope="row">${name(row)}</th>
+									<td>${this.full(row.downloads)}</td>
+									<td>${this.full(row.partial_reads)}</td>
+									<td>${this.bytes(row.bytes)}</td>
+								</tr>`,
+						)}
+					</tbody>
+				</table>
+			</div>
+		`;
+
+		return this.renderCard(
+			'client',
+			'By client',
+			`The tools that fetch the data, over the last ${data.period.days} days: downloads and partial reads together. A tool is named once three clients use it.`,
+			chart,
+			table,
+		);
+	}
+
 	private renderTop(data: StatsPayload) {
 		const top = data.downloads?.top ?? [];
 		if (top.length === 0) return nothing;
@@ -743,6 +818,7 @@ export class StatsDashboardElement extends LitElement {
 					${this.renderTiles(data)}
 					${this.renderTimeChart(data)}
 					${this.renderTop(data)}
+					${this.renderClients(data)}
 					<div class="stats-grid-2">
 						${this.renderBreakdown(
 							'category',

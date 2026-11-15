@@ -353,6 +353,34 @@ describe('GET /api/stats', () => {
 			assert.equal(total, downloads.period.downloads, `${key} should add up to the period's downloads`);
 			assert.ok(downloads[key].every((row) => row.downloads > 0), `${key} should list no empty group`);
 		}
+		// Tools split the period's downloads and partial reads, each listed once.
+		const tools = downloads.by_client;
+		assert.ok(Array.isArray(tools) && tools.length > 0, 'by_client should list tools');
+		assert.ok(tools.length <= 16, 'at most fifteen named tools and "other"');
+		assert.equal(new Set(tools.map((row) => row.label)).size, tools.length, 'a tool is listed once');
+		for (const row of tools) {
+			assert.match(row.label, /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/, `unexpected tool label ${row.label}`);
+			count(row.downloads, `by_client ${row.label} downloads`);
+			count(row.partial_reads, `by_client ${row.label} partial_reads`);
+			count(row.bytes, `by_client ${row.label} bytes`);
+			assert.ok(row.downloads + row.partial_reads > 0, 'a listed tool was used');
+			assert.ok(!('visitors' in row), 'client counts per tool are not published');
+		}
+		const toolSum = (field) => tools.reduce((total, row) => total + row[field], 0);
+		assert.equal(toolSum('downloads'), downloads.period.downloads, 'by_client should add up to the downloads');
+		assert.equal(toolSum('partial_reads'), downloads.period.partial_reads, 'by_client should add up to the partial reads');
+		assert.equal(toolSum('bytes'), downloads.period.bytes, 'by_client should add up to the data served');
+		const named = tools.filter((row) => row.label !== 'other');
+		for (let i = 1; i < named.length; i++) {
+			assert.ok(
+				named[i - 1].downloads + named[i - 1].partial_reads >= named[i].downloads + named[i].partial_reads,
+				'named tools should be ranked by use',
+			);
+		}
+		if (tools.some((row) => row.label === 'other')) {
+			assert.equal(tools[tools.length - 1].label, 'other', '"other" comes last');
+		}
+
 		assert.ok(downloads.top.length <= 10);
 		assert.ok(downloads.top.every((row) => row.downloads > 0));
 		for (let i = 1; i < downloads.top.length; i++) {

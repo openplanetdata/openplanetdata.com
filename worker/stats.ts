@@ -56,11 +56,72 @@ const TOTALS = `${DOWNLOADS} AS downloads,
 			        COUNT(DISTINCT ${CLIENT}) AS visitors,
 			        ${BYTES} AS bytes`;
 
+/**
+ * The tool a request came from: the label it declared with ?client=, or the
+ * one the download service gave its User-Agent. Requests logged before those
+ * labels existed carry none, so the same families are recognised here from
+ * their User-Agent, under the same names.
+ */
+const TOOL = `CASE
+			        WHEN d.client IS NOT NULL THEN d.client
+			        WHEN COALESCE(d.user_agent, '') = '' THEN 'unidentified'
+			        WHEN d.user_agent LIKE 'rclone/%' THEN 'rclone'
+			        WHEN d.user_agent LIKE 'aria2/%' THEN 'aria2'
+			        WHEN d.user_agent LIKE 'geodesk-gol/%' THEN 'geodesk-gol'
+			        WHEN d.user_agent LIKE 'duckdb/%' THEN 'duckdb'
+			        WHEN d.user_agent LIKE 'GDAL/%' THEN 'gdal'
+			        WHEN d.user_agent LIKE 'curl/%' THEN 'curl'
+			        WHEN d.user_agent LIKE 'Wget/%' THEN 'wget'
+			        WHEN d.user_agent LIKE 'python-requests/%' THEN 'python-requests'
+			        WHEN d.user_agent LIKE 'Python/%aiohttp/%' THEN 'aiohttp'
+			        WHEN d.user_agent LIKE 'okhttp/%' THEN 'okhttp'
+			        WHEN d.user_agent = 'node' THEN 'node'
+			        WHEN d.user_agent LIKE 'Mozilla/%' THEN 'browser'
+			        ELSE 'other'
+			      END`;
+
+// A tool is listed by name once this many distinct clients have used it, and at
+// most this many tools are listed. A label is whatever a tool declares, so one
+// that a single client sends is neither published nor able to fill the page.
+const TOOL_MIN_CLIENTS = 3;
+const TOOL_LIST_LIMIT = 15;
+
 interface Totals {
 	downloads: number;
 	partial_reads: number;
 	visitors: number;
 	bytes: number;
+}
+
+interface ToolBreakdown {
+	label: string;
+	downloads: number;
+	partial_reads: number;
+	bytes: number;
+}
+
+/**
+ * The tools to publish, from every tool ranked by use: those with enough
+ * clients keep their name, up to the list limit, and everything else is added
+ * to "other". Requests that named no tool at all stay a line of their own.
+ */
+function listTools(ranked: (ToolBreakdown & { visitors: number })[]): ToolBreakdown[] {
+	const listed: ToolBreakdown[] = [];
+	const other: ToolBreakdown = { label: 'other', downloads: 0, partial_reads: 0, bytes: 0 };
+
+	for (const { label, downloads, partial_reads, bytes, visitors } of ranked) {
+		const named = label !== 'other' && (label === 'unidentified' || visitors >= TOOL_MIN_CLIENTS);
+		if (named && listed.length < TOOL_LIST_LIMIT) {
+			listed.push({ label, downloads, partial_reads, bytes });
+		} else {
+			other.downloads += downloads;
+			other.partial_reads += partial_reads;
+			other.bytes += bytes;
+		}
+	}
+
+	if (other.downloads + other.partial_reads > 0) listed.push(other);
+	return listed;
 }
 
 interface SeriesPoint extends Totals {
@@ -138,7 +199,7 @@ async function queryDownloads(env: Env, since: number, days: number) {
 	const db = env.INDEX_DB;
 	const previousSince = since - days * 86_400_000;
 
-	const [allTime, period, previous, series, byCategory, byFormat, top, catalog] = await db.batch([
+	const [allTime, period, previous, series, byCategory, byFormat, top, byTool, catalog] = await db.batch([
 		db.prepare(
 			`SELECT ${TOTALS}
 			   ${DOWNLOADS_JOIN}`,
@@ -201,6 +262,16 @@ async function queryDownloads(env: Env, since: number, days: number) {
 			  ORDER BY downloads DESC
 			  LIMIT 10`,
 		).bind(since),
+		// Downloads and partial reads together: a tool that only ever reads
+		// parts of files is still a tool people use.
+		db.prepare(
+			`SELECT ${TOOL} AS label,
+			        ${TOTALS}
+			   ${DOWNLOADS_JOIN}
+			  WHERE d.day_bucket >= ?1
+			  GROUP BY ${TOOL}
+			  ORDER BY COUNT(*) DESC, label`,
+		).bind(since),
 		db.prepare(
 			`SELECT COUNT(*) AS files,
 			        COALESCE(SUM(size), 0) AS bytes,
@@ -220,6 +291,7 @@ async function queryDownloads(env: Env, since: number, days: number) {
 			series: fillDays(rows<SeriesPoint>(series), since),
 			by_category: rows<Breakdown>(byCategory),
 			by_format: rows<Breakdown>(byFormat),
+			by_client: listTools(rows<ToolBreakdown & { visitors: number }>(byTool)),
 			top: rows(top),
 		},
 	};
