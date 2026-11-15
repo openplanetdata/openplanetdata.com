@@ -19,7 +19,7 @@ The site sets no cookies of its own. It keeps two things in your browser's local
 
 ## Third-party requests
 
-Your browser fetches web fonts from Google Fonts on every page, base map tiles from CARTO on the [Boundaries](/datasets/boundaries/) page, the world outline for the globe from jsDelivr on the [Introduction](/getting-started/introduction/) page, and the Ipregistry logo and font on the homepage. Those providers see your IP address for those requests, under their own policies. Nothing is sent to social networks unless you click one of the share links.
+Your browser fetches web fonts from Google Fonts on every page, base map tiles from CARTO on the [Boundaries](/datasets/boundaries/) page, the world outline for the globe from jsDelivr on the [Introduction](/getting-started/introduction/) page, the Ipregistry logo and font on the homepage, and country flags from Ipregistry on the [Statistics](/statistics/) page. Those providers see your IP address for those requests, under their own policies. Nothing is sent to social networks unless you click one of the share links.
 
 ## Your data and how to reach us
 
