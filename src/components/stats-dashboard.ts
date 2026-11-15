@@ -767,7 +767,8 @@ export class StatsDashboardElement extends LitElement {
 				per hour. A partial read, where a tool fetches only a byte range of a
 				file, is not a download: it is counted apart and adds only the bytes it
 				asked for. Data served is otherwise the sum of the published file sizes,
-				so resumed transfers are approximated.
+				so resumed transfers are approximated. What our own build pipelines
+				fetch is left out.
 			</p>
 		`;
 	}

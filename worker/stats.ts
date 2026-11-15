@@ -12,12 +12,21 @@ const EDGE_TTL_SECONDS = 300;
 const BROWSER_TTL_SECONDS = 60;
 
 /**
+ * The pipelines that build the datasets fetch their inputs through the r2index
+ * Python client, which logs each fetch as a download. Those are our own builds,
+ * not usage, so every figure is computed without them. A request with no
+ * User-Agent is someone else's and stays in.
+ */
+const PUBLIC_DOWNLOADS = `SELECT * FROM file_downloads
+	                           WHERE COALESCE(user_agent, '') NOT LIKE 'elaunira-r2index/%'`;
+
+/**
  * A download row carries only the R2 coordinates, so size and human-readable
  * naming come from the catalog. Version is part of the key: without it a file
  * published as both v1 and v2 matches twice and inflates every byte total.
  */
 const DOWNLOADS_JOIN = `
-	  FROM file_downloads d
+	  FROM (${PUBLIC_DOWNLOADS}) d
 	  LEFT JOIN files f
 	         ON f.remote_path = d.remote_path
 	        AND f.remote_filename = d.remote_filename
