@@ -1,7 +1,7 @@
 ---
 title: Privacy Policy
 description: What openplanetdata.com and its download mirror record about visitors, why, and how to reach us about it.
-lastUpdated: 2026-08-17
+lastUpdated: 2026-11-15
 ---
 
 OpenPlanetData has no accounts, no advertising, and no third-party analytics or tracking pixels. This page lists everything the website and the download mirror record about you. It is short on purpose. How the data itself is licensed is covered in the [Terms of Use](/terms/).
@@ -10,7 +10,7 @@ OpenPlanetData has no accounts, no advertising, and no third-party analytics or 
 
 - **Hosting.** The website and the download mirror are served by [Cloudflare](https://www.cloudflare.com/privacypolicy/), which processes request data (IP address, user agent, requested URL) to deliver and protect the service, under its own privacy policy.
 - **Dataset builds.** The pipelines that build the datasets run on servers provided by [Ipregistry](https://ipregistry.co). They process only public map data and upload the results; they never receive visitor data, and we do not send IP addresses to Ipregistry or anyone else for lookup or enrichment.
-- **Download logs.** Requests to `download.openplanetdata.com` are logged with the file requested, the time, the requesting IP address, and the user agent. We use these logs only to operate the service and to publish the aggregate figures on the [Statistics](/statistics/) page, which never identify anyone.
+- **Download logs.** Downloads from `download.openplanetdata.com` are logged with the file requested, the time, the requesting IP address, the user agent, whether the whole file or only a byte range was requested and its size, and the `client` label a tool may add to the URL to identify itself (for example `?client=my-tool`). We use these logs only to operate the service and to publish the aggregate figures on the [Statistics](/statistics/) page, which never identify anyone.
 - **Page feedback.** The "Was this page helpful?" widget records your vote and the page. If you write a comment it also records the comment, the reason you picked, and the email address you may optionally give so we can reply. To limit abuse we store the country Cloudflare derives from your connection and a salted hash of your IP address, never the address itself. Written comments are emailed to the maintainers; only aggregate counts are published.
 
 ## Cookies and local storage
